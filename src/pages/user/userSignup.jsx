@@ -18,11 +18,7 @@ export default function UserSignup() {
   } = useForm();
 
   const onSubmit = async (data) => {
-    console.log("🔄 Starting signup process...");
-    console.log("📋 Form data:", data);
-
     try {
-      console.log("🔐 Creating user with email and password...");
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         data.email,
@@ -30,9 +26,7 @@ export default function UserSignup() {
       );
 
       const user = userCredential.user;
-      console.log("✅ User created in Auth:", user.uid);
 
-      console.log("💾 Saving user data to Firestore...");
       const userData = {
         fullName: data.username,
         phone: data.phone,
@@ -41,20 +35,14 @@ export default function UserSignup() {
         location: userLocation || null,
         createdAt: new Date(),
       };
-      console.log("📊 User data to save:", userData);
 
       await setDoc(doc(db, "userSignup", user.uid), userData);
 
-      console.log("✅ User signed up and saved to Firestore:", user.uid);
       alert("Account created successfully! Welcome to LineLess!");
 
       // Navigate to a dashboard or home page instead of login
       // navigate("/user/dashboard"); // Uncomment when you have a dashboard
     } catch (error) {
-      console.error("❌ Detailed error:", error);
-      console.error("❌ Error code:", error.code);
-      console.error("❌ Error message:", error.message);
-
       // More specific error messages
       let errorMessage = "Signup failed: ";
       if (error.code === "auth/email-already-in-use") {
@@ -88,10 +76,8 @@ export default function UserSignup() {
           };
           setUserLocation(locationData);
           setLocationLoading(false);
-          console.log("Location captured:", locationData);
         },
         (error) => {
-          console.error("Error getting location:", error);
           setLocationLoading(false);
           alert(`Location error: ${error.message}`);
         },
@@ -108,16 +94,11 @@ export default function UserSignup() {
   };
 
   const handleGoogleSignup = async () => {
-    // TODO: Implement Google authentication
-    // console.log("Google signup clicked");
-    // You can integrate with Firebase Auth, Google OAuth, or any other service
-
     try {
-      const result = await signInWithPopup(auth, googleProvider);
-      console.log("User signed in:", result.user);
+      await signInWithPopup(auth, googleProvider);
       // You can save user data to Firestore here if needed
     } catch (error) {
-      console.error("Google sign-in error:", error.message);
+      alert(`Google sign-in error: ${error.message}`);
     }
   };
 

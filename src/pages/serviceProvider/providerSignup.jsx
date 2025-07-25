@@ -19,9 +19,6 @@ export default function ProviderSignup() {
   } = useForm();
 
   const onSubmit = async (data) => {
-    console.log("🔄 Starting provider signup process...");
-    console.log("📋 Form data received:", data);
-
     // Validate required fields
     if (!data.businessName) {
       alert("Business name is required!");
@@ -41,10 +38,6 @@ export default function ProviderSignup() {
     }
 
     try {
-      console.log("🔐 Attempting to create user with Firebase Auth...");
-      console.log("📧 Email:", data.email);
-      console.log("🔑 Password length:", data.password.length);
-
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         data.email,
@@ -52,11 +45,7 @@ export default function ProviderSignup() {
       );
 
       const user = userCredential.user;
-      console.log("✅ Firebase Auth user created successfully!");
-      console.log("👤 User ID:", user.uid);
-      console.log("📧 User email:", user.email);
 
-      console.log("💾 Preparing data for Firestore...");
       const userData = {
         businessName: data.businessName,
         email: data.email,
@@ -66,24 +55,14 @@ export default function ProviderSignup() {
         createdAt: new Date(),
         userType: "provider", // Add user type for identification
       };
-      console.log("📊 Complete user data to save:", userData);
 
-      console.log("🔥 Saving to Firestore collection 'providerSignup'...");
       await setDoc(doc(db, "providerSignup", user.uid), userData);
-      console.log("✅ Data successfully saved to Firestore!");
 
-      console.log("🎉 Provider signup completed successfully!");
       alert("Provider account created successfully! Welcome to LineLess!");
 
       // Navigate to a dashboard or home page instead of login
       // navigate("/provider/dashboard"); // Uncomment when you have a dashboard
     } catch (error) {
-      console.error("❌ SIGNUP FAILED - Full error object:", error);
-      console.error("❌ Error name:", error.name);
-      console.error("❌ Error code:", error.code);
-      console.error("❌ Error message:", error.message);
-      console.error("❌ Error stack:", error.stack);
-
       // More specific error messages
       let errorMessage = "Provider signup failed: ";
       if (error.code === "auth/email-already-in-use") {
@@ -122,11 +101,8 @@ export default function ProviderSignup() {
           };
           setUserLocation(locationData);
           setLocationLoading(false);
-          console.log("Location captured:", locationData);
-          //   alert("Location captured successfully!");
         },
         (error) => {
-          console.error("Error getting location:", error);
           setLocationLoading(false);
           alert(`Location error: ${error.message}`);
         },
@@ -143,16 +119,11 @@ export default function ProviderSignup() {
   };
 
   const handleGoogleSignup = async () => {
-    // TODO: Implement Google authentication
-    // console.log("Google signup clicked");
-    // You can integrate with Firebase Auth, Google OAuth, or any other service
-
     try {
-      const result = await signInWithPopup(auth, googleProvider);
-      console.log("User signed in:", result.user);
+      await signInWithPopup(auth, googleProvider);
       // You can save user data to Firestore here if needed
     } catch (error) {
-      console.error("Google sign-in error:", error.message);
+      alert(`Google sign-in error: ${error.message}`);
     }
   };
 

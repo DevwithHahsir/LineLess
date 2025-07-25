@@ -13,28 +13,14 @@ export default function ProviderLogin() {
   } = useForm();
 
   const onSubmit = async (data) => {
-    console.log("🔄 Starting provider login process...");
-    console.log("📋 Login data:", data);
-
     try {
-      console.log("🔐 Signing in with email and password...");
-      const userCredential = await signInWithEmailAndPassword(
-        auth,
-        data.email,
-        data.password
-      );
+      await signInWithEmailAndPassword(auth, data.email, data.password);
 
-      const user = userCredential.user;
-      console.log("✅ Provider logged in successfully:", user.uid);
       alert("Login successful! Welcome back to your provider dashboard!");
 
       // Navigate to provider dashboard when available
       // navigate("/provider/dashboard");
     } catch (error) {
-      console.error("❌ Login failed:", error);
-      console.error("❌ Error code:", error.code);
-      console.error("❌ Error message:", error.message);
-
       let errorMessage = "Login failed: ";
       if (error.code === "auth/user-not-found") {
         errorMessage +=

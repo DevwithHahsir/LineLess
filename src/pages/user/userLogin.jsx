@@ -13,28 +13,14 @@ export default function UserLogin() {
   } = useForm();
 
   const onSubmit = async (data) => {
-    console.log("🔄 Starting user login process...");
-    console.log("📋 Login data:", data);
-
     try {
-      console.log("🔐 Signing in with email and password...");
-      const userCredential = await signInWithEmailAndPassword(
-        auth,
-        data.email,
-        data.password
-      );
+      await signInWithEmailAndPassword(auth, data.email, data.password);
 
-      const user = userCredential.user;
-      console.log("✅ User logged in successfully:", user.uid);
       alert("Login successful! Welcome back!");
 
       // Navigate to user dashboard when available
       // navigate("/user/dashboard");
     } catch (error) {
-      console.error("❌ Login failed:", error);
-      console.error("❌ Error code:", error.code);
-      console.error("❌ Error message:", error.message);
-
       let errorMessage = "Login failed: ";
       if (error.code === "auth/user-not-found") {
         errorMessage +=
@@ -57,15 +43,12 @@ export default function UserLogin() {
 
   const handleGoogleLogin = async () => {
     try {
-      console.log("🔐 Signing in with Google...");
-      const result = await signInWithPopup(auth, googleProvider);
-      console.log("✅ Google login successful:", result.user.uid);
+      await signInWithPopup(auth, googleProvider);
       alert("Google login successful! Welcome back!");
 
       // Navigate to user dashboard when available
       // navigate("/user/dashboard");
     } catch (error) {
-      console.error("❌ Google login failed:", error.message);
       alert(`Google login failed: ${error.message}`);
     }
   };
