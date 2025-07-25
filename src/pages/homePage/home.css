@@ -1,0 +1,175 @@
+/* Reset default margins and padding */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body, html {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    overflow-x: hidden;
+}
+
+/* Main Page Styles */
+.main-page-container {
+    width: 100vw;
+    margin: 0;
+    padding: 20px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #046307 0%, #FBFFE4 100%);
+    font-family: 'Arial', sans-serif;
+    position: relative;
+    left: 0;
+    top: 0;
+}
+
+.welcome-section {
+    text-align: center;
+    margin-bottom: 60px;
+    color: white;
+}
+
+.welcome-title {
+    font-size: 3rem;
+    font-weight: bold;
+    margin-bottom: 20px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.welcome-subtitle {
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+    opacity: 0.9;
+}
+
+.welcome-description {
+    font-size: 1rem;
+    opacity: 0.8;
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.6;
+}
+
+.user-type-selection {
+    display: flex;
+    gap: 40px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.user-type-card {
+    background: white;
+    border-radius: 15px;
+    padding: 40px 30px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    min-width: 280px;
+    max-width: 350px;
+    border: 3px solid transparent;
+}
+
+.user-type-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    border-color: #667eea;
+}
+
+.card-icon {
+    font-size: 4rem;
+    margin-bottom: 20px;
+    display: block;
+}
+
+.client-card .card-icon {
+    color: #4CAF50;
+}
+
+.provider-card .card-icon {
+    color: #FF9800;
+}
+
+.card-title {
+    font-size: 1.8vw;
+    font-weight: bold;
+    margin-bottom: 15px;
+    color: #333;
+}
+
+.card-description {
+    font-size: 1rem;
+    color: #666;
+    margin-bottom: 25px;
+    line-height: 1.5;
+}
+
+.signup-button {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.signup-button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.client-card .signup-button {
+    background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+}
+
+.provider-card .signup-button {
+    background: linear-gradient(135deg, #FF9800 0%, #f57c00 100%);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .welcome-title {
+        font-size: 2.5rem;
+    }
+
+    .user-type-selection {
+        gap: 20px;
+    }
+
+    .user-type-card {
+        min-width: 250px;
+        padding: 30px 20px;
+    }
+
+    .card-title {
+        font-size: 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .welcome-title {
+        font-size: 2rem;
+    }
+
+    .user-type-card {
+        min-width: 200px;
+        padding: 25px 15px;
+    }
+
+    .card-icon {
+        font-size: 3rem;
+    }
+}
