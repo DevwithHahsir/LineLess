@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
 import "./userSignup.css";
 import { createUserWithEmailAndPassword, signInWithPopup } from "firebase/auth";
 import { googleProvider } from "../../firebaseConfig/firebase";
@@ -10,6 +11,7 @@ import { db } from "../../firebaseConfig/firebase";
 export default function UserSignup() {
   const [userLocation, setUserLocation] = useState(null);
   const [locationLoading, setLocationLoading] = useState(false);
+  const navigate = useNavigate();
 
   const {
     register,
@@ -40,8 +42,8 @@ export default function UserSignup() {
 
       alert("Account created successfully! Welcome to LineLess!");
 
-      // Navigate to a dashboard or home page instead of login
-      // navigate("/user/dashboard"); // Uncomment when you have a dashboard
+      // Navigate to client dashboard
+      navigate("/client/clientdashboard");
     } catch (error) {
       // More specific error messages
       let errorMessage = "Signup failed: ";
@@ -95,9 +97,15 @@ export default function UserSignup() {
 
   const handleGoogleSignup = async () => {
     try {
-      await signInWithPopup(auth, googleProvider);
-      // You can save user data to Firestore here if needed
+      // Use popup with proper error handling
+      const result = await signInWithPopup(auth, googleProvider);
+      console.log("Google signup successful", result);
+      alert("Google signup successful! Welcome to LineLess!");
+
+      // Navigate to client dashboard
+      navigate("/client/clientdashboard");
     } catch (error) {
+      console.error("Google signup error:", error);
       alert(`Google sign-in error: ${error.message}`);
     }
   };

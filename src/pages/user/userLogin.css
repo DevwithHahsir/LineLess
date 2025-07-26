@@ -12,11 +12,20 @@ body, html {
     overflow-x: hidden;
 }
 
+/* Remove any orange colors from all elements */
+input, button, form, div, span {
+    border-color: #ddd !important;
+}
+
+input:focus, button:focus {
+    border-color: #8B7D6B !important;
+}
+
 /* Main container */
 .form-main-container {
     width: 100vw;
     min-height: 100vh;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #EBE5C2 0%, #F8F3D9 100%) !important;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -39,11 +48,11 @@ form {
 h2 {
     font-size: 1.8rem;
     font-weight: 600;
-    color: #333;
+    color: #504B38;
     text-align: center;
     margin-bottom: 25px;
     padding-bottom: 12px;
-    border-bottom: 2px solid #667eea;
+    border-bottom: 2px solid #8B7D6B;
 }
 
 /* Google Authentication Styles */
@@ -54,7 +63,7 @@ h2 {
 .google-signin-btn {
     width: 100%;
     padding: 12px 15px;
-    border: 1.5px solid #ddd;
+    border: 1.5px solid #ddd !important;
     border-radius: 8px;
     background: white;
     color: #333;
@@ -73,7 +82,7 @@ h2 {
 
 .google-signin-btn:hover {
     background: #f8f9fa;
-    border-color: #4285F4;
+    border-color: #4285F4 !important;
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(66, 133, 244, 0.15);
 }
@@ -104,7 +113,7 @@ h2 {
 .divider span {
     background: white;
     padding: 0 15px;
-    color: #666;
+    color: #504B38;
     font-size: 0.9rem;
     font-weight: 500;
 }
@@ -119,7 +128,7 @@ label {
     display: block;
     font-size: 0.95rem;
     font-weight: 500;
-    color: #555;
+    color: #504B38;
     margin-bottom: 6px;
     text-transform: capitalize;
     letter-spacing: 0.3px;
@@ -130,7 +139,7 @@ input[type="email"],
 input[type="password"] {
     width: 100%;
     padding: 12px 15px;
-    border: 1.5px solid #ddd;
+    border: 1.5px solid #ddd !important;
     border-radius: 8px;
     font-size: 0.95rem;
     transition: all 0.3s ease;
@@ -140,10 +149,10 @@ input[type="password"] {
 
 input[type="email"]:focus,
 input[type="password"]:focus {
-    border-color: #667eea;
+    border-color: #8B7D6B !important;
     background: white;
     transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.15);
+    box-shadow: 0 8px 20px rgba(139, 125, 107, 0.15);
 }
 
 input[type="email"]::placeholder,
@@ -179,7 +188,7 @@ button {
 
 /* Submit button */
 button[type="submit"] {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #8B7D6B 0%, #A0926D 100%);
     color: white;
     font-size: 1.05rem;
     padding: 14px 18px;
@@ -188,14 +197,14 @@ button[type="submit"] {
 
 button[type="submit"]:hover {
     transform: translateY(-3px);
-    box-shadow: 0 15px 30px rgba(102, 126, 234, 0.4);
-    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+    box-shadow: 0 15px 30px rgba(139, 125, 107, 0.4);
+    background: linear-gradient(135deg, #A0926D 0%, #8B7D6B 100%);
 }
 
 /* Button focus states */
 button:focus {
     outline: none;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.3);
+    box-shadow: 0 0 0 3px rgba(139, 125, 107, 0.3);
 }
 
 /* Login Link Styles */
@@ -207,7 +216,7 @@ button:focus {
 }
 
 .login-link span {
-    color: #666;
+    color: #504B38;
     font-size: 0.9rem;
     margin: 0;
     padding: 0;
@@ -215,7 +224,7 @@ button:focus {
 }
 
 .login-link-text {
-    color: #667eea;
+    color: #8B7D6B;
     text-decoration: none;
     font-weight: 600;
     font-size: 0.9rem;
@@ -223,7 +232,7 @@ button:focus {
 }
 
 .login-link-text:hover {
-    color: #764ba2;
+    color: #A0926D;
     text-decoration: underline;
 }
 

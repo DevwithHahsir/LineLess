@@ -1,11 +1,18 @@
 import React from "react";
 import { useForm } from "react-hook-form";
-import { signInWithEmailAndPassword, signInWithPopup } from "firebase/auth";
+import { useNavigate } from "react-router-dom";
+import {
+  signInWithEmailAndPassword,
+  signInWithPopup,
+  sendPasswordResetEmail,
+} from "firebase/auth";
 import { googleProvider } from "../../firebaseConfig/firebase";
 import { auth } from "../../firebaseConfig/firebase";
 import "./userLogin.css";
 
 export default function UserLogin() {
+  const navigate = useNavigate();
+
   const {
     register,
     handleSubmit,
@@ -18,8 +25,8 @@ export default function UserLogin() {
 
       alert("Login successful! Welcome back!");
 
-      // Navigate to user dashboard when available
-      // navigate("/user/dashboard");
+      // Navigate to client dashboard
+      navigate("/client/clientdashboard");
     } catch (error) {
       let errorMessage = "Login failed: ";
       if (error.code === "auth/user-not-found") {
@@ -41,14 +48,65 @@ export default function UserLogin() {
     }
   };
 
+  const handleForgotPassword = async () => {
+    const email = prompt(
+      "Please enter your email address to reset your password:"
+    );
+
+    if (!email) {
+      return;
+    }
+
+    if (!/^\S+@\S+$/i.test(email)) {
+      alert("Please enter a valid email address.");
+      return;
+    }
+
+    try {
+      // Configure action code settings for password reset
+      const actionCodeSettings = {
+        url: window.location.origin + "/user/login", // URL to redirect back to after reset
+        handleCodeInApp: false, // This must be false for email link
+      };
+
+      await sendPasswordResetEmail(auth, email, actionCodeSettings);
+      alert(
+        "Password reset email sent successfully! Please check your inbox (including spam/junk folder) and follow the instructions to reset your password. The email may take a few minutes to arrive."
+      );
+    } catch (error) {
+      let errorMessage = "Failed to send password reset email: ";
+      if (error.code === "auth/user-not-found") {
+        errorMessage +=
+          "No account found with this email address. Please check your email or sign up for a new account.";
+      } else if (error.code === "auth/invalid-email") {
+        errorMessage += "Invalid email address format.";
+      } else if (error.code === "auth/too-many-requests") {
+        errorMessage +=
+          "Too many requests. Please wait a few minutes before trying again.";
+      } else if (error.code === "auth/network-request-failed") {
+        errorMessage +=
+          "Network error. Please check your internet connection and try again.";
+      } else if (error.code === "auth/operation-not-allowed") {
+        errorMessage +=
+          "Password reset is not enabled. Please contact support.";
+      } else {
+        errorMessage += error.message;
+      }
+      alert(errorMessage);
+    }
+  };
+
   const handleGoogleLogin = async () => {
     try {
-      await signInWithPopup(auth, googleProvider);
+      // Use popup with custom settings to avoid COOP issues
+      const result = await signInWithPopup(auth, googleProvider);
+      console.log("Google login successful", result);
       alert("Google login successful! Welcome back!");
 
-      // Navigate to user dashboard when available
-      // navigate("/user/dashboard");
+      // Navigate to client dashboard
+      navigate("/client/clientdashboard");
     } catch (error) {
+      console.error("Google login error:", error);
       alert(`Google login failed: ${error.message}`);
     }
   };
@@ -129,6 +187,16 @@ export default function UserLogin() {
 
           <div>
             <button type="submit">Login</button>
+          </div>
+
+          <div className="forgot-password">
+            <button
+              type="button"
+              onClick={handleForgotPassword}
+              className="forgot-password-link"
+            >
+              Forgot Password?
+            </button>
           </div>
 
           <div className="login-link">

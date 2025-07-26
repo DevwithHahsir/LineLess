@@ -1,5 +1,6 @@
 import React from "react";
 import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
 import "./providerSignup.css";
 import { useState } from "react";
 import { createUserWithEmailAndPassword, signInWithPopup } from "firebase/auth";
@@ -11,6 +12,7 @@ import { db } from "../../firebaseConfig/firebase";
 export default function ProviderSignup() {
   const [userLocation, setUserLocation] = useState(null);
   const [locationLoading, setLocationLoading] = useState(false);
+  const navigate = useNavigate();
 
   const {
     register,
@@ -60,8 +62,8 @@ export default function ProviderSignup() {
 
       alert("Provider account created successfully! Welcome to LineLess!");
 
-      // Navigate to a dashboard or home page instead of login
-      // navigate("/provider/dashboard"); // Uncomment when you have a dashboard
+      // Navigate to service provider dashboard
+      navigate("/service/Servicedashboard");
     } catch (error) {
       // More specific error messages
       let errorMessage = "Provider signup failed: ";
@@ -120,9 +122,15 @@ export default function ProviderSignup() {
 
   const handleGoogleSignup = async () => {
     try {
-      await signInWithPopup(auth, googleProvider);
-      // You can save user data to Firestore here if needed
+      // Use popup with proper error handling
+      const result = await signInWithPopup(auth, googleProvider);
+      console.log("Google signup successful", result);
+      alert("Google signup successful! Welcome to LineLess!");
+
+      // Navigate to service provider dashboard
+      navigate("/service/Servicedashboard");
     } catch (error) {
+      console.error("Google signup error:", error);
       alert(`Google sign-in error: ${error.message}`);
     }
   };
@@ -392,7 +400,7 @@ export default function ProviderSignup() {
 
             <div className="login-link">
               <span>Have an account already? </span>
-              <a href="/serviceProvider/login" className="login-link-text">
+              <a href="/provider/login" className="login-link-text">
                 Login
               </a>
             </div>

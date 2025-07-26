@@ -184,6 +184,36 @@
     text-decoration: underline;
 }
 
+/* Forgot Password Styles */
+.forgot-password {
+    text-align: center;
+    margin-top: 15px;
+    margin-bottom: 5px;
+}
+
+.forgot-password-link {
+    background: none;
+    border: none;
+    color: #ff9800;
+    font-size: 14px;
+    text-decoration: underline;
+    cursor: pointer;
+    padding: 5px;
+    transition: all 0.3s ease;
+    font-family: inherit;
+}
+
+.forgot-password-link:hover {
+    color: #e65100;
+    text-decoration: none;
+}
+
+.forgot-password-link:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(255, 152, 0, 0.3);
+    border-radius: 3px;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .form-main-container {
