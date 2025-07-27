@@ -16,8 +16,9 @@ body, html {
 .form-main-container {
     width: 100vw;
     min-height: 100vh;
-    background: linear-gradient(135deg, #EBE5C2 0%, #F8F3D9 100%) !important;
+   
     display: flex;
+/* background-color: #117a8b !important; */
     align-items: center;
     justify-content: center;
     padding: 20px;

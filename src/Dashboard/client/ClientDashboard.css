@@ -1,10 +1,11 @@
 /* ClientDashboard.css */
 .client-dashboard {
     width: 100vw;
-    /* border: 10px solid white; */
+   
     min-height: calc(100vh - 70px);
-    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    
     padding: 0;
+   
     margin: 0;
 }
 
@@ -13,25 +14,31 @@
   *//*max-width: 1200px;
   */margin: 0 auto;
   padding: 40px 20px;
+  background-color: #EEEEEE !important;
   width: 100%;
-  border-radius: 7px 7px 0px 0px;
-  background-color:#EEEFE0;
-  -webkit-border-radius: 7px 7px 0px 0px;
-  -moz-border-radius: 7px 7px 0px 0px;
-  -ms-border-radius: 7px 7px 0px 0px;
-  -o-border-radius: 7px 7px 0px 0px;
+  border-radius: 0px 0px 0px 0px;
+
+  -webkit-border-radius: 0px 0px 0px 0px;
+  -moz-border-radius: 0px 0px 0px 0px;
+  -ms-border-radius: 0px 0px 0px 0px;
+  -o-border-radius: 0px 0px 0px 0px;
 }
 
 .dashboard-header {
     text-align: center;
-    margin-bottom: 40px;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    /* border: 1px solid; */
 }
 
 .dashboard-title {
-    font-size: 2.5rem;
+    font-size: 5rem;
+    margin-top: 5rem;
     color: #2c3e50;
     margin-bottom: 10px;
     font-weight: 700;
+    font-family: 'Times New Roman', Times, serif;
 }
 
 .dashboard-subtitle {
@@ -39,6 +46,7 @@
     color: #7f8c8d;
     margin-bottom: 30px;
     font-weight: 400;
+    font-family: 'Times New Roman', Times, serif;
 }
 
 .dashboard-content {
@@ -55,10 +63,12 @@
 
 .location-header {
     font-size: 1.8rem;
-    color: #34495e;
+    font-family: 'Times New Roman', Times, serif;
+    color: #34495e !important;
     margin-bottom: 20px;
     /* border-bottom: 3px solid #3498db; */
     padding-bottom: 10px;
+    /* border: 1px solid; */
 }
 
 .user-info {

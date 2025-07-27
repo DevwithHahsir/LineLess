@@ -364,10 +364,10 @@ export default function ProviderSignup() {
                 })}
               >
                 <option value="">Select a service</option>
-                <option value="plumbing">Plumbing</option>
-                <option value="electrical">Electrical</option>
-                <option value="cleaning">Cleaning</option>
-                <option value="maintenance">Maintenance</option>
+                <option value="plumbing">Saloon</option>
+                <option value="electrical">Clinic</option>
+                <option value="cleaning">Bank</option>
+                <option value="maintenance">Mechanic</option>
                 <option value="other">Other</option>
               </select>
               {errors.serviceType && <span>{errors.serviceType.message}</span>}

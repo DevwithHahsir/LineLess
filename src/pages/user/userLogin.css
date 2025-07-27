@@ -25,12 +25,13 @@ input:focus, button:focus {
 .form-main-container {
     width: 100vw;
     min-height: 100vh;
-    background: linear-gradient(135deg, #EBE5C2 0%, #F8F3D9 100%) !important;
+    background: linear-gradient(135deg, #EEEEEE 0%,#EEEEEE 100%) !important;
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 20px;
     font-family: 'Arial', sans-serif;
+    background-color:  #252525 !important;
 }
 
 /* Form styling */
@@ -42,6 +43,7 @@ form {
     max-width: 450px;
     width: 100%;
     position: relative;
+    font-family: 'Times New Roman', Times, serif;
 }
 
 /* Form title */

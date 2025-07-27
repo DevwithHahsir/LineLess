@@ -1,15 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { auth } from "../../firebaseConfig/firebase";
+import "bootstrap/dist/css/bootstrap.min.css";
 import "./Navbar.css";
 
-function Navbar() {
+function Navbar({ isProvider = false }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  // eslint-disable-next-line no-unused-vars
-  const navigate = useNavigate();
   const location = useLocation();
 
   useEffect(() => {
@@ -17,7 +16,6 @@ function Navbar() {
       setUser(currentUser);
       setLoading(false);
     });
-
     return () => unsubscribe();
   }, []);
 
@@ -25,7 +23,6 @@ function Navbar() {
     try {
       await signOut(auth);
       setUser(null);
-    //   navigate("/");
     } catch (error) {
       console.error("Error signing out:", error);
     }
@@ -39,109 +36,112 @@ function Navbar() {
     setIsMenuOpen(false);
   };
 
-  const isActive = (path) => {
-    return location.pathname === path;
-  };
+  const isActive = (path) => location.pathname === path;
 
   return (
-    <nav className="navbar">
-
-      <div className="navbar-container">
-
-
-        <div className="nav-logo-container">
-
-        <Link to="/" className="navbar-logo" onClick={closeMenu}>
+    <nav className="navbar navbar-expand-lg bg-dark px-3">
+      <div className="container-fluid">
+        <Link to="/" className="navbar-brand" onClick={closeMenu}>
           LineLess
         </Link>
 
-        </div>
+        <button
+          className="navbar-toggler"
+          type="button"
+          onClick={toggleMenu}
+          aria-controls="navbarNav"
+          aria-expanded={isMenuOpen}
+          aria-label="Toggle navigation"
+        >
+          <span className="navbar-toggler-icon" />
+        </button>
 
+        <div
+          className={`collapse navbar-collapse ${isMenuOpen ? "show" : ""}`}
+          id="navbarNav"
+        >
+          <ul className="navbar-nav me-auto mb-2 mb-lg-0">
+            <li className="nav-item">
+              <Link
+                to="/"
+                className={`nav-link ${isActive("/") ? "active" : ""}`}
+                onClick={closeMenu}
+              >
+                Home
+              </Link>
+            </li>
 
-
-        <div className={`navbar-menu ${isMenuOpen ? "active" : ""}`}>
-          <div className="navbar-nav">
-            <Link
-              to="/"
-              className={`navbar-link ${isActive("/") ? "active" : ""}`}
-              onClick={closeMenu}
-            >
-              Home
-            </Link>
-
-            <Link
-              to="/map-test"
-              className={`navbar-link ${isActive("/map-test") ? "active" : ""}`}
-              onClick={closeMenu}
-            >
-              Map
-            </Link>
+            <li className="nav-item">
+              <Link
+                to="/map-test"
+                className={`nav-link ${isActive("/map-test") ? "active" : ""}`}
+                onClick={closeMenu}
+              >
+                Map
+              </Link>
+            </li>
 
             {user && (
-              <>
+              <li className="nav-item">
                 <Link
-                  to="/client/clientdashboard"
-                  className={`navbar-link ${
+                  to={
+                    isProvider
+                      ? "/client/clientdashboard"
+                      : "/client/clientdashboard"
+                  }
+                  className={`nav-link ${
                     isActive("/client/clientdashboard") ? "active" : ""
                   }`}
                   onClick={closeMenu}
                 >
-                  Dashboard
+                  {isProvider ? "Client" : "Dashboard"}
                 </Link>
-              </>
+              </li>
             )}
-          </div>
-          </div>
+          </ul>
 
-          <div className="navbar-auth">
+          <div className="d-flex align-items-center">
             {loading ? (
-              <div className="navbar-loading">Loading...</div>
+              <span className="text-white me-3">Loading...</span>
             ) : user ? (
-              <div className="navbar-user">
-                <div className="user-info">
-                  <span className="user-email">{user.email}</span>
-                </div>
-                <div className="user-actions">
-                  <button
-                    onClick={handleLogout}
-                    className="navbar-button logout-btn"
-                  >
-                    Logout
-                  </button>
-                </div>
-              </div>
+              <>
+                <span className="text-white me-3">
+                  {isProvider ? "" : ""}
+                  {user.email}
+                </span>
+                <button
+                  onClick={handleLogout}
+                  className="btn btn-outline-light btn-sm"
+                >
+                  Logout
+                </button>
+              </>
             ) : (
-              <div className="navbar-guest">
+              <>
                 <Link
                   to="/user/login"
-                  className="navbar-button login-btn"
+                  className="btn btn-outline-light btn-sm me-2"
                   onClick={closeMenu}
                 >
                   Sign In
                 </Link>
                 <Link
                   to="/provider/login"
-                  className="navbar-button provider-btn"
+                  className="btn btn-outline-warning btn-sm me-2"
                   onClick={closeMenu}
                 >
                   Service Provider
                 </Link>
                 <Link
                   to="/user/signup"
-                  className="navbar-button signup-btn"
+                  className="btn btn-outline-success btn-sm"
                   onClick={closeMenu}
                 >
                   Sign Up
                 </Link>
-              </div>
+              </>
             )}
           </div>
-        
-
-        <div className="navbar-toggle" onClick={toggleMenu}>
-          <span className="toggle-bar">hello</span>
-          <span className="toggle-bar"></span>
-          <span className="toggle-bar"></span>
         </div>
       </div>
     </nav>

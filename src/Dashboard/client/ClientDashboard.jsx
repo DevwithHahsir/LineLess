@@ -108,8 +108,8 @@ function ClientDashboard() {
     <div className="client-dashboard">
       <div className="dashboard-container">
         <div className="dashboard-header">
-          <h1 className="dashboard-title">User Dashboard</h1>
-          <h2 className="dashboard-subtitle">Welcome to Your Client Portal</h2>
+          <h1 className="dashboard-title">Book Token & Save Time</h1>
+          <h2 className="dashboard-subtitle">Book your Tooken or Appointment remotely and save time!</h2>
         </div>
 
         {loading ? (

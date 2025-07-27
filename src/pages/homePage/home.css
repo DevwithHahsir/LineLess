@@ -23,17 +23,21 @@ body, html {
     align-items: center;
     justify-content: center;
     min-height: 100vh;
-    background: linear-gradient(135deg, #B9B28A 0%, #F8F3D9 100%);
+    background-color: #252525;
+    /* background: linear-gradient(135deg, #252525 10%, #F8F3D9 100%); */
     font-family: 'Arial', sans-serif;
     position: relative;
     left: 0;
     top: 0;
+    
 }
 
 .welcome-section {
     text-align: center;
     margin-bottom: 60px;
-    color: #504B38;
+    /* color: #504B38; */
+    color: #F1F1F1;
+    /* color: #; */
     font-family: 'Times New Roman', Times, serif;
 }
 
