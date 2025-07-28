@@ -1,17 +1,19 @@
 import React from "react";
 import Navbar from "../../componenets/navbar/Navbar";
 import { useEffect, useState } from "react";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, collection, getDocs } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth, db } from "../../firebaseConfig/firebase"; // make sure this path is correct
 import MapView from "../../map/MapView";
 import "./ClientDashboard.css";
-
+import ListServices from "../../componenets/listServices/ListServices";
 
 function ClientDashboard() {
   const [location, setLocation] = useState({ lat: null, lng: null });
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [businesses, setBusinesses] = useState([]);
+  const [businessesLoading, setBusinessesLoading] = useState(true);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -72,6 +74,42 @@ function ClientDashboard() {
     }
   }, [user, loading]);
 
+  // Fetch business locations from Firebase
+  useEffect(() => {
+    const fetchBusinessLocations = async () => {
+      try {
+        setBusinessesLoading(true);
+        console.log("Fetching business locations...");
+
+        const querySnapshot = await getDocs(
+          collection(db, "BusinessProviderForm")
+        );
+        const businessList = [];
+
+        querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          console.log("Business data:", data); // Debug log
+
+          // Check if business has location data
+          if (data.latitude && data.longitude) {
+            businessList.push({
+              id: doc.id,
+              ...data,
+            });
+          }
+        });
+
+        console.log("Fetched businesses for map:", businessList);
+        setBusinesses(businessList);
+      } catch (error) {
+        console.error("Error fetching business locations:", error);
+      } finally {
+        setBusinessesLoading(false);
+      }
+    };
+
+    fetchBusinessLocations();
+  }, []);
 
   const getCurrentLocation = () => {
     if (navigator.geolocation) {
@@ -98,49 +136,94 @@ function ClientDashboard() {
   };
 
   return (
-
-
     <>
-
-    <div className="navbar-container">
-        <Navbar/>
-    </div>
-    <div className="client-dashboard">
-      <div className="dashboard-container">
-        <div className="dashboard-header">
-          <h1 className="dashboard-title">Book Token & Save Time</h1>
-          <h2 className="dashboard-subtitle">Book your Tooken or Appointment remotely and save time!</h2>
-        </div>
-
-        {loading ? (
-          <div className="loading-container">
-            <p className="loading-text">Loading user data...</p>
-          </div>
-        ) : (
-          <div className="dashboard-content">
-            <div className="location-section">
-              <h3 className="location-header">Your Location</h3>
-              
-              {location && location.lat && location.lng ? (
-                <div>
-                 
-                  <div className="map-container">
-                    <MapView lat={location.lat} lng={location.lng} />
-                  </div>
-                </div>
-              ) : (
-                <div className="no-location">
-                  <p>
-                    No location data available. Please update your location in
-                    your profile. <button  onClick={getCurrentLocation} className="locationButton"> Get Location</button>
-                  </p>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
+      <div className="navbar-container">
+        <Navbar />
       </div>
-    </div>
+      <div className="client-dashboard">
+        <div className="dashboard-container">
+          <div className="dashboard-header">
+            <h1 className="dashboard-title">Book Token & Save Time</h1>
+            <h2 className="dashboard-subtitle">
+              Book your Token or Appointment remotely and save time!
+            </h2>
+          </div>
+
+          {loading ? (
+            <div className="loading-container">
+              <p className="loading-text">Loading user data...</p>
+            </div>
+          ) : (
+            <div className="dashboard-content">
+              <div className="location-section">
+                <h3 className="location-header">
+                  Your Location & Nearby Services
+                </h3>
+
+                {location && location.lat && location.lng ? (
+                  <>
+                    <div>
+                      <div className="map-container">
+                        {businessesLoading ? (
+                          <div
+                            style={{
+                              height: "400px",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              border: "1px solid #ccc",
+                              borderRadius: "8px",
+                              backgroundColor: "#f8f9fa",
+                            }}
+                          >
+                            <p>Loading nearby services...</p>
+                          </div>
+                        ) : (
+                          <MapView
+                            lat={location.lat}
+                            lng={location.lng}
+                            businesses={businesses}
+                          />
+                        )}
+                      </div>
+                    </div>
+                    <div
+                      style={{
+                        marginTop: "10px",
+                        fontSize: "14px",
+                        color: "#666",
+                      }}
+                    >
+                      <p>
+                        📍 Your location | 🏢 Service providers (
+                        {businesses.length} found)
+                      </p>
+                    </div>
+                  </>
+                ) : (
+                  <div className="no-location">
+                    <p>
+                      No location data available. Please update your location in
+                      your profile.
+                      <button
+                        onClick={getCurrentLocation}
+                        className="locationButton"
+                      >
+                        Get Location
+                      </button>
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* SERVICES LIST */}
+          <div className="services-list-container">
+            <ListServices />
+          </div>
+        </div>
+      </div>
     </>
   );
 }

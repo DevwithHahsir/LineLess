@@ -1,0 +1,292 @@
+.services-container {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    gap: 1rem;
+
+}
+
+.category-card {
+    background-color: #2c3e5031;
+    backdrop-filter: blur(10px);
+    border: 1px solid #e3f2fd !important;
+    border-radius: 12px;
+    padding: 16px;
+    width: 25rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+    font-family: sans-serif;
+    position: relative;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    user-select: none;
+}
+
+.category-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+}
+
+.category-card.expanded {
+    border-color: #007bff !important;
+    box-shadow: 0 8px 20px rgba(0, 123, 255, 0.15);
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.icon-box {
+    background-color: #e9f6ff;
+    padding: 10px;
+    border-radius: 10px;
+}
+
+.icon {
+    color: #25f825;
+    font-size: 24px;
+}
+
+/* Different icon colors for each business type */
+.category-card[data-type="bank"] .icon-box {
+    background-color: #e3f2fd !important;
+}
+
+.category-card[data-type="bank"] .icon {
+    color: #1976d2;
+    /* Blue for banks */
+}
+
+.category-card[data-type="salon"] .icon-box {
+    background-color: #fce4ec;
+}
+
+.category-card[data-type="salon"] .icon {
+    color: #e91e63;
+    /* Pink for salons */
+}
+
+.category-card[data-type="clinic"] .icon-box {
+    background-color: #e8f5e8;
+}
+
+.category-card[data-type="clinic"] .icon {
+    color: #4caf50;
+    /* Green for clinics */
+}
+
+.category-card[data-type="government"] .icon-box {
+    background-color: #fff3e0;
+}
+
+.category-card[data-type="government"] .icon {
+    color: #ff9800;
+    /* Orange for government */
+}
+
+.category-card[data-type="other"] .icon-box {
+    background-color: #f3e5f5;
+}
+
+.category-card[data-type="other"] .icon {
+    color: #9c27b0;
+    /* Purple for other services */
+}
+
+.active-badge {
+    background-color: #04d97f;
+    color: white;
+    padding: 4px 10px;
+    border-radius: 15px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.category-title {
+    margin-top: 12px;
+    margin-bottom: 4px;
+    font-size: 18px;
+    color: #002a6c;
+    font-family: 'Times New Roman', Times, serif;
+    font-weight: bolder;
+}
+
+.category-description {
+    font-size: 14px;
+    color: #4b4b4b;
+    margin-bottom: 16px;
+}
+
+/* Business location styles */
+.business-locations {
+    /* border: 1px solid black !important; */
+    margin: 16px 0;
+}
+
+.business-item {
+    margin-bottom: 12px;
+    padding: 12px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    background-color: #fafafa;
+}
+
+.business-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.business-name {
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+    margin: 0;
+}
+
+.queue-count {
+    background-color: #ff6b6b;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.business-location {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin: 8px 0;
+}
+
+.location-icon {
+    color: #007bff;
+    margin-top: 2px;
+    flex-shrink: 0;
+}
+
+.location-text {
+    font-size: 14px;
+    color: #555;
+    line-height: 1.4;
+    word-wrap: break-word;
+}
+
+.business-coordinates {
+    margin-top: 4px;
+    padding-left: 20px;
+}
+
+.coordinates-text {
+    font-size: 12px;
+    color: #888;
+    font-style: italic;
+}
+
+.business-city {
+    margin-top: 4px;
+    padding-left: 20px;
+}
+
+.business-city span {
+    font-size: 13px;
+    color: #666;
+    font-weight: 500;
+}
+
+/* Additional business info styles */
+.business-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 6px 0;
+    font-size: 13px;
+}
+
+.info-label {
+    color: #666;
+    font-weight: 500;
+    min-width: 80px;
+}
+
+.info-value {
+    color: #333;
+    flex: 1;
+}
+
+/* Appointment section styles */
+.appointment-section {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid #e0e0e0;
+}
+
+.book-appointment-btn {
+    width: 100%;
+    background: linear-gradient(135deg, #007bff, #0056b3);
+    color: white;
+    border: none;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.book-appointment-btn:hover {
+    background: linear-gradient(135deg, #0056b3, #004085);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+}
+
+.book-appointment-btn:active {
+    transform: translateY(0);
+}
+
+/* Expansion indicator styles */
+.expansion-indicator {
+    text-align: center;
+    padding: 8px 0;
+    font-size: 12px;
+    color: #666;
+    border-top: 1px solid #e0e0e0;
+    margin-top: 12px;
+}
+
+.card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 14px;
+    color: #444;
+}
+
+.footer-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.footer-icon {
+    color: #666;
+}
+
+/* Hover effects for better interactivity */
+.category-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.category-card:hover .icon {
+    transform: scale(1.1);
+    transition: transform 0.3s ease;
+}

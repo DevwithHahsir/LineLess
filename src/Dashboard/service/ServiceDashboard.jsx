@@ -25,7 +25,7 @@ function ServiceDashboard() {
 
       <div className="btn-addbusiness">
         <button className="addService" onClick={AddBusiness}>
-          {openBusinessForm ? "- Close the form" : "+ Add Your Business"}
+          + Add Your Business
         </button>
       </div>
 
