@@ -28,28 +28,6 @@ const createIcon = (color = "blue") => {
 };
 
 const MapView = ({ lat, lng, businesses = [] }) => {
-  console.log("=== MapView Debug Info ===");
-  console.log("User location:", { lat, lng });
-  console.log("Businesses array:", businesses);
-  console.log("Number of businesses:", businesses.length);
-
-  // Log each business in detail
-  businesses.forEach((business, index) => {
-    console.log(`Business ${index}:`, {
-      id: business.id,
-      name: business.businessName || business.name,
-      type: business.type,
-      latitude: business.latitude,
-      longitude: business.longitude,
-      latType: typeof business.latitude,
-      lngType: typeof business.longitude,
-      parsedLat: parseFloat(business.latitude),
-      parsedLng: parseFloat(business.longitude),
-      isValidLat: !isNaN(parseFloat(business.latitude)),
-      isValidLng: !isNaN(parseFloat(business.longitude)),
-    });
-  });
-
   if (!lat || !lng) {
     return (
       <div
@@ -106,25 +84,8 @@ const MapView = ({ lat, lng, businesses = [] }) => {
 
     const isValid = hasLat && hasLng && validLat && validLng;
 
-    if (!isValid) {
-      console.log(`Invalid business filtered out:`, {
-        id: business.id,
-        name: business.businessName,
-        latitude: business.latitude,
-        longitude: business.longitude,
-        hasLat,
-        hasLng,
-        validLat,
-        validLng,
-      });
-    }
-
     return isValid;
   });
-
-  console.log(
-    `Valid businesses for map: ${validBusinesses.length} out of ${businesses.length}`
-  );
 
   return (
     <div

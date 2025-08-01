@@ -1,292 +1,354 @@
-.services-container {
-    display: flex;
-    justify-content: space-around;
-    flex-wrap: wrap;
-    gap: 1rem;
-
-}
-
-.category-card {
-    background-color: #2c3e5031;
-    backdrop-filter: blur(10px);
-    border: 1px solid #e3f2fd !important;
-    border-radius: 12px;
-    padding: 16px;
-    width: 25rem;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
-    font-family: sans-serif;
-    position: relative;
-    transition: all 0.3s ease;
-    cursor: pointer;
-    user-select: none;
-}
-
-.category-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
-}
-
-.category-card.expanded {
-    border-color: #007bff !important;
-    box-shadow: 0 8px 20px rgba(0, 123, 255, 0.15);
-}
-
-.card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.icon-box {
-    background-color: #e9f6ff;
-    padding: 10px;
-    border-radius: 10px;
-}
-
-.icon {
-    color: #25f825;
-    font-size: 24px;
-}
-
-/* Different icon colors for each business type */
-.category-card[data-type="bank"] .icon-box {
-    background-color: #e3f2fd !important;
-}
-
-.category-card[data-type="bank"] .icon {
-    color: #1976d2;
-    /* Blue for banks */
-}
-
-.category-card[data-type="salon"] .icon-box {
-    background-color: #fce4ec;
-}
-
-.category-card[data-type="salon"] .icon {
-    color: #e91e63;
-    /* Pink for salons */
-}
-
-.category-card[data-type="clinic"] .icon-box {
-    background-color: #e8f5e8;
-}
-
-.category-card[data-type="clinic"] .icon {
-    color: #4caf50;
-    /* Green for clinics */
-}
-
-.category-card[data-type="government"] .icon-box {
-    background-color: #fff3e0;
-}
-
-.category-card[data-type="government"] .icon {
-    color: #ff9800;
-    /* Orange for government */
-}
-
-.category-card[data-type="other"] .icon-box {
-    background-color: #f3e5f5;
-}
-
-.category-card[data-type="other"] .icon {
-    color: #9c27b0;
-    /* Purple for other services */
-}
-
-.active-badge {
-    background-color: #04d97f;
-    color: white;
-    padding: 4px 10px;
-    border-radius: 15px;
-    font-size: 12px;
-    font-weight: bold;
-}
-
-.category-title {
-    margin-top: 12px;
-    margin-bottom: 4px;
-    font-size: 18px;
-    color: #002a6c;
-    font-family: 'Times New Roman', Times, serif;
-    font-weight: bolder;
-}
-
-.category-description {
-    font-size: 14px;
-    color: #4b4b4b;
-    margin-bottom: 16px;
-}
-
-/* Business location styles */
-.business-locations {
-    /* border: 1px solid black !important; */
-    margin: 16px 0;
-}
-
-.business-item {
-    margin-bottom: 12px;
-    padding: 12px;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    background-color: #fafafa;
-}
-
-.business-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 8px;
-}
-
-.business-name {
-    font-size: 16px;
-    font-weight: 600;
-    color: #333;
+/* Global Styles */
+* {
     margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-.queue-count {
-    background-color: #ff6b6b;
-    color: white;
-    padding: 4px 8px;
-    border-radius: 12px;
-    font-size: 12px;
-    font-weight: 500;
-}
-
-.business-location {
-    display: flex;
-    align-items: flex-start;
-    gap: 8px;
-    margin: 8px 0;
-}
-
-.location-icon {
-    color: #007bff;
-    margin-top: 2px;
-    flex-shrink: 0;
-}
-
-.location-text {
-    font-size: 14px;
-    color: #555;
-    line-height: 1.4;
-    word-wrap: break-word;
-}
-
-.business-coordinates {
-    margin-top: 4px;
-    padding-left: 20px;
-}
-
-.coordinates-text {
-    font-size: 12px;
-    color: #888;
-    font-style: italic;
-}
-
-.business-city {
-    margin-top: 4px;
-    padding-left: 20px;
-}
-
-.business-city span {
-    font-size: 13px;
-    color: #666;
-    font-weight: 500;
-}
-
-/* Additional business info styles */
-.business-info {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin: 6px 0;
-    font-size: 13px;
-}
-
-.info-label {
-    color: #666;
-    font-weight: 500;
-    min-width: 80px;
-}
-
-.info-value {
+body {
+    background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%);
+    min-height: 100vh;
+    padding: 20px;
     color: #333;
-    flex: 1;
 }
 
-/* Appointment section styles */
-.appointment-section {
-    margin-top: 12px;
-    padding-top: 12px;
-    border-top: 1px solid #e0e0e0;
+/* Services Container */
+.service-list-wrapper {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px;
 }
 
-.book-appointment-btn {
+/* Category Grid - Flex Row Layout */
+.service-category-grid {
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 3rem;
+    padding: 2rem;
     width: 100%;
-    background: linear-gradient(135deg, #007bff, #0056b3);
-    color: white;
-    border: none;
-    padding: 12px 16px;
-    border-radius: 8px;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
+    box-sizing: border-box;
+}
+
+.service-header-section {
+    text-align: center;
+    margin-bottom: 40px;
+    padding: 20px;
+}
+
+.service-header-section h1 {
+    font-size: 2.5rem;
+    color: #2c3e50;
+    margin-bottom: 10px;
+}
+
+.service-header-section p {
+    font-size: 1.1rem;
+    color: #7f8c8d;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* Category Grid */
+.service-category-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 30px;
+    justify-content: center;
+}
+
+/* Category Card */
+.service-category-card {
+    background: white;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
     transition: all 0.3s ease;
+    cursor: pointer;
+    border-left: 4px solid #007bff;
+    flex: 0 0 auto;
+    width: 350px;
+    height: auto;
+    margin-bottom: 1rem;
+}
+
+.service-category-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
+}
+
+.service-category-card.service-expanded {
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.18);
+}
+
+.service-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 20px 10px;
+}
+
+.service-icon-box {
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
 }
 
-.book-appointment-btn:hover {
-    background: linear-gradient(135deg, #0056b3, #004085);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+.service-icon {
+    font-size: 28px;
 }
 
-.book-appointment-btn:active {
-    transform: translateY(0);
+.service-active-badge {
+    color: white;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 600;
 }
 
-/* Expansion indicator styles */
-.expansion-indicator {
-    text-align: center;
-    padding: 8px 0;
-    font-size: 12px;
-    color: #666;
-    border-top: 1px solid #e0e0e0;
-    margin-top: 12px;
+.service-category-title {
+    padding: 0 20px;
+    font-size: 1.4rem;
+    color: #2c3e50;
+    margin-bottom: 8px;
 }
 
-.card-footer {
+.service-category-description {
+    padding: 0 20px 15px;
+    font-size: 0.95rem;
+    color: #7f8c8d;
+    border-bottom: 1px solid #eee;
+}
+
+/* Stats Container */
+.service-stats-container {
+    display: flex;
+    justify-content: space-around;
+    padding: 20px;
+    border-bottom: 1px solid #eee;
+}
+
+.service-stat-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.service-stat-icon {
+    font-size: 24px;
+    color: #7f8c8d;
+}
+
+.service-stat-item div {
+    display: flex;
+    flex-direction: column;
+}
+
+.service-stat-item span {
+    font-size: 0.9rem;
+    color: #7f8c8d;
+}
+
+.service-stat-item strong {
+    font-size: 1.2rem;
+    color: #2c3e50;
+}
+
+/* Business Locations */
+.service-business-locations {
+    padding: 20px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.service-business-item {
+    background: #f9fbfd;
+    border-radius: 12px;
+    padding: 18px;
+    margin-bottom: 18px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s;
+}
+
+.service-business-item:hover {
+    transform: translateX(3px);
+}
+
+.service-business-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    font-size: 14px;
-    color: #444;
+    margin-bottom: 15px;
 }
 
-.footer-item {
+.service-business-name {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.service-queue-count {
+    background: #ff6b6b;
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.service-business-location {
     display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.service-location-icon {
+    color: #3498db;
+    font-size: 18px;
+    flex-shrink: 0;
+    margin-top: 3px;
+}
+
+.service-location-text {
+    font-size: 0.95rem;
+    color: #555;
+    line-height: 1.5;
+}
+
+.service-business-details {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.service-detail-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.service-detail-label {
+    font-size: 0.85rem;
+    color: #7f8c8d;
+    margin-bottom: 3px;
+}
+
+.service-detail-value {
+    font-size: 0.95rem;
+    color: #2c3e50;
+    font-weight: 500;
+}
+
+.service-book-appointment-btn {
+    width: 100%;
+    background: #3498db;
+    color: white;
+    border: none;
+    padding: 14px;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    justify-content: center;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
 }
 
-.footer-icon {
-    color: #666;
-}
-
-/* Hover effects for better interactivity */
-.category-card:hover {
+.service-book-appointment-btn:hover {
+    background: #2980b9;
     transform: translateY(-2px);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
 }
 
-.category-card:hover .icon {
-    transform: scale(1.1);
-    transition: transform 0.3s ease;
+/* Expand Indicator */
+.service-expand-indicator {
+    text-align: center;
+    padding: 18px;
+    font-weight: 600;
+    color: #3498db;
+    border-top: 1px solid #eee;
+}
+
+/* Loading and Empty States */
+.service-loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 300px;
+    gap: 20px;
+}
+
+.service-spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid rgba(52, 152, 219, 0.2);
+    border-top: 5px solid #3498db;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.service-no-services {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 300px;
+}
+
+.service-empty-state {
+    text-align: center;
+    max-width: 400px;
+    padding: 30px;
+}
+
+.service-empty-icon {
+    font-size: 60px;
+    color: #bdc3c7;
+    margin-bottom: 20px;
+}
+
+.service-empty-state h3 {
+    font-size: 1.8rem;
+    color: #2c3e50;
+    margin-bottom: 15px;
+}
+
+.service-empty-state p {
+    font-size: 1.1rem;
+    color: #7f8c8d;
+    line-height: 1.6;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .service-category-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .service-header-section h1 {
+        font-size: 2rem;
+    }
+
+    .service-stats-container {
+        flex-direction: column;
+        gap: 20px;
+    }
 }

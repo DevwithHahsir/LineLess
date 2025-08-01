@@ -1,6 +1,5 @@
 import React from "react";
 import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
 import {
   signInWithEmailAndPassword,
   signInWithPopup,
@@ -11,8 +10,6 @@ import { auth } from "../../firebaseConfig/firebase";
 import "./providerLogin.css";
 
 export default function ProviderLogin() {
-  const navigate = useNavigate();
-
   const {
     register,
     handleSubmit,
@@ -21,12 +18,23 @@ export default function ProviderLogin() {
 
   const onSubmit = async (data) => {
     try {
+      console.log("🔥 Provider Login: Starting login process");
       await signInWithEmailAndPassword(auth, data.email, data.password);
+      console.log("🔥 Provider Login: Login successful, about to navigate");
 
       alert("Login successful! Welcome back to your provider dashboard!");
 
-      // Navigate to service provider dashboard
-      navigate("/service/Servicedashboard");
+      // Add a small delay to ensure authentication state is fully updated
+      setTimeout(() => {
+        console.log(
+          "🔥 Provider Login: Navigating to /service/Servicedashboard"
+        );
+
+        // Use window.location.href as a fallback to force navigation
+        window.location.href = "/service/Servicedashboard";
+
+        console.log("🔥 Provider Login: Navigation complete");
+      }, 100);
     } catch (error) {
       let errorMessage = "Login failed: ";
       if (error.code === "auth/user-not-found") {
@@ -105,8 +113,10 @@ export default function ProviderLogin() {
         "Google login successful! Welcome back to your provider dashboard!"
       );
 
-      // Navigate to service provider dashboard
-      navigate("/service/Servicedashboard");
+      // Navigate to service provider dashboard with delay and replace
+      setTimeout(() => {
+        window.location.href = "/service/Servicedashboard";
+      }, 100);
     } catch (error) {
       console.error("Google login error:", error);
       alert(`Google login failed: ${error.message}`);

@@ -36,9 +36,20 @@ export default function UserSignup() {
         password: data.password,
         location: userLocation || null,
         createdAt: new Date(),
+        role: "user", // Add role for permission management
+        userType: "client", // Add user type for identification
       };
 
       await setDoc(doc(db, "userSignup", user.uid), userData);
+
+      // Also create a document in the central users collection for role management
+      await setDoc(doc(db, "users", user.uid), {
+        email: data.email,
+        role: "user",
+        userType: "client",
+        createdAt: new Date(),
+        uid: user.uid,
+      });
 
       alert("Account created successfully! Welcome to LineLess!");
 

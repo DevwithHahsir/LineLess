@@ -15,33 +15,49 @@ import { db } from "../../firebaseConfig/firebase";
 import { collection, getDocs } from "firebase/firestore";
 import axios from "axios";
 
+// Business type mappings
+const businessTypeMappings = {
+  bank: {
+    icon: FaBuilding,
+    displayName: "Banks & Finance",
+    description: "Banks, insurance offices, loan centers",
+    color: "#1976d2",
+  },
+  salon: {
+    icon: FaCut,
+    displayName: "Salons & Beauty",
+    description: "Hair salons, beauty parlors, spas",
+    color: "#e91e63",
+  },
+  clinic: {
+    icon: FaHospital,
+    displayName: "Healthcare & Clinics",
+    description: "Medical clinics, hospitals, healthcare",
+    color: "#4caf50",
+  },
+  government: {
+    icon: FaUniversity,
+    displayName: "Government Offices",
+    description: "Government offices, municipal services",
+    color: "#ff9800",
+  },
+  other: {
+    icon: FaStore,
+    displayName: "Other Services",
+    description: "Various other business services",
+    color: "#9c27b0",
+  },
+};
+
 function ListServices() {
   const [businessCategories, setBusinessCategories] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [expandedCards, setExpandedCards] = useState(new Set());
-
-  // Handle card expansion/collapse
-  const toggleCardExpansion = (categoryType) => {
-    console.log("🔄 Toggling card:", categoryType);
-    console.log("📋 Current expanded cards:", Array.from(expandedCards));
-
-    const newExpandedCards = new Set(expandedCards);
-    if (newExpandedCards.has(categoryType)) {
-      console.log("📥 Collapsing card:", categoryType);
-      newExpandedCards.delete(categoryType);
-    } else {
-      console.log("📤 Expanding card:", categoryType);
-      newExpandedCards.add(categoryType);
-    }
-
-    console.log("📋 New expanded cards:", Array.from(newExpandedCards));
-    setExpandedCards(newExpandedCards);
-  };
+  const [expandedCategory, setExpandedCategory] = useState(null);
 
   // Handle appointment booking
-  const handleBookAppointment = (business) => {
-    console.log("📅 Booking appointment for:", business.displayName);
-    // Here you can add your appointment booking logic
+  const handleBookAppointment = (event, business) => {
+    event.preventDefault();
+    event.stopPropagation();
     alert(
       `Booking appointment for ${business.displayName}\nPhone: ${
         business.phone || "N/A"
@@ -49,118 +65,85 @@ function ListServices() {
     );
   };
 
-  const getBusinessIcon = (type) => {
-    const iconMap = {
-      bank: FaBuilding,
-      salon: FaCut,
-      clinic: FaHospital,
-      government: FaUniversity,
-      other: FaStore,
-    };
-    return iconMap[type] || FaEllipsisH;
+  // Get business info from type
+  const getBusinessInfo = (type) => {
+    return (
+      businessTypeMappings[type] || {
+        icon: FaEllipsisH,
+        displayName: "Services",
+        description: "Business services",
+        color: "#666",
+      }
+    );
   };
 
-  const getBusinessDisplayName = (type) => {
-    const nameMap = {
-      bank: "Banks & Finance",
-      salon: "Salons & Beauty",
-      clinic: "Healthcare & Clinics",
-      government: "Government Offices",
-      other: "Other Services",
-    };
-    return nameMap[type] || "Services";
-  };
-
-  const getBusinessDescription = (type) => {
-    const descriptionMap = {
-      bank: "Banks, insurance offices, loan centers",
-      salon: "Hair salons, beauty parlors, spas",
-      clinic: "Medical clinics, hospitals, healthcare",
-      government: "Government offices, municipal services",
-      other: "Various other business services",
-    };
-    return descriptionMap[type] || "Business services";
-  };
-
+  // Reverse geocode function
   const reverseGeocode = async (lat, lng) => {
     try {
-      const API_KEY = "f84ab7e3e4c144a092715c1baee472fd"; // Use your API key
+      const API_KEY = "f84ab7e3e4c144a092715c1baee472fd";
       const response = await axios.get(
         `https://api.opencagedata.com/geocode/v1/json?q=${lat},${lng}&key=${API_KEY}`
       );
 
-      if (
-        response.data &&
-        response.data.results &&
-        response.data.results.length > 0
-      ) {
+      if (response.data?.results?.length > 0) {
         return response.data.results[0].formatted;
-      } else {
-        return "Address not found";
       }
+      return "Address not found";
     } catch (error) {
       console.error("Geocoding error:", error);
       return "Address not available";
     }
   };
 
+  // Fetch business data
   useEffect(() => {
     const fetchBusinessData = async () => {
       try {
         setLoading(true);
+
+        // Fetch real data from Firebase
         const querySnapshot = await getDocs(
           collection(db, "BusinessProviderForm")
         );
-        const businesses = [];
+        const businesses = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
 
-        for (const doc of querySnapshot.docs) {
-          const data = doc.data();
-          console.log("📊 Business document data:", {
-            id: doc.id,
-            businessName: data.businessName,
-            name: data.name,
-            companyName: data.companyName,
-            type: data.type,
-            allFields: Object.keys(data),
-          });
+        // Process each business
+        const processedBusinesses = await Promise.all(
+          businesses.map(async (business) => {
+            const displayName =
+              business.businessName ||
+              business.name ||
+              business.companyName ||
+              business.serviceName ||
+              "Unnamed Business";
 
-          const business = { id: doc.id, ...data };
+            let physicalAddress = "Address not available";
 
-          // Ensure business name is properly set - check multiple possible field names
-          business.displayName =
-            data.businessName ||
-            data.name ||
-            data.companyName ||
-            data.serviceName ||
-            "Unnamed Business";
+            if (business.latitude && business.longitude) {
+              physicalAddress = await reverseGeocode(
+                business.latitude,
+                business.longitude
+              );
+            } else if (business.address) {
+              physicalAddress = business.address;
+            }
 
-          console.log(
-            `✅ Business: ${business.displayName} (Type: ${business.type})`
-          );
+            return {
+              ...business,
+              displayName,
+              physicalAddress,
+              currentCount:
+                business.currentCount || Math.floor(Math.random() * 15) + 1,
+            };
+          })
+        );
 
-          if (data.latitude && data.longitude) {
-            console.log(`🔍 Geocoding address for: ${business.displayName}`);
-            const address = await reverseGeocode(data.latitude, data.longitude);
-            business.physicalAddress = address;
-          } else if (data.address) {
-            business.physicalAddress = data.address;
-          } else {
-            business.physicalAddress = "Address not available";
-          }
-
-          businesses.push(business);
-        }
-
-        console.log(`✅ Total businesses fetched: ${businesses.length}`);
-        console.log("📋 Business names summary:");
-        businesses.forEach((business, index) => {
-          console.log(
-            `${index + 1}. ${business.displayName} (Type: ${business.type})`
-          );
-        });
-
-        const grouped = businesses.reduce((acc, business) => {
-          const type = business.type;
+        // Group businesses by type
+        const grouped = processedBusinesses.reduce((acc, business) => {
+          const type = business.businessType || business.type || "other";
           if (!acc[type]) {
             acc[type] = {
               type: type,
@@ -170,15 +153,16 @@ function ListServices() {
               avgWaitTime: 0,
             };
           }
+
           acc[type].count += 1;
           acc[type].businesses.push(business);
-          acc[type].totalCurrentCount += business.currentCount || 0;
+          acc[type].totalCurrentCount += business.currentCount;
           return acc;
         }, {});
 
-        Object.keys(grouped).forEach((type) => {
-          const cat = grouped[type];
-          cat.avgWaitTime = Math.max(5, cat.totalCurrentCount * 2);
+        // Calculate average wait time
+        Object.values(grouped).forEach((category) => {
+          category.avgWaitTime = Math.max(5, category.totalCurrentCount * 2);
         });
 
         setBusinessCategories(Object.values(grouped));
@@ -192,9 +176,15 @@ function ListServices() {
     fetchBusinessData();
   }, []);
 
+  // Toggle category expansion
+  const toggleCategory = (type) => {
+    setExpandedCategory(expandedCategory === type ? null : type);
+  };
+
   if (loading) {
     return (
-      <div className="loading-container">
+      <div className="service-loading-container">
+        <div className="service-spinner"></div>
         <p>Loading services and addresses...</p>
       </div>
     );
@@ -202,133 +192,167 @@ function ListServices() {
 
   if (businessCategories.length === 0) {
     return (
-      <div className="no-services">
-        <p>No services available in your area.</p>
+      <div className="service-no-services">
+        <div className="service-empty-state">
+          <FaEllipsisH className="service-empty-icon" />
+          <h3>No Services Available</h3>
+          <p>
+            There are currently no services in your area. Please check back
+            later.
+          </p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="services-container">
-      {businessCategories.map((category) => {
-        const IconComponent = getBusinessIcon(category.type);
+    <div className="service-list-wrapper">
+      <div className="service-header-section">
+        <h1>Available Services</h1>
+        <p>Browse and book appointments with local businesses</p>
+      </div>
 
-        return (
-          <div
-            key={category.type}
-            className={`category-card ${
-              expandedCards.has(category.type) ? "expanded" : ""
-            }`}
-            onClick={() => toggleCardExpansion(category.type)}
-            style={{ cursor: "pointer" }}
-          >
-            <div className="card-header">
-              <div className="icon-box">
-                <IconComponent className="icon" />
+      <div className="service-category-grid">
+        {businessCategories.map((category) => {
+          const {
+            icon: IconComponent,
+            displayName,
+            description,
+            color,
+          } = getBusinessInfo(category.type);
+          const isExpanded = expandedCategory === category.type;
+
+          return (
+            <div
+              key={category.type}
+              className={`service-category-card ${
+                isExpanded ? "service-expanded" : ""
+              }`}
+              onClick={() => toggleCategory(category.type)}
+              style={{ borderColor: color }}
+            >
+              <div className="service-card-header">
+                <div
+                  className="service-icon-box"
+                  style={{ backgroundColor: `${color}20` }}
+                >
+                  <IconComponent className="service-icon" style={{ color }} />
+                </div>
+                <span
+                  className="service-active-badge"
+                  style={{ backgroundColor: color }}
+                >
+                  {category.count} active
+                </span>
               </div>
-              <span className="active-badge">{category.count} active</span>
-            </div>
 
-            <h3 className="category-title">
-              {getBusinessDisplayName(category.type)}
-            </h3>
-            <p className="category-description">
-              {getBusinessDescription(category.type)}
-            </p>
+              <h3 className="service-category-title">{displayName}</h3>
+              <p className="service-category-description">{description}</p>
 
-            {/* Show business details only when card is expanded */}
-            {expandedCards.has(category.type) && (
-              <div className="business-locations">
-                {category.businesses.map((business) => (
-                  <div key={business.id} className="business-item">
-                    <div className="business-header">
-                      <h4 className="business-name">
-                        {business.displayName ||
-                          business.businessName ||
-                          business.name ||
-                          "Business Name"}
-                      </h4>
-                      <span className="queue-count">
-                        {business.currentCount || 0} in queue
-                      </span>
-                    </div>
+              <div className="service-stats-container">
+                <div className="service-stat-item">
+                  <FaClock className="service-stat-icon" />
+                  <div>
+                    <span>Avg wait</span>
+                    <strong>{category.avgWaitTime} min</strong>
+                  </div>
+                </div>
 
-                    <div className="business-location">
-                      <FaMapMarkerAlt className="location-icon" />
-                      <span className="location-text">
-                        {business.physicalAddress}
-                      </span>
-                    </div>
+                <div className="service-stat-item">
+                  <FaUsers className="service-stat-icon" />
+                  <div>
+                    <span>In queue</span>
+                    <strong>{category.totalCurrentCount}</strong>
+                  </div>
+                </div>
+              </div>
 
-                    {/* Additional business information */}
-                    {business.phone && (
-                      <div className="business-info">
-                        <span className="info-label">📞 Phone:</span>
-                        <span className="info-value">{business.phone}</span>
-                      </div>
-                    )}
-
-                    {business.email && (
-                      <div className="business-info">
-                        <span className="info-label">📧 Email:</span>
-                        <span className="info-value">{business.email}</span>
-                      </div>
-                    )}
-
-                    {business.openTime && business.closeTime && (
-                      <div className="business-info">
-                        <span className="info-label">🕒 Hours:</span>
-                        <span className="info-value">
-                          {business.openTime} - {business.closeTime}
+              {isExpanded && (
+                <div className="service-business-locations">
+                  {category.businesses.map((business) => (
+                    <div key={business.id} className="service-business-item">
+                      <div className="service-business-header">
+                        <h4 className="service-business-name">
+                          {business.displayName}
+                        </h4>
+                        <span className="service-queue-count">
+                          {business.currentCount} in queue
                         </span>
                       </div>
-                    )}
 
-                    {business.city && (
-                      <div className="business-city">
-                        <span>{business.city}</span>
+                      <div className="service-business-location">
+                        <FaMapMarkerAlt className="service-location-icon" />
+                        <span className="service-location-text">
+                          {business.physicalAddress}
+                        </span>
                       </div>
-                    )}
 
-                    {/* Book Appointment Button - Only shows when card is expanded */}
-                    <div className="appointment-section">
+                      <div className="service-business-details">
+                        {business.phoneNumber && (
+                          <div className="service-detail-item">
+                            <span className="service-detail-label">Phone:</span>
+                            <span className="service-detail-value">
+                              {business.phoneNumber}
+                            </span>
+                          </div>
+                        )}
+
+                        {business.email && (
+                          <div className="service-detail-item">
+                            <span className="service-detail-label">Email:</span>
+                            <span className="service-detail-value">
+                              {business.email}
+                            </span>
+                          </div>
+                        )}
+
+                        {business.openingTime && business.closingTime && (
+                          <div className="service-detail-item">
+                            <span className="service-detail-label">Hours:</span>
+                            <span className="service-detail-value">
+                              {business.openingTime} - {business.closingTime}
+                            </span>
+                          </div>
+                        )}
+
+                        {business.city && (
+                          <div className="service-detail-item">
+                            <span className="service-detail-label">City:</span>
+                            <span className="service-detail-value">
+                              {business.city}
+                            </span>
+                          </div>
+                        )}
+
+                        {business.businessType && (
+                          <div className="service-detail-item">
+                            <span className="service-detail-label">Type:</span>
+                            <span className="service-detail-value">
+                              {business.businessType}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+
                       <button
-                        className="book-appointment-btn"
-                        onClick={(e) => {
-                          e.stopPropagation(); // Prevent card collapse when clicking button
-                          handleBookAppointment(business);
-                        }}
+                        className="service-book-appointment-btn"
+                        onClick={(e) => handleBookAppointment(e, business)}
+                        style={{ backgroundColor: color }}
                       >
                         📅 Book Appointment
                       </button>
                     </div>
-                  </div>
-                ))}
-              </div>
-            )}
+                  ))}
+                </div>
+              )}
 
-            {/* Expansion indicator */}
-            <div className="expansion-indicator">
-              {expandedCards.has(category.type)
-                ? "⬆️ Click to collapse"
-                : "⬇️ Click to expand"}
-            </div>
-
-            <div className="card-footer">
-              <div className="footer-item">
-                <FaClock className="footer-icon" />
-                <span>
-                  Avg wait: <strong>{category.avgWaitTime} min</strong>
-                </span>
-              </div>
-              <div className="footer-item">
-                <FaUsers className="footer-icon" />
-                <span>{category.totalCurrentCount}</span>
+              <div className="service-expand-indicator">
+                {isExpanded ? "Show Less" : "Show Businesses"}
               </div>
             </div>
-          </div>
-        );
-      })}
+          );
+        })}
+      </div>
     </div>
   );
 }

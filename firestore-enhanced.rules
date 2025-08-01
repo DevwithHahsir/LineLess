@@ -1,0 +1,56 @@
+// Enhanced Firestore Security Rules with Role-Based Access Control
+// Copy these rules to your Firebase Console -> Firestore Database -> Rules
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper function to check if user exists and get their role
+    function getUserRole(userId) {
+      return get(/databases/$(database)/documents/users/$(userId)).data.role;
+    }
+    
+    // Helper function to check if user is authenticated
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
+    // Helper function to check if user owns the document
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+    
+    // Users collection - for storing user roles and basic info
+    match /users/{userId} {
+      allow read, write: if isSignedIn() && isOwner(userId);
+    }
+    
+    // User signup data
+    match /userSignup/{userId} {
+      allow read, write: if isSignedIn() && isOwner(userId);
+      allow read: if isSignedIn(); // Allow all authenticated users to read (for provider-client matching)
+    }
+    
+    // Provider signup data
+    match /providerSignup/{userId} {
+      allow read, write: if isSignedIn() && isOwner(userId);
+      allow read: if isSignedIn(); // Allow all authenticated users to read
+    }
+    
+    // Business provider forms
+    match /BusinessProviderForm/{userId} {
+      allow read, write: if isSignedIn() && isOwner(userId);
+      allow read: if isSignedIn(); // Allow all authenticated users to read business listings
+    }
+    
+    // Additional collections for bookings, reviews, etc.
+    match /bookings/{document=**} {
+      allow read, write: if isSignedIn();
+    }
+    
+    match /reviews/{document=**} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn(); // Only authenticated users can write reviews
+    }
+  }
+}

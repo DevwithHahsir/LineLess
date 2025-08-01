@@ -17,10 +17,6 @@ function ClientDashboard() {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      console.log(
-        "Auth state changed:",
-        currentUser ? "User logged in" : "No user"
-      );
       setUser(currentUser);
       setLoading(false);
     });
@@ -31,18 +27,14 @@ function ClientDashboard() {
   useEffect(() => {
     const fetchLocation = async () => {
       if (!user) {
-        console.log("No user authenticated, setting default location");
         setLocation({ lat: 40.7128, lng: -74.006 });
         return;
       }
-
-      console.log("Fetching location for user:", user.uid);
 
       try {
         const userDoc = await getDoc(doc(db, "userSignup", user.uid));
         if (userDoc.exists()) {
           const data = userDoc.data();
-          console.log("User data from Firebase:", data); // Debug log
 
           // Check if location data exists and has the correct structure
           if (
@@ -56,11 +48,9 @@ function ClientDashboard() {
               lng: data.location.longitude,
             });
           } else {
-            console.log("No location data found in user document");
             setLocation(null);
           }
         } else {
-          console.log("User document does not exist in Firestore");
           setLocation(null);
         }
       } catch (error) {
@@ -79,7 +69,6 @@ function ClientDashboard() {
     const fetchBusinessLocations = async () => {
       try {
         setBusinessesLoading(true);
-        console.log("Fetching business locations...");
 
         const querySnapshot = await getDocs(
           collection(db, "BusinessProviderForm")
@@ -88,7 +77,6 @@ function ClientDashboard() {
 
         querySnapshot.forEach((doc) => {
           const data = doc.data();
-          console.log("Business data:", data); // Debug log
 
           // Check if business has location data
           if (data.latitude && data.longitude) {
@@ -99,7 +87,6 @@ function ClientDashboard() {
           }
         });
 
-        console.log("Fetched businesses for map:", businessList);
         setBusinesses(businessList);
       } catch (error) {
         console.error("Error fetching business locations:", error);
@@ -222,6 +209,7 @@ function ClientDashboard() {
           <div className="services-list-container">
             <ListServices />
           </div>
+          
         </div>
       </div>
     </>

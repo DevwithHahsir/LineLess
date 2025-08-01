@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import "./businessform.css"; // Import the CSS file
 import { db } from "../../firebaseConfig/firebase";
-import { collection, addDoc } from "firebase/firestore";
+import { setDoc, doc } from "firebase/firestore";
+import { getAuth } from "firebase/auth";
 import BusinessDetail from "../bussinessDetail/BusinessDetail";
 
 const BusinessForm = ({ onFormSubmitSuccess }) => {
@@ -100,6 +101,15 @@ const BusinessForm = ({ onFormSubmitSuccess }) => {
     if (Object.keys(formErrors).length === 0) {
       // Form is valid, submit data
       try {
+        // Get current user
+        const auth = getAuth();
+        const user = auth.currentUser;
+
+        if (!user) {
+          alert("Please login to register your business.");
+          return;
+        }
+
         // Add timestamp and count fields to the form data
         const dataToSubmit = {
           ...formData,
@@ -108,13 +118,17 @@ const BusinessForm = ({ onFormSubmitSuccess }) => {
           longitude: parseFloat(formData.longitude),
           count: 0,
           currentCount: 0,
+          uid: user.uid, // Add user ID for reference
+          displayName: formData.name, // Add displayName field for consistency
+          businessType: formData.type, // Add businessType field for consistency
+          physicalAddress: `${formData.latitude}, ${formData.longitude}`, // Add address
         };
 
-        const docRef = await addDoc(
-          collection(db, "BusinessProviderForm"),
-          dataToSubmit
-        );
-        console.log("Document written with ID: ", docRef.id);
+        // Use setDoc with user.uid as document ID instead of addDoc
+        const userDocRef = doc(db, "BusinessProviderForm", user.uid);
+        await setDoc(userDocRef, dataToSubmit);
+
+        console.log("Document written with user UID: ", user.uid);
 
         alert("Business registered successfully!");
 

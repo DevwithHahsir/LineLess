@@ -1,0 +1,38 @@
+// Firestore Security Rules for LineLess App
+// Copy these rules to your Firebase Console -> Firestore Database -> Rules
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Allow authenticated users to read/write their own user data
+    match /userSignup/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Allow authenticated users to read/write their own provider data
+    match /providerSignup/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Allow authenticated users to read/write their own business data
+    match /BusinessProviderForm/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Allow all authenticated users to read business provider data (for listing services)
+    match /BusinessProviderForm/{document=**} {
+      allow read: if request.auth != null;
+    }
+    
+    // Allow all authenticated users to read user signup data (if needed for matching)
+    match /userSignup/{document=**} {
+      allow read: if request.auth != null;
+    }
+    
+    // Allow all authenticated users to read provider signup data (if needed)
+    match /providerSignup/{document=**} {
+      allow read: if request.auth != null;
+    }
+  }
+}

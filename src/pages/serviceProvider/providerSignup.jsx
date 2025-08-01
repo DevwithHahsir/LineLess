@@ -1,6 +1,5 @@
 import React from "react";
 import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
 import "./providerSignup.css";
 import { useState } from "react";
 import { createUserWithEmailAndPassword, signInWithPopup } from "firebase/auth";
@@ -12,7 +11,6 @@ import { db } from "../../firebaseConfig/firebase";
 export default function ProviderSignup() {
   const [userLocation, setUserLocation] = useState(null);
   const [locationLoading, setLocationLoading] = useState(false);
-  const navigate = useNavigate();
 
   const {
     register,
@@ -55,15 +53,29 @@ export default function ProviderSignup() {
         location: userLocation || null,
         serviceType: data.serviceType,
         createdAt: new Date(),
+        role: "provider", // Add role for permission management
         userType: "provider", // Add user type for identification
       };
 
       await setDoc(doc(db, "providerSignup", user.uid), userData);
 
+      // Also create a document in the central users collection for role management
+      await setDoc(doc(db, "users", user.uid), {
+        email: data.email,
+        businessName: data.businessName,
+        serviceType: data.serviceType,
+        role: "provider",
+        userType: "provider",
+        createdAt: new Date(),
+        uid: user.uid,
+      });
+
       alert("Provider account created successfully! Welcome to LineLess!");
 
-      // Navigate to service provider dashboard
-      navigate("/service/Servicedashboard");
+      // Navigate to service provider dashboard with delay and replace
+      setTimeout(() => {
+        window.location.href = "/service/Servicedashboard";
+      }, 100);
     } catch (error) {
       // More specific error messages
       let errorMessage = "Provider signup failed: ";
@@ -127,8 +139,10 @@ export default function ProviderSignup() {
       console.log("Google signup successful", result);
       alert("Google signup successful! Welcome to LineLess!");
 
-      // Navigate to service provider dashboard
-      navigate("/service/Servicedashboard");
+      // Navigate to service provider dashboard with delay and replace
+      setTimeout(() => {
+        window.location.href = "/service/Servicedashboard";
+      }, 100);
     } catch (error) {
       console.error("Google signup error:", error);
       alert(`Google sign-in error: ${error.message}`);
