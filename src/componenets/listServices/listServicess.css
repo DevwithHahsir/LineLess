@@ -6,12 +6,7 @@
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-body {
-    background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%);
-    min-height: 100vh;
-    padding: 20px;
-    color: #333;
-}
+
 
 /* Services Container */
 .service-list-wrapper {
