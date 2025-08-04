@@ -99,8 +99,7 @@ export default function UserLogin() {
   const handleGoogleLogin = async () => {
     try {
       // Use popup with custom settings to avoid COOP issues
-      const result = await signInWithPopup(auth, googleProvider);
-      console.log("Google login successful", result);
+      await signInWithPopup(auth, googleProvider);
       alert("Google login successful! Welcome back!");
 
       // Navigate to client dashboard

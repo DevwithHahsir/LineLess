@@ -109,8 +109,7 @@ export default function UserSignup() {
   const handleGoogleSignup = async () => {
     try {
       // Use popup with proper error handling
-      const result = await signInWithPopup(auth, googleProvider);
-      console.log("Google signup successful", result);
+      await signInWithPopup(auth, googleProvider);
       alert("Google signup successful! Welcome to LineLess!");
 
       // Navigate to client dashboard

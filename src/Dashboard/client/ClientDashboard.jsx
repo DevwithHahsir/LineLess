@@ -42,7 +42,6 @@ function ClientDashboard() {
             data.location.latitude &&
             data.location.longitude
           ) {
-            console.log("Location found:", data.location);
             setLocation({
               lat: data.location.latitude,
               lng: data.location.longitude,
@@ -209,7 +208,6 @@ function ClientDashboard() {
           <div className="services-list-container">
             <ListServices />
           </div>
-          
         </div>
       </div>
     </>

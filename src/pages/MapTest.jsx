@@ -64,7 +64,6 @@ function MapTest() {
         }
       });
 
-      console.log("Fetched user locations:", locations);
       setUserLocations(locations);
     } catch (error) {
       console.error("Error fetching user locations:", error);

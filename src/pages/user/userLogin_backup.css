@@ -120,13 +120,13 @@ h2 {
     font-weight: 500;
 }
 
-/* User form field containers */
-.user-input-group {
+/* Form field containers */
+form>div {
     margin-bottom: 20px;
 }
 
-/* User Labels */
-.user-input-group label {
+/* Labels */
+label {
     display: block;
     font-size: 0.95rem;
     font-weight: 500;
@@ -136,9 +136,9 @@ h2 {
     letter-spacing: 0.3px;
 }
 
-/* User Input fields */
-.user-input-group input[type="email"],
-.user-input-group input[type="password"] {
+/* Input fields */
+input[type="email"],
+input[type="password"] {
     width: 100%;
     padding: 12px 15px;
     border: 1.5px solid #ddd !important;
@@ -149,22 +149,22 @@ h2 {
     outline: none;
 }
 
-.user-input-group input[type="email"]:focus,
-.user-input-group input[type="password"]:focus {
+input[type="email"]:focus,
+input[type="password"]:focus {
     border-color: #8B7D6B !important;
     background: white;
     transform: translateY(-2px);
     box-shadow: 0 8px 20px rgba(139, 125, 107, 0.15);
 }
 
-.user-input-group input[type="email"]::placeholder,
-.user-input-group input[type="password"]::placeholder {
+input[type="email"]::placeholder,
+input[type="password"]::placeholder {
     color: #999;
     font-style: italic;
 }
 
-/* User Error messages */
-.user-error {
+/* Error messages */
+span {
     display: block;
     color: #e74c3c;
     font-size: 0.9rem;
@@ -173,16 +173,11 @@ h2 {
     padding-left: 5px;
 }
 
-/* User Submit button group */
-.user-submit-group {
-    margin-top: 20px;
-}
-
-/* User Submit button */
-.user-submit-btn {
+/* Buttons */
+button {
     width: 100%;
-    padding: 14px 18px;
-    font-size: 1.05rem;
+    padding: 12px 18px;
+    font-size: 1rem;
     font-weight: 600;
     border: none;
     border-radius: 8px;
@@ -190,11 +185,19 @@ h2 {
     transition: all 0.3s ease;
     text-transform: capitalize;
     letter-spacing: 0.5px;
-    background: linear-gradient(135deg, #8B7D6B 0%, #A0926D 100%);
-    color: white;
+    margin-top: 8px;
 }
 
-.user-submit-btn:hover {
+/* Submit button */
+button[type="submit"] {
+    background: linear-gradient(135deg, #8B7D6B 0%, #A0926D 100%);
+    color: white;
+    font-size: 1.05rem;
+    padding: 14px 18px;
+    margin-top: 15px;
+}
+
+button[type="submit"]:hover {
     transform: translateY(-3px);
     box-shadow: 0 15px 30px rgba(139, 125, 107, 0.4);
     background: linear-gradient(135deg, #A0926D 0%, #8B7D6B 100%);
@@ -206,15 +209,15 @@ button:focus {
     box-shadow: 0 0 0 3px rgba(139, 125, 107, 0.3);
 }
 
-/* User Signup Link Styles */
-.user-signup-link {
+/* Login Link Styles */
+.login-link {
     text-align: center;
     margin-top: 20px;
     padding-top: 15px;
     border-top: 1px solid #eee;
 }
 
-.user-signup-link span {
+.login-link span {
     color: #504B38;
     font-size: 0.9rem;
     margin: 0;
@@ -222,7 +225,7 @@ button:focus {
     background: none;
 }
 
-.user-signup-link-text {
+.login-link-text {
     color: #8B7D6B;
     text-decoration: none;
     font-weight: 600;
@@ -230,18 +233,18 @@ button:focus {
     transition: all 0.3s ease;
 }
 
-.user-signup-link-text:hover {
+.login-link-text:hover {
     color: #A0926D;
     text-decoration: underline;
 }
 
-/* User Forgot Password Styles */
-.user-forgot-password {
+/* Forgot password styles */
+.forgot-password {
     text-align: center;
     margin-top: 15px;
 }
 
-.user-forgot-password-link {
+.forgot-password-link {
     background: none;
     border: none;
     color: #8B7D6B;
@@ -254,38 +257,28 @@ button:focus {
     padding: 5px 10px;
 }
 
-.user-forgot-password-link:hover {
+.forgot-password-link:hover {
     color: #A0926D;
     text-decoration: underline;
     transform: none;
     box-shadow: none;
 }
 
-/* Responsive design for user login */
+/* Responsive design */
 @media (max-width: 768px) {
-    .user-login-container {
+    .form-main-container {
         padding: 15px;
     }
 
-    .user-login-form {
+    form {
         padding: 25px 20px;
         margin: 10px;
         max-width: 100%;
     }
 
-    .user-login-form h2 {
-        font-size: 1.5rem;
-        margin-bottom: 20px;
-    }
-
-    label {
-        font-size: 0.9rem;
-    }
-
-    input[type="email"],
-    input[type="password"] {
-        padding: 10px 12px;
-        font-size: 0.9rem;
+    h2 {
+        font-size: 1.4rem;
+        margin-bottom: 18px;
     }
 
     button {
@@ -349,31 +342,30 @@ button:focus {
     }
 }
 
-.user-login-form {
+form {
     animation: slideInUp 0.6s ease-out;
 }
 
-/* Hover effects for user login form */
-.user-login-form:hover {
+/* Hover effects for form */
+form:hover {
     box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
 }
 
-/* Loading state for user login buttons */
-.user-submit-btn:disabled,
-.user-google-signin-btn:disabled {
+/* Loading state for buttons */
+button:disabled {
     opacity: 0.7;
     cursor: not-allowed;
     transform: none;
 }
 
-/* Success state styling for user login */
-.user-input-group .success {
+/* Success state styling */
+.success {
     border-color: #27ae60 !important;
     background: #d5f4e6 !important;
 }
 
-/* Error state styling for user login */
-.user-input-group .error {
+/* Error state styling */
+.error {
     border-color: #e74c3c !important;
     background: #fdf2f2 !important;
 }

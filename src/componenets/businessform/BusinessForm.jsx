@@ -1,195 +1,169 @@
 import React, { useState } from "react";
-import "./businessform.css"; // Import the CSS file
+import "./BusinessForm.css";
 import { db } from "../../firebaseConfig/firebase";
-import { setDoc, doc } from "firebase/firestore";
-import { getAuth } from "firebase/auth";
-import BusinessDetail from "../bussinessDetail/BusinessDetail";
+import { collection, addDoc} from "firebase/firestore";
 
-const BusinessForm = ({ onFormSubmitSuccess }) => {
+function BusinessForm({ onFormSubmitSuccess }) {
   const [formData, setFormData] = useState({
-    name: "",
+    businessName: "",
+    email: "",
     phone: "",
-    type: "",
+    location: "",
     latitude: "",
     longitude: "",
     openTime: "",
     closeTime: "",
+    serviceCategory: "",
+    businessDescription: "",
+    avgWaitingTime: "",
+    maxCapacityPerHour: "",
   });
 
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const [RemoveForm, SetRemoveForm] = useState(true);
+  const serviceCategories = [
+    "Restaurant",
+    "Salon & Beauty",
+    "Healthcare",
+    "Automotive",
+    "Retail Store",
+    "Fitness & Gym",
+    "Education",
+    "Banking",
+    "Government Office",
+    "Entertainment",
+    "Professional Services",
+    "Other",
+  ];
 
-  const handleCloseBusinessDetail = () => {
-    // When user wants to close BusinessDetail, notify parent to close entire form
-    if (onFormSubmitSuccess) {
-      onFormSubmitSuccess();
+  // Validation functions
+  const validateField = (name, value) => {
+    switch (name) {
+      case "businessName": {
+        if (!value.trim()) return "Business name is required";
+        if (value.trim().length < 2)
+          return "Business name must be at least 2 characters";
+        if (value.trim().length > 100)
+          return "Business name must be less than 100 characters";
+        return "";
+      }
+
+      case "email": {
+        if (!value.trim()) return "Email is required";
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(value))
+          return "Please enter a valid email address";
+        return "";
+      }
+
+      case "phone": {
+        if (!value.trim()) return "Phone number is required";
+        const phoneRegex = /^(\+92|0)?[0-9]{10}$/;
+        if (!phoneRegex.test(value.replace(/\s+/g, "")))
+          return "Please enter a valid Pakistani phone number";
+        return "";
+      }
+
+      case "serviceCategory": {
+        if (!value) return "Service category is required";
+        return "";
+      }
+
+      case "openTime": {
+        if (value && formData.closeTime && value >= formData.closeTime) {
+          return "Opening time must be before closing time";
+        }
+        return "";
+      }
+
+      case "closeTime": {
+        if (value && formData.openTime && value <= formData.openTime) {
+          return "Closing time must be after opening time";
+        }
+        return "";
+      }
+
+      case "avgWaitingTime": {
+        if (value && (isNaN(value) || value < 0 || value > 1440)) {
+          return "Waiting time must be between 0 and 1440 minutes";
+        }
+        return "";
+      }
+
+      case "maxCapacityPerHour": {
+        if (value && (isNaN(value) || value < 1 || value > 10000)) {
+          return "Capacity must be between 1 and 10000 customers";
+        }
+        return "";
+      }
+
+      case "businessDescription": {
+        if (value && value.length > 1000) {
+          return "Description must be less than 1000 characters";
+        }
+        return "";
+      }
+
+      default:
+        return "";
     }
   };
 
   const validateForm = () => {
     const newErrors = {};
-
-    // Business Name validation
-    if (!formData.name.trim()) {
-      newErrors.name = "Business name is required";
-    } else if (formData.name.trim().length < 2) {
-      newErrors.name = "Business name must be at least 2 characters";
-    }
-
-    // Phone validation
-    if (!formData.phone.trim()) {
-      newErrors.phone = "Phone number is required";
-    } else if (!/^\+?[\d\s\-()]{10,15}$/.test(formData.phone)) {
-      newErrors.phone = "Please enter a valid phone number";
-    }
-
-    // Business Type validation
-    if (!formData.type) {
-      newErrors.type = "Please select a business type";
-    }
-
-    // Opening Time validation
-    if (!formData.openTime) {
-      newErrors.openTime = "Opening time is required";
-    }
-
-    // Closing Time validation
-    if (!formData.closeTime) {
-      newErrors.closeTime = "Closing time is required";
-    }
-
-    // Time comparison validation
-    if (formData.openTime && formData.closeTime) {
-      if (formData.openTime >= formData.closeTime) {
-        newErrors.closeTime = "Closing time must be after opening time";
-      }
-    }
-
-    // Location validation
-    if (!formData.latitude || !formData.longitude) {
-      newErrors.location =
-        "Please get your location by clicking the location button";
-    }
-
+    Object.keys(formData).forEach((key) => {
+      const error = validateField(key, formData[key]);
+      if (error) newErrors[key] = error;
+    });
     return newErrors;
   };
 
-  const handleChange = (e) => {
+  const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
+
+    // Update form data
+    setFormData((prev) => ({
+      ...prev,
       [name]: value,
-    });
+    }));
 
-    // Clear error for this field when user starts typing
-    if (errors[name]) {
-      setErrors({
-        ...errors,
-        [name]: "",
-      });
-    }
-  };
+    // Clear error for this field and validate
+    const fieldError = validateField(name, value);
+    setErrors((prev) => ({
+      ...prev,
+      [name]: fieldError,
+    }));
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsSubmitting(true);
+    // Special case: re-validate time fields when one changes
+    if (name === "openTime" || name === "closeTime") {
+      const otherTimeField = name === "openTime" ? "closeTime" : "openTime";
+      const otherTimeValue =
+        name === "openTime" ? formData.closeTime : formData.openTime;
 
-    const formErrors = validateForm();
-
-    if (Object.keys(formErrors).length === 0) {
-      // Form is valid, submit data
-      try {
-        // Get current user
-        const auth = getAuth();
-        const user = auth.currentUser;
-
-        if (!user) {
-          alert("Please login to register your business.");
-          return;
-        }
-
-        // Add timestamp and count fields to the form data
-        const dataToSubmit = {
-          ...formData,
-          createdAt: new Date(),
-          latitude: parseFloat(formData.latitude),
-          longitude: parseFloat(formData.longitude),
-          count: 0,
-          currentCount: 0,
-          uid: user.uid, // Add user ID for reference
-          displayName: formData.name, // Add displayName field for consistency
-          businessType: formData.type, // Add businessType field for consistency
-          physicalAddress: `${formData.latitude}, ${formData.longitude}`, // Add address
-        };
-
-        // Use setDoc with user.uid as document ID instead of addDoc
-        const userDocRef = doc(db, "BusinessProviderForm", user.uid);
-        await setDoc(userDocRef, dataToSubmit);
-
-        console.log("Document written with user UID: ", user.uid);
-
-        alert("Business registered successfully!");
-
-        // Close the form after successful submission
-        SetRemoveForm(false);
-
-        // Don't notify parent to close - we want to show BusinessDetail instead
-        // if (onFormSubmitSuccess) {
-        //   onFormSubmitSuccess();
-        // }
-
-        // Reset form after successful submission
-        setFormData({
-          name: "",
-          phone: "",
-          type: "",
-          latitude: "",
-          longitude: "",
-          openTime: "",
-          closeTime: "",
-        });
-        setErrors({});
-      } catch (error) {
-        console.error("Error adding document: ", error);
-        alert("Error registering business. Please try again.");
-
-        // Remove the commented code
+      if (otherTimeValue) {
+        const otherFieldError = validateField(otherTimeField, otherTimeValue);
+        setErrors((prev) => ({
+          ...prev,
+          [otherTimeField]: otherFieldError,
+        }));
       }
-    } else {
-      // Form has errors, set them to display
-      setErrors(formErrors);
     }
-
-    setIsSubmitting(false);
   };
 
-  const handleGetLocation = () => {
+  const handleLocationClick = () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          setFormData({
-            ...formData,
+          setFormData((prev) => ({
+            ...prev,
             latitude: position.coords.latitude.toString(),
             longitude: position.coords.longitude.toString(),
-          });
-
-          // Clear location error if it exists
-          if (errors.location) {
-            setErrors({
-              ...errors,
-              location: "",
-            });
-          }
-
-          alert("Location captured successfully!");
+            location: `${position.coords.latitude}, ${position.coords.longitude}`,
+          }));
         },
         (error) => {
-          console.error("Error getting location:", error);
-          alert(
-            "Unable to get location. Please enable location services and try again."
-          );
+          alert("Error getting location: " + error.message);
         }
       );
     } else {
@@ -197,37 +171,165 @@ const BusinessForm = ({ onFormSubmitSuccess }) => {
     }
   };
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    // Validate all fields
+    const formErrors = validateForm();
+
+    if (Object.keys(formErrors).length > 0) {
+      setErrors(formErrors);
+      setIsSubmitting(false);
+
+      // Focus on first error field
+      const firstErrorField = Object.keys(formErrors)[0];
+      const element = document.getElementById(firstErrorField);
+      if (element) {
+        element.focus();
+        element.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+      return;
+    }
+
+    // Check if required fields are filled
+    const requiredFields = [
+      "businessName",
+      "email",
+      "phone",
+      "serviceCategory",
+    ];
+    const missingFields = requiredFields.filter(
+      (field) => !formData[field].trim()
+    );
+
+    if (missingFields.length > 0) {
+      const newErrors = {};
+      missingFields.forEach((field) => {
+        newErrors[field] = "This field is required";
+      });
+      setErrors(newErrors);
+      setIsSubmitting(false);
+      return;
+    }
+
+    // Clear any remaining errors
+    setErrors({});
+
+    try {
+      // Alternative method - try addDoc first, then setDoc if needed
+      console.log("Attempting to save to Firestore...");
+      console.log("Form data:", formData);
+
+      // Method 1: Using addDoc (auto-generated ID)
+      const docRef = await addDoc(collection(db, "businessRegistrations"), {
+        ...formData,
+        createdAt: new Date(),
+        status: "pending",
+      });
+
+      console.log("Business registered successfully with ID:", docRef.id);
+
+      // Clear all form fields after successful submission
+      setFormData({
+        businessName: "",
+        email: "",
+        phone: "",
+        location: "",
+        latitude: "",
+        longitude: "",
+        openTime: "",
+        closeTime: "",
+        serviceCategory: "",
+        businessDescription: "",
+        avgWaitingTime: "",
+        maxCapacityPerHour: "",
+      });
+
+      // Call the success callback if provided
+      if (onFormSubmitSuccess) {
+        onFormSubmitSuccess();
+      }
+
+      // Show success message
+      alert("Business registered successfully!");
+    } catch (error) {
+      console.error("Error saving business data:", error);
+      console.error("Error code:", error.code);
+      console.error("Error message:", error.message);
+
+      // More user-friendly error message
+      let errorMessage = "Error registering business. Please try again.";
+      if (error.code === "permission-denied") {
+        errorMessage =
+          "Permission denied. Please check Firestore security rules.";
+      } else if (error.code === "unavailable") {
+        errorMessage =
+          "Service temporarily unavailable. Please try again later.";
+      }
+
+      alert(errorMessage);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <>
-      {RemoveForm ? (
-        <div className="form-container">
-          <form onSubmit={handleSubmit} className="form-grid">
+      <div className="mainForm-container">
+        <h2>Business Registration Form</h2>
+
+        <form onSubmit={handleSubmit}>
+          {/* Business Name & Email */}
+          <div className="form-row">
             <div className="form-group">
-              <label>Business Name</label>
+              <label htmlFor="businessName">Business Name *</label>
               <input
-                placeholder="Hair Saloon"
                 type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
+                id="businessName"
+                name="businessName"
+                value={formData.businessName}
+                onChange={handleInputChange}
+                placeholder="Enter your business name"
+                className={errors.businessName ? "error" : ""}
                 required
-                className={errors.name ? "error" : ""}
               />
-              {errors.name && (
-                <span className="error-message">{errors.name}</span>
+              {errors.businessName && (
+                <span className="error-message">{errors.businessName}</span>
               )}
             </div>
 
             <div className="form-group">
-              <label>Phone Number</label>
+              <label htmlFor="email">Email Address *</label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                value={formData.email}
+                onChange={handleInputChange}
+                placeholder="Enter your email"
+                className={errors.email ? "error" : ""}
+                required
+              />
+              {errors.email && (
+                <span className="error-message">{errors.email}</span>
+              )}
+            </div>
+          </div>
+
+          {/* Phone & Service Category */}
+          <div className="form-row">
+            <div className="form-group">
+              <label htmlFor="phone">Phone Number *</label>
               <input
                 type="tel"
+                id="phone"
                 name="phone"
                 value={formData.phone}
-                onChange={handleChange}
-                required
+                onChange={handleInputChange}
+                placeholder="+92xxxxxxxxxx"
                 className={errors.phone ? "error" : ""}
-                placeholder="e.g., +1-234-567-8900"
+                required
               />
               {errors.phone && (
                 <span className="error-message">{errors.phone}</span>
@@ -235,34 +337,63 @@ const BusinessForm = ({ onFormSubmitSuccess }) => {
             </div>
 
             <div className="form-group">
-              <label>Business Type</label>
+              <label htmlFor="serviceCategory">Service Category *</label>
               <select
-                name="type"
-                value={formData.type}
-                onChange={handleChange}
+                id="serviceCategory"
+                name="serviceCategory"
+                value={formData.serviceCategory}
+                onChange={handleInputChange}
+                className={errors.serviceCategory ? "error" : ""}
                 required
-                className={errors.type ? "error" : ""}
               >
-                <option value="">Select Type</option>
-                <option value="bank">Bank</option>
-                <option value="salon">Salon</option>
-                <option value="clinic">Clinic</option>
-                <option value="government">Government Office</option>
-                <option value="other">Other</option>
+                <option value="">Select a category</option>
+                {serviceCategories.map((category, index) => (
+                  <option key={index} value={category}>
+                    {category}
+                  </option>
+                ))}
               </select>
-              {errors.type && (
-                <span className="error-message">{errors.type}</span>
+              {errors.serviceCategory && (
+                <span className="error-message">{errors.serviceCategory}</span>
               )}
             </div>
+          </div>
 
+          {/* Location */}
+          <div className="form-row">
+            <div className="form-group full-width">
+              <label htmlFor="location">Business Location</label>
+              <div className="location-input-group">
+                <input
+                  type="text"
+                  id="location"
+                  name="location"
+                  value={formData.location}
+                  onChange={handleInputChange}
+                  placeholder="Enter address or click 'Get Current Location'"
+                  readOnly
+                />
+                <button
+                  type="button"
+                  className="location-btn"
+                  onClick={handleLocationClick}
+                >
+                  Get Current Location
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Opening & Closing Times */}
+          <div className="form-row">
             <div className="form-group">
-              <label>Opening Time</label>
+              <label htmlFor="openTime">Opening Time</label>
               <input
                 type="time"
+                id="openTime"
                 name="openTime"
                 value={formData.openTime}
-                onChange={handleChange}
-                required
+                onChange={handleInputChange}
                 className={errors.openTime ? "error" : ""}
               />
               {errors.openTime && (
@@ -271,59 +402,95 @@ const BusinessForm = ({ onFormSubmitSuccess }) => {
             </div>
 
             <div className="form-group">
-              <label>Closing Time</label>
+              <label htmlFor="closeTime">Closing Time</label>
               <input
                 type="time"
+                id="closeTime"
                 name="closeTime"
                 value={formData.closeTime}
-                onChange={handleChange}
-                required
+                onChange={handleInputChange}
                 className={errors.closeTime ? "error" : ""}
               />
               {errors.closeTime && (
                 <span className="error-message">{errors.closeTime}</span>
               )}
             </div>
+          </div>
 
+          {/* Business Description */}
+          <div className="form-row">
+            <div className="form-group full-width">
+              <label htmlFor="businessDescription">Business Description</label>
+              <textarea
+                id="businessDescription"
+                name="businessDescription"
+                value={formData.businessDescription}
+                onChange={handleInputChange}
+                placeholder="Describe your business and services"
+                className={errors.businessDescription ? "error" : ""}
+                rows="4"
+              />
+              {errors.businessDescription && (
+                <span className="error-message">
+                  {errors.businessDescription}
+                </span>
+              )}
+            </div>
+          </div>
+
+          {/* Additional Business Info */}
+          <div className="form-row">
             <div className="form-group">
-              <label>Location</label>
-              <button type="button" onClick={handleGetLocation}>
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                  style={{ marginRight: "8px" }}
-                >
-                  <path
-                    d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"
-                    fill="currentColor"
-                  />
-                </svg>
-                {formData.latitude && formData.longitude
-                  ? "Captured ✓"
-                  : "Get Location"}
-              </button>
-              {errors.location && (
-                <span className="error-message">{errors.location}</span>
+              <label htmlFor="avgWaitingTime">Waiting Time (minutes)</label>
+              <input
+                type="number"
+                id="avgWaitingTime"
+                name="avgWaitingTime"
+                value={formData.avgWaitingTime}
+                onChange={handleInputChange}
+                placeholder="e.g., 15"
+                className={errors.avgWaitingTime ? "error" : ""}
+                min="0"
+              />
+              {errors.avgWaitingTime && (
+                <span className="error-message">{errors.avgWaitingTime}</span>
               )}
             </div>
 
-            <div className="form-button">
-              <button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? "Registering..." : "Register Business"}
-              </button>
+            <div className="form-group">
+              <label htmlFor="maxCapacityPerHour">Max Capacity Per Hour</label>
+              <input
+                type="number"
+                id="maxCapacityPerHour"
+                name="maxCapacityPerHour"
+                value={formData.maxCapacityPerHour}
+                onChange={handleInputChange}
+                placeholder="e.g., 20"
+                className={errors.maxCapacityPerHour ? "error" : ""}
+                min="1"
+              />
+              {errors.maxCapacityPerHour && (
+                <span className="error-message">
+                  {errors.maxCapacityPerHour}
+                </span>
+              )}
             </div>
-          </form>
-        </div>
-      ) : (
-        <div className="BusinessDetail-container">
-          <BusinessDetail onClose={handleCloseBusinessDetail} />
-        </div>
-      )}
+          </div>
+
+          {/* Submit Button */}
+          <div className="form-submit">
+            <button
+              type="submit"
+              className="submit-btn"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? "Registering..." : "Register Business"}
+            </button>
+          </div>
+        </form>
+      </div>
     </>
   );
-};
+}
 
 export default BusinessForm;

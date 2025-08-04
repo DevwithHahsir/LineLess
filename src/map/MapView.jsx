@@ -126,13 +126,6 @@ const MapView = ({ lat, lng, businesses = [] }) => {
           const businessLng = parseFloat(business.longitude);
           const typeInfo = getBusinessTypeInfo(business.type);
 
-          console.log(`Rendering marker for business ${index}:`, {
-            name: business.businessName,
-            type: business.type,
-            position: [businessLat, businessLng],
-            color: typeInfo.color,
-          });
-
           return (
             <Marker
               key={business.id || `business-${index}`}

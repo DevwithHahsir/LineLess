@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-// import { auth, db } from "../../firebaseConfig/firebase";
+import { auth, db } from "../firebaseConfig/firebase";
 import { doc, getDoc, collection, getDocs } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 
@@ -12,7 +12,6 @@ function FirebaseDebug() {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      console.log("Auth state changed:", currentUser);
       setUser(currentUser);
 
       if (currentUser) {
@@ -22,9 +21,7 @@ function FirebaseDebug() {
           if (userDoc.exists()) {
             const data = userDoc.data();
             setUserData(data);
-            console.log("User document data:", data);
           } else {
-            console.log("No user document found");
             setError("User document not found in Firestore");
           }
 
@@ -35,7 +32,6 @@ function FirebaseDebug() {
             usersData.push({ id: doc.id, ...doc.data() });
           });
           setAllUsers(usersData);
-          console.log("All users in collection:", usersData);
         } catch (err) {
           console.error("Error fetching data:", err);
           setError(err.message);

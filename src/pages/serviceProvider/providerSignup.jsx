@@ -135,8 +135,7 @@ export default function ProviderSignup() {
   const handleGoogleSignup = async () => {
     try {
       // Use popup with proper error handling
-      const result = await signInWithPopup(auth, googleProvider);
-      console.log("Google signup successful", result);
+      await signInWithPopup(auth, googleProvider);
       alert("Google signup successful! Welcome to LineLess!");
 
       // Navigate to service provider dashboard with delay and replace
@@ -378,9 +377,9 @@ export default function ProviderSignup() {
                 })}
               >
                 <option value="">Select a service</option>
-                <option value="plumbing">Saloon</option>
-                <option value="electrical">Clinic</option>
-                <option value="cleaning">Bank</option>
+                <option value="saloon">Saloon</option>
+                <option value="electrical">Electrician</option>
+                <option value="Bank">Bank</option>
                 <option value="maintenance">Mechanic</option>
                 <option value="other">Other</option>
               </select>

@@ -11,9 +11,6 @@ function Navbar({ isProvider = false }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
 
-  console.log("🔥 Navbar: isProvider =", isProvider);
-  console.log("🔥 Navbar: Current location =", location?.pathname);
-
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
@@ -24,13 +21,10 @@ function Navbar({ isProvider = false }) {
 
   const handleLogout = async () => {
     try {
-      console.log("🔥 Navbar: Starting logout process");
       await signOut(auth);
       setUser(null);
-      console.log("🔥 Navbar: Logout successful");
 
       // Force a complete page reload to clear any cached state
-      console.log("🔥 Navbar: Forcing page reload to clear state");
       window.location.href = "/";
     } catch (error) {
       console.error("Error signing out:", error);
