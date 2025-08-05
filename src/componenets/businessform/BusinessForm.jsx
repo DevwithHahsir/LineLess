@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import "./BusinessForm.css";
+import "./businessform.css";
 import { db, auth } from "../../firebaseConfig/firebase";
 import { collection, addDoc, doc } from "firebase/firestore";
 

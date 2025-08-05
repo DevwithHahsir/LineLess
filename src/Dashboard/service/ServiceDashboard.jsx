@@ -10,8 +10,7 @@ import {
   doc,
   updateDoc,
   deleteDoc,
-  query,
-  where,
+
 } from "firebase/firestore";
 
 function ServiceDashboard() {
