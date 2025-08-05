@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import "./BusinessForm.css";
 import { db } from "../../firebaseConfig/firebase";
-import { collection, addDoc} from "firebase/firestore";
+import { collection, addDoc } from "firebase/firestore";
 
 function BusinessForm({ onFormSubmitSuccess }) {
   const [formData, setFormData] = useState({
@@ -17,6 +17,7 @@ function BusinessForm({ onFormSubmitSuccess }) {
     businessDescription: "",
     avgWaitingTime: "",
     maxCapacityPerHour: "",
+    count: 0,
   });
 
   const [errors, setErrors] = useState({});
@@ -71,6 +72,7 @@ function BusinessForm({ onFormSubmitSuccess }) {
       }
 
       case "openTime": {
+        if (!value.trim()) return "Opening time is required";
         if (value && formData.closeTime && value >= formData.closeTime) {
           return "Opening time must be before closing time";
         }
@@ -78,13 +80,20 @@ function BusinessForm({ onFormSubmitSuccess }) {
       }
 
       case "closeTime": {
+        if (!value.trim()) return "Closing time is required";
         if (value && formData.openTime && value <= formData.openTime) {
           return "Closing time must be after opening time";
         }
         return "";
       }
 
+      case "location": {
+        if (!value.trim()) return "Business location is required";
+        return "";
+      }
+
       case "avgWaitingTime": {
+        if (!value.trim()) return "Average waiting time is required";
         if (value && (isNaN(value) || value < 0 || value > 1440)) {
           return "Waiting time must be between 0 and 1440 minutes";
         }
@@ -92,6 +101,7 @@ function BusinessForm({ onFormSubmitSuccess }) {
       }
 
       case "maxCapacityPerHour": {
+        if (!value.trim()) return "Max capacity per hour is required";
         if (value && (isNaN(value) || value < 1 || value > 10000)) {
           return "Capacity must be between 1 and 10000 customers";
         }
@@ -99,6 +109,7 @@ function BusinessForm({ onFormSubmitSuccess }) {
       }
 
       case "businessDescription": {
+        if (!value.trim()) return "Business description is required";
         if (value && value.length > 1000) {
           return "Description must be less than 1000 characters";
         }
@@ -197,7 +208,13 @@ function BusinessForm({ onFormSubmitSuccess }) {
       "businessName",
       "email",
       "phone",
+      "location",
+      "openTime",
+      "closeTime",
       "serviceCategory",
+      "businessDescription",
+      "avgWaitingTime",
+      "maxCapacityPerHour",
     ];
     const missingFields = requiredFields.filter(
       (field) => !formData[field].trim()
@@ -224,6 +241,16 @@ function BusinessForm({ onFormSubmitSuccess }) {
       // Method 1: Using addDoc (auto-generated ID)
       const docRef = await addDoc(collection(db, "businessRegistrations"), {
         ...formData,
+        // Ensure latitude and longitude are numbers, not strings
+        latitude: formData.latitude ? parseFloat(formData.latitude) : null,
+        longitude: formData.longitude ? parseFloat(formData.longitude) : null,
+        // Ensure numeric fields are properly typed
+        avgWaitingTime: formData.avgWaitingTime
+          ? parseInt(formData.avgWaitingTime)
+          : null,
+        maxCapacityPerHour: formData.maxCapacityPerHour
+          ? parseInt(formData.maxCapacityPerHour)
+          : null,
         createdAt: new Date(),
         status: "pending",
       });
@@ -244,6 +271,7 @@ function BusinessForm({ onFormSubmitSuccess }) {
         businessDescription: "",
         avgWaitingTime: "",
         maxCapacityPerHour: "",
+        count: 0,
       });
 
       // Call the success callback if provided
@@ -362,7 +390,7 @@ function BusinessForm({ onFormSubmitSuccess }) {
           {/* Location */}
           <div className="form-row">
             <div className="form-group full-width">
-              <label htmlFor="location">Business Location</label>
+              <label htmlFor="location">Business Location *</label>
               <div className="location-input-group">
                 <input
                   type="text"
@@ -371,6 +399,8 @@ function BusinessForm({ onFormSubmitSuccess }) {
                   value={formData.location}
                   onChange={handleInputChange}
                   placeholder="Enter address or click 'Get Current Location'"
+                  className={errors.location ? "error" : ""}
+                  required
                   readOnly
                 />
                 <button
@@ -381,13 +411,16 @@ function BusinessForm({ onFormSubmitSuccess }) {
                   Get Current Location
                 </button>
               </div>
+              {errors.location && (
+                <span className="error-message">{errors.location}</span>
+              )}
             </div>
           </div>
 
           {/* Opening & Closing Times */}
           <div className="form-row">
             <div className="form-group">
-              <label htmlFor="openTime">Opening Time</label>
+              <label htmlFor="openTime">Opening Time *</label>
               <input
                 type="time"
                 id="openTime"
@@ -395,6 +428,7 @@ function BusinessForm({ onFormSubmitSuccess }) {
                 value={formData.openTime}
                 onChange={handleInputChange}
                 className={errors.openTime ? "error" : ""}
+                required
               />
               {errors.openTime && (
                 <span className="error-message">{errors.openTime}</span>
@@ -402,7 +436,7 @@ function BusinessForm({ onFormSubmitSuccess }) {
             </div>
 
             <div className="form-group">
-              <label htmlFor="closeTime">Closing Time</label>
+              <label htmlFor="closeTime">Closing Time *</label>
               <input
                 type="time"
                 id="closeTime"
@@ -410,6 +444,7 @@ function BusinessForm({ onFormSubmitSuccess }) {
                 value={formData.closeTime}
                 onChange={handleInputChange}
                 className={errors.closeTime ? "error" : ""}
+                required
               />
               {errors.closeTime && (
                 <span className="error-message">{errors.closeTime}</span>
@@ -420,7 +455,9 @@ function BusinessForm({ onFormSubmitSuccess }) {
           {/* Business Description */}
           <div className="form-row">
             <div className="form-group full-width">
-              <label htmlFor="businessDescription">Business Description</label>
+              <label htmlFor="businessDescription">
+                Business Description *
+              </label>
               <textarea
                 id="businessDescription"
                 name="businessDescription"
@@ -429,6 +466,7 @@ function BusinessForm({ onFormSubmitSuccess }) {
                 placeholder="Describe your business and services"
                 className={errors.businessDescription ? "error" : ""}
                 rows="4"
+                required
               />
               {errors.businessDescription && (
                 <span className="error-message">
@@ -441,7 +479,7 @@ function BusinessForm({ onFormSubmitSuccess }) {
           {/* Additional Business Info */}
           <div className="form-row">
             <div className="form-group">
-              <label htmlFor="avgWaitingTime">Waiting Time (minutes)</label>
+              <label htmlFor="avgWaitingTime">Waiting Time (minutes) *</label>
               <input
                 type="number"
                 id="avgWaitingTime"
@@ -451,6 +489,7 @@ function BusinessForm({ onFormSubmitSuccess }) {
                 placeholder="e.g., 15"
                 className={errors.avgWaitingTime ? "error" : ""}
                 min="0"
+                required
               />
               {errors.avgWaitingTime && (
                 <span className="error-message">{errors.avgWaitingTime}</span>
@@ -458,7 +497,9 @@ function BusinessForm({ onFormSubmitSuccess }) {
             </div>
 
             <div className="form-group">
-              <label htmlFor="maxCapacityPerHour">Max Capacity Per Hour</label>
+              <label htmlFor="maxCapacityPerHour">
+                Max Capacity Per Hour *
+              </label>
               <input
                 type="number"
                 id="maxCapacityPerHour"
@@ -468,6 +509,7 @@ function BusinessForm({ onFormSubmitSuccess }) {
                 placeholder="e.g., 20"
                 className={errors.maxCapacityPerHour ? "error" : ""}
                 min="1"
+                required
               />
               {errors.maxCapacityPerHour && (
                 <span className="error-message">

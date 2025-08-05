@@ -197,8 +197,28 @@
     font-weight: 600;
 }
 
+
+
+.service-business-details {
+    padding: 20px;
+   
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.service-business-info {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 15px;
+    margin-bottom: 15px;
+    
+}
+
 .service-business-location {
     display: flex;
+    align-items: flex-start;
     gap: 10px;
     margin-bottom: 15px;
 }
@@ -214,13 +234,6 @@
     font-size: 0.95rem;
     color: #555;
     line-height: 1.5;
-}
-
-.service-business-details {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    gap: 12px;
-    margin-bottom: 20px;
 }
 
 .service-detail-item {

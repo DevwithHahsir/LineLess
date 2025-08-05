@@ -91,18 +91,24 @@
 }
 
 /* Tablet (768px to 991px) */
-@media (max-width: 991px) and (min-width: 768px) {
+@media (max-width: 991px)  {
     .heading-container {
         margin-top: 2vw;
         padding: 0 2rem;
+        /* border: 1px solid black !important; */
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
     }
 
     .heading-container h1 {
-        font-size: 3.5rem;
+        font-size: 7vw !important;
+        
     }
-
+    
     .heading-container h4 {
-        font-size: 1.25rem;
+        /* font-size: 1.25rem; */
+        font-size: 4vw !important;
         text-align: center;
     }
 

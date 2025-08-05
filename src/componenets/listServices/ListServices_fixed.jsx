@@ -12,7 +12,7 @@ import {
   FaMapMarkerAlt,
 } from "react-icons/fa";
 import { db } from "../../firebaseConfig/firebase";
-import { collection, getDocs, doc, updateDoc, addDoc, increment } from "firebase/firestore";
+import { collection, getDocs } from "firebase/firestore";
 import axios from "axios";
 
 // Business type mappings
@@ -55,68 +55,17 @@ function ListServices() {
   const [expandedCategory, setExpandedCategory] = useState(null);
 
   // Handle appointment booking
-  const handleBookAppointment = async (event, business) => {
+  const handleBookAppointment = (event, business) => {
     event.preventDefault();
     event.stopPropagation();
+    alert(
+      `Booking appointment for ${business.displayName}\nPhone: ${
+        business.phone || "N/A"
+      }\nAddress: ${business.physicalAddress}`
+    );
+  };
 
-    try {
-      // Get client name
-      const clientName = prompt("Please enter your name for the appointment:");
-      
-      if (!clientName || clientName.trim() === "") {
-        alert("Name is required to book an appointment.");
-        return;
-      }
-
-      // Show loading state
-      const button = event.target;
-      const originalText = button.textContent;
-      button.textContent = "Booking...";
-      button.disabled = true;
-
-      // Update the business count in database
-      const businessRef = doc(db, "businessRegistrations", business.id);
-      await updateDoc(businessRef, {
-        count: increment(1)
-      });
-
-      // Create appointment record
-      const appointmentData = {
-        businessId: business.id,
-        businessName: business.displayName,
-        clientName: clientName.trim(),
-        appointmentDate: new Date(),
-        status: "pending",
-        queueNumber: business.currentCount + 1
-      };
-
-      await addDoc(collection(db, "appointments"), appointmentData);
-
-      // Update local state to reflect the change
-      setBusinessCategories(prevCategories => 
-        prevCategories.map(service => 
-          service.id === business.id 
-            ? { ...service, currentCount: service.currentCount + 1 }
-            : service
-        )
-      );
-
-      alert(`Appointment booked successfully! You are #${business.currentCount + 1} in queue.`);
-
-      // Reset button state
-      button.textContent = originalText;
-      button.disabled = false;
-
-    } catch (error) {
-      console.error("Error booking appointment:", error);
-      alert("Failed to book appointment. Please try again.");
-      
-      // Reset button state on error
-      const button = event.target;
-      button.textContent = "📅 Book Appointment";
-      button.disabled = false;
-    }
-  };  // Get business info from type
+  // Get business info from type
   const getBusinessInfo = (type) => {
     return (
       businessTypeMappings[type] || {
@@ -284,7 +233,7 @@ function ListServices() {
     <div className="services-list-container">
       <div className="services-list-header">
         <h2>Available Services</h2>
-        {/* <p>Browse and book appointments with local businesses</p> */}
+        <p>Browse and book appointments with local businesses</p>
       </div>
 
       <div className="service-category-grid">
