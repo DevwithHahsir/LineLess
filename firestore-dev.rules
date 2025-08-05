@@ -1,4 +1,5 @@
 // Firestore Security Rules for LineLess App - DEVELOPMENT VERSION
+// This is a more permissive version for testing and development
 // Copy these rules to your Firebase Console -> Firestore Database -> Rules
 
 rules_version = '2';

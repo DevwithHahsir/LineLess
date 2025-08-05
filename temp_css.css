@@ -1,0 +1,6 @@
+.erorr {
+    display: flex;
+    justify-content: center;
+    color: red;
+    font-size: 2vw;
+}

@@ -11,8 +11,16 @@ import {
   FaEllipsisH,
   FaMapMarkerAlt,
 } from "react-icons/fa";
-import { db } from "../../firebaseConfig/firebase";
-import { collection, getDocs, doc, updateDoc, addDoc, increment } from "firebase/firestore";
+import { db, auth } from "../../firebaseConfig/firebase";
+import {
+  collection,
+  getDocs,
+  doc,
+  updateDoc,
+  addDoc,
+  increment,
+  getDoc,
+} from "firebase/firestore";
 import axios from "axios";
 
 // Business type mappings
@@ -60,63 +68,101 @@ function ListServices() {
     event.stopPropagation();
 
     try {
-      // Get client name
-      const clientName = prompt("Please enter your name for the appointment:");
-      
-      if (!clientName || clientName.trim() === "") {
-        alert("Name is required to book an appointment.");
-        return;
-      }
-
       // Show loading state
       const button = event.target;
       const originalText = button.textContent;
       button.textContent = "Booking...";
       button.disabled = true;
 
+      // Get current user's data from Firebase
+      let clientData = {
+        name: "Guest User",
+        email: "guest@example.com",
+        userId: "guest",
+      };
+
+      // Get current user data if authenticated
+      const currentUser = auth.currentUser;
+      if (currentUser) {
+        try {
+          const userDoc = await getDoc(doc(db, "userSignup", currentUser.uid));
+          if (userDoc.exists()) {
+            const userData = userDoc.data();
+            clientData = {
+              name: userData.fullName || userData.username || "User",
+              email: userData.email || currentUser.email,
+              userId: currentUser.uid,
+              phone: userData.phone || null,
+            };
+          }
+        } catch (error) {
+          console.log("Could not fetch user data, using defaults:", error);
+        }
+      } else {
+        // If no user is logged in, prompt for basic info
+        const userName = prompt("Please enter your name for the appointment:");
+        if (!userName || userName.trim() === "") {
+          alert("Name is required to book an appointment.");
+          button.textContent = originalText;
+          button.disabled = false;
+          return;
+        }
+        clientData.name = userName.trim();
+      }
+
       // Update the business count in database
       const businessRef = doc(db, "businessRegistrations", business.id);
       await updateDoc(businessRef, {
-        count: increment(1)
+        count: increment(1),
       });
+
+      // Get the updated count from database to ensure correct queue number
+      const updatedBusinessDoc = await getDoc(businessRef);
+      const updatedCount = updatedBusinessDoc.data()?.count || 0;
 
       // Create appointment record
       const appointmentData = {
         businessId: business.id,
         businessName: business.displayName,
-        clientName: clientName.trim(),
+        clientName: clientData.name,
+        clientEmail: clientData.email,
+        clientUserId: clientData.userId,
+        clientPhone: clientData.phone || null,
         appointmentDate: new Date(),
         status: "pending",
-        queueNumber: business.currentCount + 1
+        queueNumber: updatedCount - 1, // Queue starts from 0 (first person gets 0, second gets 1, etc.)
       };
 
       await addDoc(collection(db, "appointments"), appointmentData);
 
       // Update local state to reflect the change
-      setBusinessCategories(prevCategories => 
-        prevCategories.map(service => 
-          service.id === business.id 
-            ? { ...service, currentCount: service.currentCount + 1 }
+      setBusinessCategories((prevCategories) =>
+        prevCategories.map((service) =>
+          service.id === business.id
+            ? { ...service, currentCount: updatedCount }
             : service
         )
       );
 
-      alert(`Appointment booked successfully! You are #${business.currentCount + 1} in queue.`);
+      alert(
+        `Appointment booked successfully! You are #${
+          updatedCount - 1
+        } in queue.`
+      );
 
       // Reset button state
       button.textContent = originalText;
       button.disabled = false;
-
     } catch (error) {
       console.error("Error booking appointment:", error);
       alert("Failed to book appointment. Please try again.");
-      
+
       // Reset button state on error
       const button = event.target;
       button.textContent = "📅 Book Appointment";
       button.disabled = false;
     }
-  };  // Get business info from type
+  }; // Get business info from type
   const getBusinessInfo = (type) => {
     return (
       businessTypeMappings[type] || {
@@ -191,8 +237,7 @@ function ListServices() {
               ...business,
               displayName,
               physicalAddress,
-              currentCount:
-                business.currentCount || Math.floor(Math.random() * 15) + 1,
+              currentCount: business.count || 0, // Use the database count field or start from 0
             };
           })
         );

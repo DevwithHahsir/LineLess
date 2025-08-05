@@ -60,15 +60,15 @@ export default function ProviderSignup() {
       await setDoc(doc(db, "providerSignup", user.uid), userData);
 
       // Also create a document in the central users collection for role management
-      await setDoc(doc(db, "users", user.uid), {
-        email: data.email,
-        businessName: data.businessName,
-        serviceType: data.serviceType,
-        role: "provider",
-        userType: "provider",
-        createdAt: new Date(),
-        uid: user.uid,
-      });
+      // await setDoc(doc(db, "users", user.uid), {
+      //   email: data.email,
+      //   businessName: data.businessName,
+      //   serviceType: data.serviceType,
+      //   role: "provider",
+      //   userType: "provider",
+      //   createdAt: new Date(),
+      //   uid: user.uid,
+      // });
 
       alert("Provider account created successfully! Welcome to LineLess!");
 

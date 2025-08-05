@@ -1,4 +1,4 @@
-.heading-container {
+﻿.heading-container {
 
 
     /* background-color: #EEEEEE; */
@@ -28,9 +28,55 @@
     display: flex;
     justify-content: center;
     align-items: center;
+}
+
+/* Appointments header styling */
+.appointments-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.appointments-header h3 {
+    margin: 0;
+    color: #2c3e50;
+}
+
+.refresh-btn:hover {
+    background-color: #45a049 !important;
+}
+
+/* Business actions styling */
+.business-actions {
+    display: flex;
+    justify-content: flex-start;
+    margin-top: 10px;
+}
+
+.reset-queue-btn:hover {
+    background-color: #d32f2f !important;
+}
+
+/* Appointment status styling */
+.appointment-card {
+    border-left: 4px solid #ddd;
+    transition: all 0.3s ease;
+}
+
+.appointment-card:has(.appointment-status[style*="4caf50"]) {
+    border-left-color: #4caf50;
+    background-color: #f8fff8;
+}
+
+.appointment-status {
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.btn-addbusiness {
     /* border: 10px solid white; */
     margin: 2rem;
-
 }
 
 .btn-addbusiness button {
@@ -91,7 +137,7 @@
 }
 
 /* Tablet (768px to 991px) */
-@media (max-width: 991px)  {
+@media (max-width: 991px) {
     .heading-container {
         margin-top: 2vw;
         padding: 0 2rem;
@@ -103,9 +149,9 @@
 
     .heading-container h1 {
         font-size: 7vw !important;
-        
+
     }
-    
+
     .heading-container h4 {
         /* font-size: 1.25rem; */
         font-size: 4vw !important;
@@ -129,28 +175,9 @@
 /* FORMMMMMMMMMMMMMMM AREAAAAAAAAAAA */
 
 
-
-.erorr{
+.erorr {
     display: flex;
-    justify-content: center;color: red;
+    justify-content: center;
+    color: red;
     font-size: 2vw;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

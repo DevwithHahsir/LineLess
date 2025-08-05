@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import "./BusinessForm.css";
-import { db } from "../../firebaseConfig/firebase";
-import { collection, addDoc } from "firebase/firestore";
+import { db, auth } from "../../firebaseConfig/firebase";
+import { collection, addDoc, doc } from "firebase/firestore";
 
 function BusinessForm({ onFormSubmitSuccess }) {
   const [formData, setFormData] = useState({
@@ -234,12 +234,20 @@ function BusinessForm({ onFormSubmitSuccess }) {
     setErrors({});
 
     try {
-      // Alternative method - try addDoc first, then setDoc if needed
+      // Get current user (provider)
+      const currentUser = auth.currentUser;
+      if (!currentUser) {
+        alert("You must be logged in to register a business.");
+        setIsSubmitting(false);
+        return;
+      }
+
       console.log("Attempting to save to Firestore...");
       console.log("Form data:", formData);
+      console.log("Provider ID:", currentUser.uid);
 
-      // Method 1: Using addDoc (auto-generated ID)
-      const docRef = await addDoc(collection(db, "businessRegistrations"), {
+      // Save business as subcollection under provider
+      const businessData = {
         ...formData,
         // Ensure latitude and longitude are numbers, not strings
         latitude: formData.latitude ? parseFloat(formData.latitude) : null,
@@ -251,8 +259,24 @@ function BusinessForm({ onFormSubmitSuccess }) {
         maxCapacityPerHour: formData.maxCapacityPerHour
           ? parseInt(formData.maxCapacityPerHour)
           : null,
+        count: 0, // Initialize appointment count to 0
         createdAt: new Date(),
-        status: "pending",
+        status: "active",
+        providerId: currentUser.uid, // Link to provider
+      };
+
+      // Save to subcollection: providerSignup/{providerId}/businessRegistrations/{businessId}
+      const providerDocRef = doc(db, "providerSignup", currentUser.uid);
+      const businessCollectionRef = collection(
+        providerDocRef,
+        "businessRegistrations"
+      );
+      const docRef = await addDoc(businessCollectionRef, businessData);
+
+      // Also save to main collection for easier querying by clients
+      await addDoc(collection(db, "businessRegistrations"), {
+        ...businessData,
+        businessId: docRef.id, // Reference to subcollection document
       });
 
       console.log("Business registered successfully with ID:", docRef.id);
