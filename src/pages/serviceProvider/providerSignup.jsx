@@ -377,11 +377,20 @@ export default function ProviderSignup() {
                 })}
               >
                 <option value="">Select a service</option>
-                <option value="saloon">Saloon</option>
-                <option value="electrical">Electrician</option>
-                <option value="Bank">Bank</option>
-                <option value="maintenance">Mechanic</option>
-                <option value="other">Other</option>
+                <option value="Restaurant">Restaurant</option>
+                <option value="Salon & Beauty">Salon & Beauty</option>
+                <option value="Healthcare">Healthcare</option>
+                <option value="Automotive">Automotive</option>
+                <option value="Retail Store">Retail Store</option>
+                <option value="Fitness & Gym">Fitness & Gym</option>
+                <option value="Education">Education</option>
+                <option value="Banking">Banking</option>
+                <option value="Government Office">Government Office</option>
+                <option value="Entertainment">Entertainment</option>
+                <option value="Professional Services">
+                  Professional Services
+                </option>
+                <option value="Other">Other</option>
               </select>
               {errors.serviceType && <span>{errors.serviceType.message}</span>}
             </div>

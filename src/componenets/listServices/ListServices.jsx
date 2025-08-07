@@ -23,37 +23,91 @@ import {
 } from "firebase/firestore";
 import axios from "axios";
 
-// Business type mappings
+// Business type mappings (updated)
 const businessTypeMappings = {
-  bank: {
-    icon: FaBuilding,
-    displayName: "Banks & Finance",
-    description: "Banks, insurance offices, loan centers",
-    color: "#1976d2",
+  restaurant: {
+    icon: FaStore,
+    displayName: "Restaurant",
+    description: "Restaurants, cafes, food courts",
+    color: "#ff7043",
+    tag: "Food & Dining",
   },
-  salon: {
+  "salon & beauty": {
     icon: FaCut,
-    displayName: "Salons & Beauty",
+    displayName: "Salon & Beauty",
     description: "Hair salons, beauty parlors, spas",
     color: "#e91e63",
+    tag: "Beauty",
   },
-  clinic: {
+  healthcare: {
     icon: FaHospital,
-    displayName: "Healthcare & Clinics",
+    displayName: "Healthcare",
     description: "Medical clinics, hospitals, healthcare",
     color: "#4caf50",
+    tag: "Health",
   },
-  government: {
+  automotive: {
+    icon: FaBuilding,
+    displayName: "Automotive",
+    description: "Mechanics, car service, auto repair",
+    color: "#607d8b",
+    tag: "Auto",
+  },
+  "retail store": {
+    icon: FaStore,
+    displayName: "Retail Store",
+    description: "Shops, stores, supermarkets",
+    color: "#9c27b0",
+    tag: "Retail",
+  },
+  "fitness & gym": {
+    icon: FaUsers,
+    displayName: "Fitness & Gym",
+    description: "Gyms, fitness centers, yoga studios",
+    color: "#00bcd4",
+    tag: "Fitness",
+  },
+  education: {
     icon: FaUniversity,
-    displayName: "Government Offices",
+    displayName: "Education",
+    description: "Schools, colleges, coaching centers",
+    color: "#3f51b5",
+    tag: "Education",
+  },
+  banking: {
+    icon: FaBuilding,
+    displayName: "Banking",
+    description: "Banks, finance, loan centers",
+    color: "#1976d2",
+    tag: "Finance",
+  },
+  "government office": {
+    icon: FaUniversity,
+    displayName: "Government Office",
     description: "Government offices, municipal services",
     color: "#ff9800",
+    tag: "Government",
+  },
+  entertainment: {
+    icon: FaStore,
+    displayName: "Entertainment",
+    description: "Cinemas, theaters, amusement parks",
+    color: "#ffb300",
+    tag: "Fun",
+  },
+  "professional services": {
+    icon: FaEllipsisH,
+    displayName: "Professional Services",
+    description: "Consultants, legal, IT, business services",
+    color: "#8bc34a",
+    tag: "Professional",
   },
   other: {
     icon: FaStore,
-    displayName: "Other Services",
+    displayName: "Other",
     description: "Various other business services",
-    color: "#9c27b0",
+    color: "#757575",
+    tag: "Other",
   },
 };
 
@@ -130,7 +184,7 @@ function ListServices() {
         clientPhone: clientData.phone || null,
         appointmentDate: new Date(),
         status: "pending",
-        queueNumber: updatedCount - 1, // Queue starts from 0 (first person gets 0, second gets 1, etc.)
+        queueNumber: updatedCount, // Queue starts from 1 (first person gets 1, second gets 2, etc.)
       };
 
       await addDoc(collection(db, "appointments"), appointmentData);
@@ -145,9 +199,7 @@ function ListServices() {
       );
 
       alert(
-        `Appointment booked successfully! You are #${
-          updatedCount - 1
-        } in queue.`
+        `Appointment booked successfully! You are #${updatedCount} in queue.`
       );
 
       // Reset button state
@@ -233,45 +285,38 @@ function ListServices() {
               physicalAddress = business.address || business.location;
             }
 
+            // Fetch currentToken from business document, fallback to 0 if not present
+            const currentToken =
+              business.currentToken !== undefined ? business.currentToken : 0;
+
             return {
               ...business,
               displayName,
               physicalAddress,
-              currentCount: business.count || 0, // Use the database count field or start from 0
+              currentCount: business.count || 0, // Total booked tokens
+              currentToken, // Current serving token
             };
           })
         );
 
-        // Instead of grouping, create individual service cards for each business
+        // Use new category keys for mapping
+        const normalizeType = (type) => {
+          if (!type) return "other";
+          // Lowercase, trim, and collapse multiple spaces
+          return type.toLowerCase().replace(/\s+/g, " ").trim();
+        };
+
         const individualServices = processedBusinesses.map((business) => {
-          // Map the serviceCategory from business form to the expected type
           const type =
             business.serviceCategory ||
             business.businessType ||
             business.type ||
             "other";
-          const normalizedType = type.toLowerCase().replace(/\s+/g, "");
-
-          // Map service categories to our business type keys for icons and styling
-          const typeMapping = {
-            restaurant: "other",
-            "salon&beauty": "salon",
-            healthcare: "clinic",
-            automotive: "other",
-            retailstore: "other",
-            "fitness&gym": "other",
-            education: "government",
-            banking: "bank",
-            governmentoffice: "government",
-            entertainment: "other",
-            professionalservices: "other",
-            other: "other",
-          };
-
-          const mappedType = typeMapping[normalizedType] || "other";
-          console.log(
-            `Business type mapping: ${type} -> ${normalizedType} -> ${mappedType}`
-          );
+          const normalizedType = normalizeType(type);
+          // Use the mapping key as is (e.g., "salon & beauty", "retail store")
+          const mappedType = businessTypeMappings[normalizedType]
+            ? normalizedType
+            : "other";
 
           // Create individual service object with business info
           return {
@@ -280,7 +325,9 @@ function ListServices() {
             originalCategory: type,
             displayName: business.displayName, // Business name
             physicalAddress: business.physicalAddress,
-            currentCount: business.currentCount,
+            currentCount: business.currentCount, // Total booked tokens
+            currentToken:
+              business.currentToken !== undefined ? business.currentToken : 0, // Ensure fallback to 0
             avgWaitTime: Math.max(5, business.currentCount * 2),
             phone: business.phone,
             email: business.email,
@@ -365,6 +412,18 @@ function ListServices() {
               <p className="service-category-description">
                 {service.description}
               </p>
+
+              {/* Show current serving token (from provider dashboard) */}
+              <div
+                className="service-token-info"
+                style={{
+                  marginBottom: "8px",
+                  fontWeight: "bold",
+                  color: color,
+                }}
+              >
+                Current Token: {service.currentToken}
+              </div>
 
               <div className="service-stats-container">
                 <div className="service-stat-item">

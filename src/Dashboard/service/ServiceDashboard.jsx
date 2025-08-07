@@ -10,7 +10,6 @@ import {
   doc,
   updateDoc,
   deleteDoc,
-
 } from "firebase/firestore";
 
 function ServiceDashboard() {
@@ -194,7 +193,12 @@ function ServiceDashboard() {
           {/* Business Form */}
           {showform ? (
             <div>
-              <BusinessForm />
+              <BusinessForm
+                onFormSubmitSuccess={() => {
+                  setShowform(false);
+                  refreshData();
+                }}
+              />
             </div>
           ) : (
             <div className="business-info">
@@ -248,6 +252,23 @@ function ServiceDashboard() {
         <div className="appointments-tab">
           <div className="appointments-header">
             <h3>Client Appointments</h3>
+
+               {/* Next token Butoon */}
+               <button className="next-tokken-btn"
+                style={{
+                padding: "8px 16px",
+                backgroundColor: "#2c3e50",
+                color: "white",
+                border: "none",
+                borderRadius: "4px",
+                cursor: "pointer",
+              }}
+               
+               
+               >Next Token</button>
+
+
+
             <button
               className="refresh-btn"
               onClick={refreshData}
@@ -260,7 +281,7 @@ function ServiceDashboard() {
                 cursor: "pointer",
               }}
             >
-              🔄 Refresh
+               Refresh
             </button>
           </div>
           {loading ? (
@@ -270,7 +291,7 @@ function ServiceDashboard() {
               {appointments.map((appointment) => (
                 <div key={appointment.id} className="appointment-card">
                   <div className="appointment-header">
-                    <h4>Queue #{appointment.queueNumber}</h4>
+                    <h4>Token Number {appointment.queueNumber}</h4>
                     <span
                       className="appointment-status"
                       style={{

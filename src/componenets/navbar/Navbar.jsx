@@ -1,30 +1,26 @@
-import React, { useState, useEffect } from "react";
+/* eslint-disable no-unused-vars */
+import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { onAuthStateChanged, signOut } from "firebase/auth";
+import { signOut } from "firebase/auth";
 import { auth } from "../../firebaseConfig/firebase";
+import { useAuth } from "../../authContext/useAuth";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./Navbar.css";
 
 function Navbar({ isProvider = false }) {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
+  // if (user) {
+  //   console.log("User logged in:", {
+  //     role: user.role,
+  //     email: user.email,
+  //   });
+  // }
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-      setLoading(false);
-    });
-    return () => unsubscribe();
-  }, []);
 
   const handleLogout = async () => {
     try {
       await signOut(auth);
-      setUser(null);
-
-      // Force a complete page reload to clear any cached state
       window.location.href = "/";
     } catch (error) {
       console.error("Error signing out:", error);
@@ -40,6 +36,9 @@ function Navbar({ isProvider = false }) {
   };
 
   const isActive = (path) => location.pathname === path;
+
+  // Show user info and both dashboards for any logged-in user
+  const shouldShowUser = !!user;
 
   return (
     <nav className="navbar navbar-expand-lg bg-dark px-3">
@@ -84,70 +83,79 @@ function Navbar({ isProvider = false }) {
               </Link>
             </li>
 
-            {user && (
-              <li className="nav-item">
-                <Link
-                  to={
-                    isProvider
-                      ? "/service/Servicedashboard"
-                      : "/client/clientdashboard"
-                  }
-                  className={`nav-link ${
-                    isActive(
-                      isProvider
-                        ? "/service/Servicedashboard"
-                        : "/client/clientdashboard"
-                    )
-                      ? "active"
-                      : ""
-                  }`}
-                  onClick={closeMenu}
-                >
-                  {isProvider ? "Provider Dashboard" : "Dashboard"}
-                </Link>
-              </li>
+            {shouldShowUser && (
+              <>
+                {/* <li className="nav-item">
+                  <Link
+                    to="/client/clientdashboard"
+                    className={`nav-link ${
+                      isActive("/client/clientdashboard") ? "active" : ""
+                    }`}
+                    onClick={closeMenu}
+                  >
+                    Dashboard
+                  </Link>
+                </li> */}
+                {/* <li className="nav-item">
+                  <Link
+                    to="/service/Servicedashboard"
+                    className={`nav-link ${
+                      isActive("/service/Servicedashboard") ? "active" : ""
+                    }`}
+                    onClick={closeMenu}
+                  >
+                    Provider Dashboard
+                  </Link>
+                </li> */}
+              </>
             )}
           </ul>
 
           <div className="d-flex align-items-center">
-            {loading ? (
-              <span className="text-white me-3">Loading...</span>
-            ) : user ? (
+            {shouldShowUser ? (
               <>
-                <span className="text-white me-3">
-                  {isProvider ? "" : ""}
-                  {user.email}
+              
+
+                <span className="text-white me-3 user-email-role">
+                  
+                  <span className="badge bg-secondary ms-2">{user.role}</span>
+                  {/* <span className="ms-2">{user.email}</span> */}
                 </span>
+
                 <button
                   onClick={handleLogout}
-                  className="btn btn-outline-light btn-sm"
-                >
+                  className="btn btn-outline-light btn-sm logout"
+                  >
                   Logout
                 </button>
+                  
               </>
             ) : (
               <>
+              <div className="auth-btns">
+
                 <Link
                   to="/user/login"
-                  className="btn btn-outline-light btn-sm me-2"
+                  className="btn btn-outline-light btn-sm me-2 sign-in"
                   onClick={closeMenu}
                 >
                   Sign In
                 </Link>
                 <Link
                   to="/provider/login"
-                  className="btn btn-outline-warning btn-sm me-2"
+                  className="btn btn-outline-warning btn-sm me-2 change-dash-btn"
                   onClick={closeMenu}
                 >
                   Service Provider
                 </Link>
                 <Link
                   to="/user/signup"
-                  className="btn btn-outline-success btn-sm"
+                  className="btn btn-outline-success btn-sm sign-up"
                   onClick={closeMenu}
-                >
+                  >
                   Sign Up
                 </Link>
+                  </div>
               </>
             )}
           </div>
