@@ -1,10 +1,9 @@
-*
-{
+* {
   margin: 0px;
   box-sizing: border-box;
 }
-.navbar
-{
+
+.navbar {
   /* border: 1px solid; */
   width: 100%;
   position: fixed;
@@ -12,37 +11,31 @@
   background-color: #2c3e50 !important;
   z-index: 1000;
 }
-.navbar-brand
-{
+
+.navbar-brand {
   color: azure;
   font-family: 'Times New Roman', Times, serif;
-  
+
 }
 
-.navbar ul
-
-{
-  
-  
+.navbar ul {
   width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.navbar ul a{
+.navbar ul a {
   color: azure;
   font-family: 'Times New Roman', Times, serif;
-  
+
 }
 
 
-.navbar .badge
-{
-/* font-size: 1vw !important; */
-}
+/* .navbar .badge { }
+  uncomment and customize if needed */
 
-.logout{
+.logout {
   background-color: red;
   border: none;
 }
@@ -57,16 +50,77 @@
 } */
 
 
-.active:hover
-{
+.active:hover {
 
-   color: #2c3e50;
+  color: #2c3e50;
 }
 
 
-.auth-btns
-{
+.auth-btns {
 
- width: 20vw;
- display: flex;  
+  width: 20vw;
+  display: flex;
 }
+
+
+.navbar-toggler {
+  border: 1px solid green !important;
+  width: 4rem;
+}
+
+.navbar-toggler .navbar-toggler-icon {
+  color: white !important;
+
+}
+
+
+
+
+@media (max-width: 900px) {
+
+  .logout {
+    width: 5rem;
+
+
+  }
+
+
+}
+
+/* Mobile-first left alignment for navbar content */
+@media (max-width: 768px) {
+
+  /* Stack items and left-align inside the collapsed menu */
+  .navbar .navbar-collapse {
+    width: 100%;
+  }
+
+  .navbar .navbar-nav {
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: 0.25rem;
+  }
+
+  .navbar .navbar-nav .nav-link {
+    width: 100%;
+    text-align: left;
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  /* Ensure the right-side action group also aligns left and wraps nicely */
+  .navbar .d-flex.align-items-center {
+    width: 100%;
+    justify-content: flex-start;
+    margin-top: 0.5rem;
+  }
+
+  .auth-btns {
+    width: 100%;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+}
+
+/* reverted mobile-only logout styles */

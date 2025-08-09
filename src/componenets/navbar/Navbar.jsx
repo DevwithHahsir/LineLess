@@ -114,10 +114,7 @@ function Navbar({ isProvider = false }) {
           <div className="d-flex align-items-center">
             {shouldShowUser ? (
               <>
-              
-
                 <span className="text-white me-3 user-email-role">
-                  
                   <span className="badge bg-secondary ms-2">{user.role}</span>
                   {/* <span className="ms-2">{user.email}</span> */}
                 </span>
@@ -125,37 +122,35 @@ function Navbar({ isProvider = false }) {
                 <button
                   onClick={handleLogout}
                   className="btn btn-outline-light btn-sm logout"
-                  >
+                >
                   Logout
                 </button>
-                  
               </>
             ) : (
               <>
-              <div className="auth-btns">
-
-                <Link
-                  to="/user/login"
-                  className="btn btn-outline-light btn-sm me-2 sign-in"
-                  onClick={closeMenu}
-                >
-                  Sign In
-                </Link>
-                <Link
-                  to="/provider/login"
-                  className="btn btn-outline-warning btn-sm me-2 change-dash-btn"
-                  onClick={closeMenu}
-                >
-                  Service Provider
-                </Link>
-                <Link
-                  to="/user/signup"
-                  className="btn btn-outline-success btn-sm sign-up"
-                  onClick={closeMenu}
+                <div className="auth-btns">
+                  <Link
+                    to="/user/login"
+                    className="btn btn-outline-light btn-sm me-2 sign-in"
+                    onClick={closeMenu}
                   >
-                  Sign Up
-                </Link>
-                  </div>
+                    Sign In
+                  </Link>
+                  <Link
+                    to="/provider/login"
+                    className="btn btn-outline-warning btn-sm me-2 change-dash-btn"
+                    onClick={closeMenu}
+                  >
+                    Service Provider
+                  </Link>
+                  <Link
+                    to="/user/signup"
+                    className="btn btn-outline-success btn-sm sign-up"
+                    onClick={closeMenu}
+                  >
+                    Sign Up
+                  </Link>
+                </div>
               </>
             )}
           </div>

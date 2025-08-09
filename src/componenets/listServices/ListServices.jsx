@@ -229,7 +229,13 @@ function ListServices() {
   // Reverse geocode function
   const reverseGeocode = async (lat, lng) => {
     try {
-      const API_KEY = "f84ab7e3e4c144a092715c1baee472fd";
+      const API_KEY = import.meta.env.VITE_OPENCAGE_API_KEY;
+      if (!API_KEY) {
+        console.warn(
+          "Missing VITE_OPENCAGE_API_KEY. Add it to your .env file (Vite) to enable reverse geocoding."
+        );
+        return "Address not available";
+      }
       const response = await axios.get(
         `https://api.opencagedata.com/geocode/v1/json?q=${lat},${lng}&key=${API_KEY}`
       );

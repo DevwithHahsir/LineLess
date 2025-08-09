@@ -12,7 +12,7 @@ import {
   FaMapMarkerAlt,
 } from "react-icons/fa";
 import { db } from "../../firebaseConfig/firebase";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs, query, where } from "firebase/firestore";
 import axios from "axios";
 
 // Business type mappings
@@ -80,7 +80,14 @@ function ListServices() {
   // Reverse geocode function
   const reverseGeocode = async (lat, lng) => {
     try {
-      const API_KEY = "f84ab7e3e4c144a092715c1baee472fd";
+      const API_KEY = import.meta.env.VITE_OPENCAGE_API_KEY;
+      if (!API_KEY) {
+        console
+          .warn
+          // "Missing VITE_OPENCAGE_API_KEY. Add it to your .env file (Vite) to enable reverse geocoding."
+          ();
+        return "Address not available";
+      }
       const response = await axios.get(
         `https://api.opencagedata.com/geocode/v1/json?q=${lat},${lng}&key=${API_KEY}`
       );
@@ -115,6 +122,61 @@ function ListServices() {
 
         console.log("Raw businesses data:", businesses);
 
+        // Fetch current token per business from appointments (serving or pending)
+        let currentTokenByBiz = new Map();
+        const ACTIVE_STATUSES = new Set([
+          "serving",
+          "current",
+          "pending",
+          "accepted",
+          "ongoing",
+        ]);
+        const accumulate = (docs) => {
+          // Helper to extract a number from mixed strings like "token1" or "tokken2"
+          const toNumber = (val) => {
+            if (typeof val === "number") return val;
+            if (typeof val === "string") {
+              const match = val.match(/\d+/);
+              if (match) return Number(match[0]);
+            }
+            return NaN;
+          };
+
+          docs.forEach((d) => {
+            const a = d.data();
+            const bId = a.businessId;
+            if (!bId) return;
+            // Support multiple possible token fields
+            const tokenCandidate =
+              a.queueNumber ?? a.token ?? a.tokken ?? a.tokenNumber;
+            const qnRaw = toNumber(tokenCandidate);
+            const qn = Number.isFinite(qnRaw) ? qnRaw : Number.MAX_SAFE_INTEGER;
+            const st = (a.status || "").toString().toLowerCase();
+            if (!ACTIVE_STATUSES.has(st)) return;
+            const existing = currentTokenByBiz.get(bId);
+            if (existing === undefined || qn < existing) {
+              currentTokenByBiz.set(bId, qn);
+            }
+          });
+        };
+        try {
+          // Try indexed query first
+          const apptQ = query(
+            collection(db, "appointments"),
+            where("status", "in", Array.from(ACTIVE_STATUSES))
+          );
+          const apptSnap = await getDocs(apptQ);
+          accumulate(apptSnap);
+        } catch (e) {
+          // Likely missing index for 'in' query; fall back to fetching all and filtering client-side
+          console.warn(
+            "Falling back to client-side filter for appointments (consider adding an index):",
+            e
+          );
+          const allApptsSnap = await getDocs(collection(db, "appointments"));
+          accumulate(allApptsSnap);
+        }
+
         // Process each business
         const processedBusinesses = await Promise.all(
           businesses.map(async (business) => {
@@ -142,6 +204,7 @@ function ListServices() {
               physicalAddress,
               currentCount:
                 business.currentCount || Math.floor(Math.random() * 15) + 1,
+              currentToken: currentTokenByBiz.get(business.id) ?? 0,
             };
           })
         );
@@ -185,6 +248,7 @@ function ListServices() {
             displayName: business.displayName, // Business name
             physicalAddress: business.physicalAddress,
             currentCount: business.currentCount,
+            currentToken: business.currentToken,
             avgWaitTime: Math.max(5, business.currentCount * 2),
             phone: business.phone,
             email: business.email,
@@ -269,6 +333,14 @@ function ListServices() {
               <p className="service-category-description">
                 {service.description}
               </p>
+
+              {/* Current serving token (computed from appointments) */}
+              <div
+                className="service-token-info"
+                style={{ marginBottom: "8px", fontWeight: "bold", color }}
+              >
+                Current Token: {service.currentToken}
+              </div>
 
               <div className="service-stats-container">
                 <div className="service-stat-item">

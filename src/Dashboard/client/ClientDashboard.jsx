@@ -168,7 +168,6 @@ function ClientDashboard() {
                               display: "flex",
                               alignItems: "center",
                               justifyContent: "center",
-                              border: "1px solid #ccc",
                               borderRadius: "8px",
                               backgroundColor: "#f8f9fa",
                             }}

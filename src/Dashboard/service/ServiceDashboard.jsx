@@ -111,6 +111,16 @@ function ServiceDashboard() {
         }));
 
         // Filter appointments for this provider's businesses and add business category
+        // Helper: numeric sort for queueNumber (supports strings like "token2")
+        const numVal = (v) => {
+          if (typeof v === "number") return v;
+          if (typeof v === "string") {
+            const m = v.match(/\d+/);
+            if (m) return parseInt(m[0], 10);
+          }
+          return Number.MAX_SAFE_INTEGER;
+        };
+
         const providerAppointments = allAppointments
           .filter((apt) => businessIds.includes(apt.businessId))
           .map((apt) => {
@@ -123,18 +133,10 @@ function ServiceDashboard() {
               businessCategory: business?.serviceCategory || "Unknown Category",
             };
           })
-          .sort((a, b) => a.queueNumber - b.queueNumber); // Sort by queue number
+          .sort((a, b) => numVal(a.queueNumber) - numVal(b.queueNumber)); // Sort by queue number
 
-        // Update status: mark the appointment with lowest queue number as "CURRENT"
-        const updatedAppointments = providerAppointments.map((apt, index) => ({
-          ...apt,
-          status:
-            index === 0 && providerAppointments.length > 0
-              ? "CURRENT"
-              : "pending",
-        }));
-
-        setAppointments(updatedAppointments);
+        // Do NOT override status from Firestore; keep what's stored in DB
+        setAppointments(providerAppointments);
       }
     } catch (error) {
       console.error("Error fetching provider data:", error);
@@ -152,6 +154,114 @@ function ServiceDashboard() {
     if (!date) return "N/A";
     const d = date.toDate ? date.toDate() : new Date(date);
     return d.toLocaleDateString() + " " + d.toLocaleTimeString();
+  };
+
+  // Advance to next token: mark current as served, next as CURRENT, update business currentToken
+  const advanceNextToken = async () => {
+    try {
+      if (appointments.length === 0) {
+        alert("No appointments to advance.");
+        return;
+      }
+
+      // Helper: numeric value from queueNumber (supports strings like "token2")
+      const numVal = (v) => {
+        if (typeof v === "number") return v;
+        if (typeof v === "string") {
+          const m = v.match(/\d+/);
+          if (m) return parseInt(m[0], 10);
+        }
+        return Number.MAX_SAFE_INTEGER;
+      };
+
+      // Consider only active appointments
+      const ACTIVE = new Set([
+        "CURRENT",
+        "PENDING",
+        "ACCEPTED",
+        "ONGOING",
+        "SERVING",
+      ]);
+      const active = appointments.filter((a) =>
+        ACTIVE.has((a.status || "").toUpperCase())
+      );
+      if (active.length === 0) {
+        alert("No active appointments to advance.");
+        return;
+      }
+
+      // Sort active by queue number
+      const ordered = [...active].sort(
+        (a, b) => numVal(a.queueNumber) - numVal(b.queueNumber)
+      );
+
+      // Current = marked CURRENT, else the smallest queue number
+      const currentIdx = ordered.findIndex(
+        (a) => (a.status || "").toUpperCase() === "CURRENT"
+      );
+      const currentAppt = currentIdx >= 0 ? ordered[currentIdx] : ordered[0];
+      const currentNum = numVal(currentAppt.queueNumber);
+      const nextAppt = ordered.find((a) => numVal(a.queueNumber) > currentNum);
+
+      // 1) Mark current as served (so it's no longer active)
+      await updateDoc(doc(db, "appointments", currentAppt.id), {
+        status: "served",
+      });
+
+      // 2) If there's a next one, mark it as CURRENT
+      if (nextAppt) {
+        await updateDoc(doc(db, "appointments", nextAppt.id), {
+          status: "CURRENT",
+        });
+        // 3) Update business currentToken to next token number
+        await updateDoc(
+          doc(db, "businessRegistrations", currentAppt.businessId),
+          {
+            currentToken: numVal(nextAppt.queueNumber) || 0,
+          }
+        );
+      } else {
+        // Queue finished: reset currentToken to 0 for that business
+        await updateDoc(
+          doc(db, "businessRegistrations", currentAppt.businessId),
+          {
+            currentToken: 0,
+          }
+        );
+      }
+
+      // 4) Set all other future appointments for this business to pending
+      const othersToPending = ordered.filter(
+        (a) => a.id !== currentAppt.id && (!nextAppt || a.id !== nextAppt.id)
+      );
+      await Promise.all(
+        othersToPending.map((apt) =>
+          updateDoc(doc(db, "appointments", apt.id), { status: "pending" })
+        )
+      );
+
+      // Optimistic UI update
+      setAppointments((prev) => {
+        const updated = prev.map((apt) => {
+          // Only adjust appointments for this business in the local state
+          if (apt.businessId !== currentAppt.businessId) return apt;
+          if (apt.id === currentAppt.id) return { ...apt, status: "served" };
+          if (nextAppt && apt.id === nextAppt.id)
+            return { ...apt, status: "CURRENT" };
+          // all other for this business -> pending
+          return { ...apt, status: "pending" };
+        });
+        return updated.sort(
+          (a, b) => numVal(a.queueNumber) - numVal(b.queueNumber)
+        );
+      });
+
+      // Then refresh from server
+      await refreshData();
+    } catch (e) {
+      console.error("Failed to advance to next token:", e);
+      alert("Failed to advance token. Please try again.");
+    }
   };
 
   return (
@@ -233,7 +343,7 @@ function ServiceDashboard() {
                             marginTop: "10px",
                           }}
                         >
-                          �️ Reset Queue & Clear Appointments
+                          Reset & Clear Appointments
                         </button>
                       </div>
                     </div>
@@ -253,9 +363,10 @@ function ServiceDashboard() {
           <div className="appointments-header">
             <h3>Client Appointments</h3>
 
-               {/* Next token Butoon */}
-               <button className="next-tokken-btn"
-                style={{
+            {/* Next token Butoon */}
+            <button
+              className="next-tokken-btn"
+              style={{
                 padding: "8px 16px",
                 backgroundColor: "#2c3e50",
                 color: "white",
@@ -263,11 +374,10 @@ function ServiceDashboard() {
                 borderRadius: "4px",
                 cursor: "pointer",
               }}
-               
-               
-               >Next Token</button>
-
-
+              onClick={advanceNextToken}
+            >
+              Next Token
+            </button>
 
             <button
               className="refresh-btn"
@@ -281,49 +391,161 @@ function ServiceDashboard() {
                 cursor: "pointer",
               }}
             >
-               Refresh
+              Refresh
             </button>
           </div>
           {loading ? (
             <div className="loading">Loading appointments...</div>
           ) : appointments.length > 0 ? (
-            <div className="appointments-list">
-              {appointments.map((appointment) => (
-                <div key={appointment.id} className="appointment-card">
-                  <div className="appointment-header">
-                    <h4>Token Number {appointment.queueNumber}</h4>
-                    <span
-                      className="appointment-status"
-                      style={{
-                        backgroundColor:
-                          appointment.status === "CURRENT"
-                            ? "#4caf50"
-                            : "#ff9800",
-                        color: "white",
-                        padding: "4px 8px",
-                        borderRadius: "4px",
-                        fontSize: "12px",
-                        fontWeight: "bold",
-                      }}
-                    >
-                      {appointment.status}
-                    </span>
-                  </div>
-                  <div className="appointment-details">
-                    <p>
-                      <strong>Client Name:</strong> {appointment.clientName}
-                    </p>
-                    <p>
-                      <strong>Business Category:</strong>{" "}
-                      {appointment.businessCategory}
-                    </p>
-                    <p>
-                      <strong>Booked At:</strong>{" "}
-                      {formatDate(appointment.appointmentDate)}
-                    </p>
-                  </div>
-                </div>
-              ))}
+            <div className="appointments-groups">
+              {(() => {
+                // Helper to sort tokens numerically and put CURRENT first
+                const numVal = (v) => {
+                  if (typeof v === "number") return v;
+                  if (typeof v === "string") {
+                    const m = v.match(/\d+/);
+                    if (m) return parseInt(m[0], 10);
+                  }
+                  return Number.MAX_SAFE_INTEGER;
+                };
+                const isStatus = (apt, s) =>
+                  (apt.status || "").toUpperCase() === s;
+                const activeSet = new Set([
+                  "CURRENT",
+                  "PENDING",
+                  "ACCEPTED",
+                  "ONGOING",
+                  "SERVING",
+                ]);
+                const active = appointments
+                  .filter((a) => activeSet.has((a.status || "").toUpperCase()))
+                  .sort((a, b) => {
+                    const aCur = isStatus(a, "CURRENT") ? 0 : 1;
+                    const bCur = isStatus(b, "CURRENT") ? 0 : 1;
+                    if (aCur !== bCur) return aCur - bCur; // CURRENT first
+                    return numVal(a.queueNumber) - numVal(b.queueNumber);
+                  });
+                const served = appointments.filter((a) =>
+                  isStatus(a, "SERVED")
+                );
+
+                return (
+                  <>
+                    {/* Active (Current on top) */}
+                    <div className="appointments-list">
+                      {active.map((appointment) => (
+                        <div
+                          key={appointment.id}
+                          className="appointment-card"
+                          style={{
+                            border: isStatus(appointment, "CURRENT")
+                              ? "2px solid #4caf50"
+                              : "1px solid #e0e0e0",
+                            boxShadow: isStatus(appointment, "CURRENT")
+                              ? "0 0 0 2px rgba(76,175,80,0.15)"
+                              : undefined,
+                          }}
+                        >
+                          <div className="appointment-header">
+                            <h4>Token Number {appointment.queueNumber}</h4>
+                            <span
+                              className="appointment-status"
+                              style={{
+                                backgroundColor: isStatus(
+                                  appointment,
+                                  "CURRENT"
+                                )
+                                  ? "#4caf50"
+                                  : "#ff9800",
+                                color: "white",
+                                padding: "4px 8px",
+                                borderRadius: "4px",
+                                fontSize: "12px",
+                                fontWeight: "bold",
+                              }}
+                            >
+                              {appointment.status}
+                            </span>
+                          </div>
+                          <div className="appointment-details">
+                            <p>
+                              <strong>Client Name:</strong>{" "}
+                              {appointment.clientName}
+                            </p>
+                            <p>
+                              <strong>Business Category:</strong>{" "}
+                              {appointment.businessCategory}
+                            </p>
+                            <p>
+                              <strong>Time:</strong>{" "}
+                              {formatDate(appointment.appointmentDate)}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Served section */}
+                    {served.length > 0 && (
+                      <div className="served-section" style={{ marginTop: 24 }}>
+                        <h4 style={{ marginBottom: 12 }}>
+                          Served Appointments
+                        </h4>
+                        <div className="appointments-list">
+                          {served
+                            .sort(
+                              (a, b) =>
+                                numVal(a.queueNumber) - numVal(b.queueNumber)
+                            )
+                            .map((appointment) => (
+                              <div
+                                key={appointment.id}
+                                className="appointment-card"
+                                style={{
+                                  border: "2px solid #f44336",
+                                  background: "#ffebee",
+                                }}
+                              >
+                                <div className="appointment-header">
+                                  <h4>
+                                    Token Number {appointment.queueNumber}
+                                  </h4>
+                                  <span
+                                    className="appointment-status"
+                                    style={{
+                                      backgroundColor: "#f44336",
+                                      color: "white",
+                                      padding: "4px 8px",
+                                      borderRadius: "4px",
+                                      fontSize: "12px",
+                                      fontWeight: "bold",
+                                    }}
+                                  >
+                                    {appointment.status}
+                                  </span>
+                                </div>
+                                <div className="appointment-details">
+                                  <p>
+                                    <strong>Client Name:</strong>{" "}
+                                    {appointment.clientName}
+                                  </p>
+                                  <p>
+                                    <strong>Business Category:</strong>{" "}
+                                    {appointment.businessCategory}
+                                  </p>
+                                  <p>
+                                    <strong>Booked At:</strong>{" "}
+                                    {formatDate(appointment.appointmentDate)}
+                                  </p>
+                                </div>
+                              </div>
+                            ))}
+                        </div>
+                      </div>
+                    )}
+                  </>
+                );
+              })()}
             </div>
           ) : (
             <div className="no-appointments">No appointments yet</div>
