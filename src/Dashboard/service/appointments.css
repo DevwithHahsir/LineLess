@@ -151,6 +151,47 @@
 
 
 
+      /* .heading-container h1 {
+        font-size: 6vw !important;
+        width: 100% !important;
+        font-family: 'Times New Roman', Times, serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+    }
+
+    .heading-container h4 {
+        font-size: 3vw !important;
+        position:absolute;
+        top: 18%;
+        
+        
+    } */
+
+
+    .heading-container
+    {
+        
+        display: flex !important;
+        justify-content: end !important;
+    }
+    .heading-container h1
+    {
+        width: 100% !important;
+        font-size: 6vw !important;
+        display: flex !important;
+        justify-content: center !important;
+        font-family: 'Times New Roman', Times, serif;
+        
+    }
+    .heading-container h4{
+        
+    }
+
+
+
+
 
     .tab-navigation {
 
@@ -170,23 +211,7 @@
 
 
 
-    .heading-container h1 {
-        font-size: 6vw !important;
-        width: 100% !important;
-        font-family: 'Times New Roman', Times, serif;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-
-    }
-
-    .heading-container h4 {
-        font-size: 3vw !important;
-        position:absolute;
-        top: 18%;
-        
-        
-    }
+  
 
     .appointments-list {
         width: 92vw;
