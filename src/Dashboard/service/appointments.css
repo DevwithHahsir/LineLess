@@ -183,10 +183,13 @@
         display: flex !important;
         justify-content: center !important;
         font-family: 'Times New Roman', Times, serif;
+        margin-top: 4rem !important;
+        /* border: 1px solid !important; */
         
     }
     .heading-container h4{
         
+        font-family: 'Times New Roman', Times, serif;
     }
 
 
