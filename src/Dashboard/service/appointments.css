@@ -118,7 +118,7 @@
     margin: 0.5rem 0;
     color: #555;
     font-size: 0.95rem;
-    
+
 }
 
 .appointment-details strong {
@@ -149,58 +149,54 @@
 
 
 
-    .heading-container
-    {
-        margin-top: 5rem;
 
-    }
+
+
     .tab-navigation {
-       
-           display: flex;
-           justify-content: center
-            !important;
-           align-items: center !important;
-           width: 26rem;
-          
-       
+
+
+        display: flex !important;
+        justify-content: center !important;
+
     }
 
-    .tab-navigation button
-    {
+    .tab-navigation button {
         width: 40vw;
         font-size: xx-small;
 
+
     }
 
-.heading-container
-{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-}
-    .heading-container h1
-    {
+
+
+
+    .heading-container h1 {
         font-size: 6vw !important;
         width: 100% !important;
         font-family: 'Times New Roman', Times, serif;
-          display: flex;
-    justify-content: center;
-    align-items: center;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+    }
+
+    .heading-container h4 {
+        font-size: 3vw !important;
+        position:absolute;
+        top: 18%;
         
         
     }
-  .appointments-list
-  {
-    width:92vw;
 
-  }
+    .appointments-list {
+        width: 92vw;
+
+    }
 
 
 
-    .appointments-tab .appointments-header
-    {
-        
+    .appointments-tab .appointments-header {
+
         display: flex;
         flex-wrap: wrap;
         justify-content: center;
@@ -216,7 +212,7 @@
         flex-direction: column;
         align-items: flex-start;
         gap: 0.5rem;
-       
+
     }
 
     .business-card,
