@@ -22,12 +22,7 @@ function BusinessForm({ onFormSubmitSuccess }) {
 
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-
   const serviceCategories = [
-    "Restaurant",
-    "Salon & Beauty",
-    "Healthcare",
-    "Automotive",
     "Retail Store",
     "Fitness & Gym",
     "Education",
@@ -73,9 +68,6 @@ function BusinessForm({ onFormSubmitSuccess }) {
 
       case "openTime": {
         if (!value.trim()) return "Opening time is required";
-        if (value && formData.closeTime && value >= formData.closeTime) {
-          return "Opening time must be before closing time";
-        }
         return "";
       }
 
@@ -93,8 +85,9 @@ function BusinessForm({ onFormSubmitSuccess }) {
       }
 
       case "avgWaitingTime": {
-        if (!value.trim()) return "Average waiting time is required";
-        if (value && (isNaN(value) || value < 0 || value > 1440)) {
+        if (!value.toString().trim()) return "Average waiting time is required";
+        const num = Number(value);
+        if (Number.isNaN(num) || num < 0 || num > 1440) {
           return "Waiting time must be between 0 and 1440 minutes";
         }
         return "";
@@ -242,10 +235,6 @@ function BusinessForm({ onFormSubmitSuccess }) {
         return;
       }
 
-      console.log("Attempting to save to Firestore...");
-      console.log("Form data:", formData);
-      console.log("Provider ID:", currentUser.uid);
-
       // Save business as subcollection under provider
       const businessData = {
         ...formData,
@@ -279,8 +268,6 @@ function BusinessForm({ onFormSubmitSuccess }) {
         businessId: docRef.id, // Reference to subcollection document
       });
 
-      console.log("Business registered successfully with ID:", docRef.id);
-
       // Clear all form fields after successful submission
       setFormData({
         businessName: "",
@@ -306,10 +293,6 @@ function BusinessForm({ onFormSubmitSuccess }) {
       // Show success message
       alert("Business registered successfully!");
     } catch (error) {
-      console.error("Error saving business data:", error);
-      console.error("Error code:", error.code);
-      console.error("Error message:", error.message);
-
       // More user-friendly error message
       let errorMessage = "Error registering business. Please try again.";
       if (error.code === "permission-denied") {

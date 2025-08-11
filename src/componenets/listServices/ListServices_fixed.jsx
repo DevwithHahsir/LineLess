@@ -82,10 +82,6 @@ function ListServices() {
     try {
       const API_KEY = import.meta.env.VITE_OPENCAGE_API_KEY;
       if (!API_KEY) {
-        console
-          .warn
-          // "Missing VITE_OPENCAGE_API_KEY. Add it to your .env file (Vite) to enable reverse geocoding."
-          ();
         return "Address not available";
       }
       const response = await axios.get(
@@ -96,8 +92,7 @@ function ListServices() {
         return response.data.results[0].formatted;
       }
       return "Address not found";
-    } catch (error) {
-      console.error("Geocoding error:", error);
+    } catch {
       return "Address not available";
     }
   };
@@ -107,20 +102,20 @@ function ListServices() {
     const fetchBusinessData = async () => {
       try {
         setLoading(true);
-        console.log("Fetching businesses from businessRegistrations...");
+        // fetching businesses
 
         // Fetch real data from Firebase - using the correct collection name
         const querySnapshot = await getDocs(
           collection(db, "businessRegistrations")
         );
-        console.log("Found documents:", querySnapshot.size);
+        // documents count: querySnapshot.size
 
         const businesses = querySnapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
         }));
 
-        console.log("Raw businesses data:", businesses);
+        // raw businesses data captured
 
         // Fetch current token per business from appointments (serving or pending)
         let currentTokenByBiz = new Map();
@@ -167,12 +162,9 @@ function ListServices() {
           );
           const apptSnap = await getDocs(apptQ);
           accumulate(apptSnap);
-        } catch (e) {
+        } catch {
           // Likely missing index for 'in' query; fall back to fetching all and filtering client-side
-          console.warn(
-            "Falling back to client-side filter for appointments (consider adding an index):",
-            e
-          );
+          // falling back to client-side filter for appointments
           const allApptsSnap = await getDocs(collection(db, "appointments"));
           accumulate(allApptsSnap);
         }
@@ -236,9 +228,6 @@ function ListServices() {
           };
 
           const mappedType = typeMapping[normalizedType] || "other";
-          console.log(
-            `Business type mapping: ${type} -> ${normalizedType} -> ${mappedType}`
-          );
 
           // Create individual service object with business info
           return {
@@ -268,10 +257,10 @@ function ListServices() {
           };
         });
 
-        console.log("Final processed individual services:", individualServices);
+        // processed individual services ready
         setBusinessCategories(individualServices);
-      } catch (error) {
-        console.error("Error fetching businesses:", error);
+      } catch {
+        // error fetching businesses
       } finally {
         setLoading(false);
       }

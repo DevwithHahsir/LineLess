@@ -19,7 +19,6 @@ function FirebaseTest() {
         "businessRegistrations",
       ];
       let success = false;
-      let successCollection = "";
 
       for (const collectionName of testCollections) {
         try {
@@ -32,13 +31,9 @@ function FirebaseTest() {
             `✅ Write test successful! Document ID: ${docRef.id} in collection: ${collectionName}`
           );
           success = true;
-          successCollection = collectionName;
           break;
-        } catch (collectionError) {
-          console.log(
-            `Failed to write to ${collectionName}:`,
-            collectionError.message
-          );
+        } catch {
+          // ignore detailed console output; update status only
         }
       }
 
@@ -49,7 +44,6 @@ function FirebaseTest() {
       }
     } catch (error) {
       setStatus(`❌ Write test failed: ${error.message}`);
-      console.error("Error adding document: ", error);
     }
     setLoading(false);
   };
@@ -67,7 +61,6 @@ function FirebaseTest() {
       setStatus(`✅ Read test successful! Found ${data.length} documents`);
     } catch (error) {
       setStatus(`❌ Read test failed: ${error.message}`);
-      console.error("Error reading documents: ", error);
     }
     setLoading(false);
   };
@@ -80,8 +73,7 @@ function FirebaseTest() {
       collection(db, "connectionTest");
       setStatus("✅ Firebase connection successful!");
     } catch (error) {
-      setStatus(`❌ Firebase connection failed: ${error.message}`);
-      console.error("Connection error: ", error);
+      setStatus(`❌ Connection failed: ${error.message}`);
     }
     setLoading(false);
   };

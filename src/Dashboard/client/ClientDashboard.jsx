@@ -52,8 +52,7 @@ function ClientDashboard() {
         } else {
           setLocation(null);
         }
-      } catch (error) {
-        console.error("Error fetching user location:", error);
+      } catch {
         setLocation(null);
       }
     };
@@ -68,18 +67,14 @@ function ClientDashboard() {
     const fetchBusinessLocations = async () => {
       try {
         setBusinessesLoading(true);
-        console.log("Fetching business locations from Firestore...");
 
         const querySnapshot = await getDocs(
           collection(db, "businessRegistrations")
         );
         const businessList = [];
 
-        console.log("Query snapshot size:", querySnapshot.size);
-
         querySnapshot.forEach((doc) => {
           const data = doc.data();
-          console.log("Document data:", doc.id, data);
 
           // Check if business has location data
           if (data.latitude && data.longitude) {
@@ -87,19 +82,10 @@ function ClientDashboard() {
               id: doc.id,
               ...data,
             });
-            console.log("Added business with location:", doc.id);
-          } else {
-            console.log("Business missing location data:", doc.id, {
-              latitude: data.latitude,
-              longitude: data.longitude,
-            });
           }
         });
 
-        console.log("Final business list:", businessList);
         setBusinesses(businessList);
-      } catch (error) {
-        console.error("Error fetching business locations:", error);
       } finally {
         setBusinessesLoading(false);
       }

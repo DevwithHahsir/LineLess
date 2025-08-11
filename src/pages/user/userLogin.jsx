@@ -105,7 +105,6 @@ export default function UserLogin() {
       // Navigate to client dashboard
       navigate("/client/clientdashboard");
     } catch (error) {
-      console.error("Google login error:", error);
       alert(`Google login failed: ${error.message}`);
     }
   };

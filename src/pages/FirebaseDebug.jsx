@@ -33,7 +33,6 @@ function FirebaseDebug() {
           });
           setAllUsers(usersData);
         } catch (err) {
-          console.error("Error fetching data:", err);
           setError(err.message);
         }
       }

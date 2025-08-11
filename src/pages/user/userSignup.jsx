@@ -115,7 +115,6 @@ export default function UserSignup() {
       // Navigate to client dashboard
       navigate("/client/clientdashboard");
     } catch (error) {
-      console.error("Google signup error:", error);
       alert(`Google sign-in error: ${error.message}`);
     }
   };

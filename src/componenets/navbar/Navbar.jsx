@@ -9,24 +9,13 @@ import "./Navbar.css";
 
 function Navbar({ isProvider = false }) {
   const { user } = useAuth();
-  // if (user) {
-  //   console.log("User logged in:", {
-  //     role: user.role,
-  //     email: user.email,
-  //   });
-  // }
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
 
   const handleLogout = async () => {
-    try {
-      await signOut(auth);
-      window.location.href = "/";
-    } catch (error) {
-      console.error("Error signing out:", error);
-    }
+    await signOut(auth).catch(() => {});
+    window.location.href = "/";
   };
-
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
@@ -36,6 +25,14 @@ function Navbar({ isProvider = false }) {
   };
 
   const isActive = (path) => location.pathname === path;
+  const isClient = !!(
+    user && ["user", "client"].includes((user.role || "").toLowerCase())
+  );
+  const dashboardPath = user
+    ? isClient
+      ? "/client/clientdashboard"
+      : "/service/Servicedashboard"
+    : null;
 
   // Show user info and both dashboards for any logged-in user
   const shouldShowUser = !!user;
@@ -73,42 +70,37 @@ function Navbar({ isProvider = false }) {
               </Link>
             </li>
 
-            <li className="nav-item">
-              <Link
-                to="/map-test"
-                className={`nav-link ${isActive("/map-test") ? "active" : ""}`}
-                onClick={closeMenu}
-              >
-                Map
-              </Link>
-            </li>
-
-            {shouldShowUser && (
-              <>
-                {/* <li className="nav-item">
-                  <Link
-                    to="/client/clientdashboard"
-                    className={`nav-link ${
-                      isActive("/client/clientdashboard") ? "active" : ""
-                    }`}
-                    onClick={closeMenu}
-                  >
-                    Dashboard
-                  </Link>
-                </li> */}
-                {/* <li className="nav-item">
-                  <Link
-                    to="/service/Servicedashboard"
-                    className={`nav-link ${
-                      isActive("/service/Servicedashboard") ? "active" : ""
-                    }`}
-                    onClick={closeMenu}
-                  >
-                    Provider Dashboard
-                  </Link>
-                </li> */}
-              </>
+            {dashboardPath && (
+              <li className="nav-item">
+                <Link
+                  to={dashboardPath}
+                  className={`nav-link ${
+                    isActive(dashboardPath) ? "active" : ""
+                  }`}
+                  onClick={closeMenu}
+                >
+                  Dashboard
+                </Link>
+              </li>
             )}
+
+            {isClient ? (
+              <li className="nav-item">
+                <Link
+                  to="/appointments"
+                  className={`nav-link ${
+                    isActive("/appointments") ? "active" : ""
+                  }`}
+                  onClick={closeMenu}
+                >
+                  Appointments
+                </Link>
+              </li>
+            ) : (
+              ""
+            )}
+
+            {shouldShowUser && <></>}
           </ul>
 
           <div className="d-flex align-items-center">
@@ -134,14 +126,14 @@ function Navbar({ isProvider = false }) {
                     className="btn btn-outline-light btn-sm me-2 sign-in"
                     onClick={closeMenu}
                   >
-                    Sign In
+                    Client Sign In
                   </Link>
                   <Link
                     to="/provider/login"
-                    className="btn btn-outline-warning btn-sm me-2 change-dash-btn"
+                    className="btn btn-outline-warning btn-sm me-2 provider-sign-in"
                     onClick={closeMenu}
                   >
-                    Service Provider
+                    Provider Sign In
                   </Link>
                   <Link
                     to="/user/signup"

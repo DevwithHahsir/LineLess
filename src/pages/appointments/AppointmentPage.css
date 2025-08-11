@@ -1,0 +1,167 @@
+:root {
+    --bg: #f7f8fa;
+    --text: #263238;
+    --muted: #607d8b;
+    --card: #ffffff;
+    --border: #e0e0e0;
+    --current: #2e7d32;
+    --pending: #ef6c00;
+    --served: #c62828;
+}
+
+.appointmentPage {
+    padding-top: 72px;
+    padding-left: 16px;
+    padding-right: 16px;
+    min-height: calc(100vh - 72px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 100vw;
+}
+
+.pageTitle {
+    margin: 12px 0 16px;
+    color: var(--text);
+}
+
+.centerWrap {
+    width: 100%;
+    max-width: 1200px;
+}
+
+.loading,
+.empty {
+    color: var(--muted);
+    padding: 16px 0;
+}
+
+.appointmentsColumns {
+    display: flex;
+    gap: 16px;
+    align-items: stretch;
+}
+
+.column {
+    flex: 1 1 0;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.columnHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 4px;
+}
+
+.columnTitle {
+    margin: 0;
+    font-size: 18px;
+    color: var(--text);
+}
+
+.cards {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.emptyColumn {
+    color: var(--muted);
+    font-size: 14px;
+    padding: 8px 4px;
+}
+
+.appointmentCard {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--card);
+    padding: 12px;
+}
+
+.cardTop {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.currentTokenRow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.currentTokenLabel {
+    color: var(--text);
+    font-weight: 600;
+}
+
+.currentTokenBadge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 32px;
+    height: 24px;
+    padding: 0 8px;
+    border-radius: 999px;
+    background: #e3f2fd;
+    color: #0d47a1;
+    font-weight: 700;
+    font-size: 12px;
+}
+
+.token {
+    color: var(--text);
+}
+
+.statusChip {
+    color: #fff;
+    padding: 3px 8px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.statusChip.is-current {
+    background: var(--current);
+}
+
+.statusChip.is-pending {
+    background: var(--pending);
+}
+
+.statusChip.is-served {
+    background: var(--served);
+}
+
+.cardMeta {
+    color: var(--muted);
+}
+
+.metaRow {
+    display: flex;
+    gap: 8px;
+    margin-top: 4px;
+}
+
+.label {
+    font-weight: 600;
+    color: var(--text);
+}
+
+.value {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+@media (max-width: 900px) {
+    .appointmentsColumns {
+        flex-direction: column;
+    }
+}

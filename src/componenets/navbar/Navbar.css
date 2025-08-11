@@ -50,9 +50,14 @@
 } */
 
 
-.active:hover {
+/* Active link color: keep it white on normal and hover */
+.navbar .nav-link.active {
+  color: #ffffff !important;
+}
 
-  color: #2c3e50;
+.navbar .nav-link.active:hover,
+.navbar .nav-link.active:focus {
+  color: #ffffff !important;
 }
 
 

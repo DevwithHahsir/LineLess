@@ -1,7 +1,7 @@
 import "./ServiceDashboard.css";
 import "./appointments.css";
 import Navbar from "../../componenets/navbar/Navbar";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import BusinessForm from "../../componenets/businessform/BusinessForm";
 import { db, auth } from "../../firebaseConfig/firebase";
 import {
@@ -10,6 +10,9 @@ import {
   doc,
   updateDoc,
   deleteDoc,
+  onSnapshot,
+  query,
+  where,
 } from "firebase/firestore";
 
 function ServiceDashboard() {
@@ -61,8 +64,7 @@ function ServiceDashboard() {
       alert(
         `Queue reset successfully for "${businessName}"!\n- Count reset to 0\n- ${businessAppointments.length} appointments deleted`
       );
-    } catch (error) {
-      console.error("Error resetting queue:", error);
+    } catch {
       alert("Failed to reset queue. Please try again.");
     }
   };
@@ -72,14 +74,13 @@ function ServiceDashboard() {
   };
 
   // Fetch provider's businesses and appointments
-  const fetchProviderData = async () => {
+  const fetchProviderData = useCallback(async () => {
     try {
       setLoading(true);
 
       // Get current provider
       const currentUser = auth.currentUser;
       if (!currentUser) {
-        console.log("No authenticated user");
         setLoading(false);
         return;
       }
@@ -98,57 +99,77 @@ function ServiceDashboard() {
         (business) => business.providerId === currentUser.uid
       );
       setMyBusinesses(providerBusinesses);
-
-      // Fetch appointments for provider's businesses
-      if (providerBusinesses.length > 0) {
-        const businessIds = providerBusinesses.map((b) => b.id);
-        const appointmentsSnapshot = await getDocs(
-          collection(db, "appointments")
-        );
-        const allAppointments = appointmentsSnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-
-        // Filter appointments for this provider's businesses and add business category
-        // Helper: numeric sort for queueNumber (supports strings like "token2")
-        const numVal = (v) => {
-          if (typeof v === "number") return v;
-          if (typeof v === "string") {
-            const m = v.match(/\d+/);
-            if (m) return parseInt(m[0], 10);
-          }
-          return Number.MAX_SAFE_INTEGER;
-        };
-
-        const providerAppointments = allAppointments
-          .filter((apt) => businessIds.includes(apt.businessId))
-          .map((apt) => {
-            // Find the business to get its category
-            const business = providerBusinesses.find(
-              (b) => b.id === apt.businessId
-            );
-            return {
-              ...apt,
-              businessCategory: business?.serviceCategory || "Unknown Category",
-            };
-          })
-          .sort((a, b) => numVal(a.queueNumber) - numVal(b.queueNumber)); // Sort by queue number
-
-        // Do NOT override status from Firestore; keep what's stored in DB
-        setAppointments(providerAppointments);
-      }
-    } catch (error) {
-      console.error("Error fetching provider data:", error);
+    } catch {
+      // no console output per request
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  // normalizeQueueStatuses removed: real-time listener now drives state
 
   // Initial data fetch
   useEffect(() => {
     fetchProviderData();
-  }, []);
+  }, [fetchProviderData]);
+
+  // Real-time listener for appointments of this provider's businesses
+  useEffect(() => {
+    if (!auth.currentUser) return;
+    const ids = myBusinesses.map((b) => b.id);
+    if (ids.length === 0) {
+      setAppointments([]);
+      return;
+    }
+
+    // Helper to chunk ids for Firestore 'in' (max 10)
+    const chunks = [];
+    for (let i = 0; i < ids.length; i += 10) {
+      chunks.push(ids.slice(i, i + 10));
+    }
+
+    const byChunk = new Map();
+    const businessCat = new Map(
+      myBusinesses.map((b) => [b.id, b.serviceCategory || "Unknown Category"])
+    );
+
+    const numVal = (v) => {
+      if (typeof v === "number") return v;
+      if (typeof v === "string") {
+        const m = v.match(/\d+/);
+        if (m) return parseInt(m[0], 10);
+      }
+      return Number.MAX_SAFE_INTEGER;
+    };
+
+    const unsubs = chunks.map((idChunk, idx) =>
+      onSnapshot(
+        query(
+          collection(db, "appointments"),
+          where("businessId", "in", idChunk)
+        ),
+        (snap) => {
+          const arr = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+          byChunk.set(idx, arr);
+          // Combine all chunks
+          const combined = Array.from(byChunk.values()).flat();
+          const merged = combined.map((apt) => ({
+            ...apt,
+            businessCategory:
+              businessCat.get(apt.businessId) || "Unknown Category",
+          }));
+          setAppointments(
+            merged.sort((a, b) => numVal(a.queueNumber) - numVal(b.queueNumber))
+          );
+          setLoading(false);
+        }
+      )
+    );
+
+    return () => {
+      unsubs.forEach((u) => u && u());
+    };
+  }, [myBusinesses]);
 
   const formatDate = (date) => {
     if (!date) return "N/A";
@@ -156,7 +177,7 @@ function ServiceDashboard() {
     return d.toLocaleDateString() + " " + d.toLocaleTimeString();
   };
 
-  // Advance to next token: mark current as served, next as CURRENT, update business currentToken
+  // Advance to next token per business: current -> SERVED, next -> CURRENT, others -> PENDING
   const advanceNextToken = async () => {
     try {
       if (appointments.length === 0) {
@@ -174,7 +195,17 @@ function ServiceDashboard() {
         return Number.MAX_SAFE_INTEGER;
       };
 
-      // Consider only active appointments
+      // Group by business
+      const byBusiness = appointments.reduce((acc, apt) => {
+        (acc[apt.businessId] = acc[apt.businessId] || []).push(apt);
+        return acc;
+      }, {});
+
+      // Pick target business: one that currently has CURRENT, else the business with the smallest next token
+      let targetBusinessId = null;
+      let targetCurrent = null;
+      let candidate = null;
+
       const ACTIVE = new Set([
         "CURRENT",
         "PENDING",
@@ -182,30 +213,57 @@ function ServiceDashboard() {
         "ONGOING",
         "SERVING",
       ]);
-      const active = appointments.filter((a) =>
-        ACTIVE.has((a.status || "").toUpperCase())
-      );
-      if (active.length === 0) {
+
+      for (const [businessId, appts] of Object.entries(byBusiness)) {
+        const active = appts
+          .filter((a) => ACTIVE.has((a.status || "").toUpperCase()))
+          .sort((a, b) => numVal(a.queueNumber) - numVal(b.queueNumber));
+        if (active.length === 0) continue;
+        const cur =
+          active.find((a) => (a.status || "").toUpperCase() === "CURRENT") ||
+          active[0];
+        if (
+          (cur.status || "").toUpperCase() === "CURRENT" &&
+          targetBusinessId == null
+        ) {
+          targetBusinessId = businessId;
+          targetCurrent = cur;
+        }
+        // Candidate is the business with the smallest active token if none had explicit CURRENT
+        if (
+          !candidate ||
+          numVal(active[0].queueNumber) < numVal(candidate.queueNumber)
+        ) {
+          candidate = active[0];
+        }
+      }
+
+      if (!targetBusinessId && candidate) {
+        targetBusinessId = candidate.businessId;
+        targetCurrent = candidate;
+      }
+
+      if (!targetBusinessId || !targetCurrent) {
         alert("No active appointments to advance.");
         return;
       }
 
-      // Sort active by queue number
-      const ordered = [...active].sort(
-        (a, b) => numVal(a.queueNumber) - numVal(b.queueNumber)
-      );
+      const allForBusiness = appointments
+        .filter((a) => a.businessId === targetBusinessId)
+        .sort((a, b) => numVal(a.queueNumber) - numVal(b.queueNumber));
 
-      // Current = marked CURRENT, else the smallest queue number
-      const currentIdx = ordered.findIndex(
-        (a) => (a.status || "").toUpperCase() === "CURRENT"
+      const activeForBusiness = allForBusiness.filter(
+        (a) => (a.status || "").toUpperCase() !== "SERVED"
       );
-      const currentAppt = currentIdx >= 0 ? ordered[currentIdx] : ordered[0];
+      const currentAppt = targetCurrent;
       const currentNum = numVal(currentAppt.queueNumber);
-      const nextAppt = ordered.find((a) => numVal(a.queueNumber) > currentNum);
+      const nextAppt = activeForBusiness.find(
+        (a) => numVal(a.queueNumber) > currentNum
+      );
 
       // 1) Mark current as served (so it's no longer active)
       await updateDoc(doc(db, "appointments", currentAppt.id), {
-        status: "served",
+        status: "SERVED",
       });
 
       // 2) If there's a next one, mark it as CURRENT
@@ -216,27 +274,23 @@ function ServiceDashboard() {
         // 3) Update business currentToken to next token number
         await updateDoc(
           doc(db, "businessRegistrations", currentAppt.businessId),
-          {
-            currentToken: numVal(nextAppt.queueNumber) || 0,
-          }
+          { currentToken: numVal(nextAppt.queueNumber) || 0 }
         );
       } else {
         // Queue finished: reset currentToken to 0 for that business
         await updateDoc(
           doc(db, "businessRegistrations", currentAppt.businessId),
-          {
-            currentToken: 0,
-          }
+          { currentToken: 0 }
         );
       }
 
       // 4) Set all other future appointments for this business to pending
-      const othersToPending = ordered.filter(
+      const othersToPending = activeForBusiness.filter(
         (a) => a.id !== currentAppt.id && (!nextAppt || a.id !== nextAppt.id)
       );
       await Promise.all(
         othersToPending.map((apt) =>
-          updateDoc(doc(db, "appointments", apt.id), { status: "pending" })
+          updateDoc(doc(db, "appointments", apt.id), { status: "PENDING" })
         )
       );
 
@@ -245,11 +299,11 @@ function ServiceDashboard() {
         const updated = prev.map((apt) => {
           // Only adjust appointments for this business in the local state
           if (apt.businessId !== currentAppt.businessId) return apt;
-          if (apt.id === currentAppt.id) return { ...apt, status: "served" };
+          if (apt.id === currentAppt.id) return { ...apt, status: "SERVED" };
           if (nextAppt && apt.id === nextAppt.id)
             return { ...apt, status: "CURRENT" };
           // all other for this business -> pending
-          return { ...apt, status: "pending" };
+          return { ...apt, status: "PENDING" };
         });
         return updated.sort(
           (a, b) => numVal(a.queueNumber) - numVal(b.queueNumber)
@@ -258,8 +312,7 @@ function ServiceDashboard() {
 
       // Then refresh from server
       await refreshData();
-    } catch (e) {
-      console.error("Failed to advance to next token:", e);
+    } catch {
       alert("Failed to advance token. Please try again.");
     }
   };

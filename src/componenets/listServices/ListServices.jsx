@@ -20,8 +20,10 @@ import {
   addDoc,
   increment,
   getDoc,
+  onSnapshot,
 } from "firebase/firestore";
 import axios from "axios";
+import { getAddressFromCoordinates } from "../../utils/geocoding";
 
 // Business type mappings (updated)
 const businessTypeMappings = {
@@ -115,6 +117,8 @@ function ListServices() {
   const [businessCategories, setBusinessCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [expandedCategory, setExpandedCategory] = useState(null);
+  const [clientLocation, setClientLocation] = useState(null); // { lat, lng }
+  // removed on-demand location button state
 
   // Handle appointment booking
   const handleBookAppointment = async (event, business) => {
@@ -149,8 +153,8 @@ function ListServices() {
               phone: userData.phone || null,
             };
           }
-        } catch (error) {
-          console.log("Could not fetch user data, using defaults:", error);
+        } catch {
+          // no console output per request
         }
       } else {
         // If no user is logged in, prompt for basic info
@@ -205,8 +209,7 @@ function ListServices() {
       // Reset button state
       button.textContent = originalText;
       button.disabled = false;
-    } catch (error) {
-      console.error("Error booking appointment:", error);
+    } catch {
       alert("Failed to book appointment. Please try again.");
 
       // Reset button state on error
@@ -230,45 +233,104 @@ function ListServices() {
   const reverseGeocode = async (lat, lng) => {
     try {
       const API_KEY = import.meta.env.VITE_OPENCAGE_API_KEY;
-      if (!API_KEY) {
-        console.warn(
-          "Missing VITE_OPENCAGE_API_KEY. Add it to your .env file (Vite) to enable reverse geocoding."
+      if (API_KEY) {
+        const response = await axios.get(
+          `https://api.opencagedata.com/geocode/v1/json?q=${lat},${lng}&key=${API_KEY}`
         );
-        return "Address not available";
-      }
-      const response = await axios.get(
-        `https://api.opencagedata.com/geocode/v1/json?q=${lat},${lng}&key=${API_KEY}`
-      );
-
-      if (response.data?.results?.length > 0) {
-        return response.data.results[0].formatted;
+        if (response.data?.results?.length > 0) {
+          return response.data.results[0].formatted;
+        }
+      } else {
+        // Fallback to OpenStreetMap Nominatim (no API key required)
+        const res = await getAddressFromCoordinates(lat, lng);
+        return res.formatted || res.fullAddress || "Address not available";
       }
       return "Address not found";
-    } catch (error) {
-      console.error("Geocoding error:", error);
+    } catch {
+      // no console output per request
       return "Address not available";
     }
   };
+
+  // Get client's location (from profile if available, otherwise try browser geolocation)
+  useEffect(() => {
+    const resolveClientLocation = async () => {
+      try {
+        const currentUser = auth.currentUser;
+        if (currentUser) {
+          const userDoc = await getDoc(doc(db, "userSignup", currentUser.uid));
+          const data = userDoc.exists() ? userDoc.data() : null;
+          const loc = data?.location;
+          if (
+            loc &&
+            typeof loc.latitude !== "undefined" &&
+            typeof loc.longitude !== "undefined"
+          ) {
+            const lat = Number(loc.latitude);
+            const lng = Number(loc.longitude);
+            if (Number.isFinite(lat) && Number.isFinite(lng)) {
+              setClientLocation({ lat, lng });
+              return;
+            }
+          }
+        }
+      } catch {
+        // ignore
+      }
+
+      // Fallback to browser geolocation
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            setClientLocation({
+              lat: Number(pos.coords.latitude),
+              lng: Number(pos.coords.longitude),
+            });
+          },
+          () => {
+            // ignore if denied/unavailable
+          },
+          { enableHighAccuracy: true, maximumAge: 60000 }
+        );
+      }
+    };
+
+    resolveClientLocation();
+  }, []);
+
+  // Haversine distance in kilometers
+  const getDistanceKm = (lat1, lon1, lat2, lon2) => {
+    const toRad = (v) => (v * Math.PI) / 180;
+    const R = 6371; // km
+    const dLat = toRad(lat2 - lat1);
+    const dLon = toRad(lon2 - lon1);
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(toRad(lat1)) *
+        Math.cos(toRad(lat2)) *
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+  };
+
+  // removed on-demand geolocation handler
 
   // Fetch business data
   useEffect(() => {
     const fetchBusinessData = async () => {
       try {
         setLoading(true);
-        console.log("Fetching businesses from businessRegistrations...");
 
         // Fetch real data from Firebase - using the correct collection name
         const querySnapshot = await getDocs(
           collection(db, "businessRegistrations")
         );
-        console.log("Found documents:", querySnapshot.size);
 
         const businesses = querySnapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
         }));
-
-        console.log("Raw businesses data:", businesses);
 
         // Process each business
         const processedBusinesses = await Promise.all(
@@ -280,20 +342,171 @@ function ListServices() {
               business.serviceName ||
               "Unnamed Business";
 
-            let physicalAddress = "Address not available";
+            let physicalAddress = null;
 
-            if (business.latitude && business.longitude) {
+            // 1) Prefer explicit address fields on business
+            if (
+              typeof business.physicalAddress === "string" &&
+              business.physicalAddress.trim()
+            ) {
+              physicalAddress = business.physicalAddress.trim();
+            } else if (
+              typeof business.address === "string" &&
+              business.address.trim()
+            ) {
+              physicalAddress = business.address.trim();
+            } else if (
+              typeof business.location === "string" &&
+              business.location.trim()
+            ) {
+              const locStr = business.location.trim();
+              const parts = locStr.split(",").map((s) => Number(s.trim()));
+              if (parts.length === 2 && parts.every(Number.isFinite)) {
+                physicalAddress = await reverseGeocode(parts[0], parts[1]);
+              } else {
+                physicalAddress = locStr;
+              }
+            } else if (
+              business.location &&
+              typeof business.location === "object"
+            ) {
+              const locObj = business.location;
+              const addr = (
+                locObj.address ||
+                locObj.formatted ||
+                locObj.fullAddress ||
+                ""
+              )
+                .toString()
+                .trim();
+              if (addr) {
+                physicalAddress = addr;
+              } else {
+                const latCand = Number(locObj.lat ?? locObj.latitude);
+                const lngCand = Number(locObj.lng ?? locObj.longitude);
+                if (Number.isFinite(latCand) && Number.isFinite(lngCand)) {
+                  physicalAddress = await reverseGeocode(latCand, lngCand);
+                }
+              }
+            }
+
+            // 2) If still missing, try explicit coordinates on business
+            if (!physicalAddress && business.latitude && business.longitude) {
               physicalAddress = await reverseGeocode(
                 business.latitude,
                 business.longitude
               );
-            } else if (business.address || business.location) {
-              physicalAddress = business.address || business.location;
+            }
+
+            // 3) Final fallback: provider profile address/coords
+            if (!physicalAddress && business.providerId) {
+              try {
+                const provDoc = await getDoc(
+                  doc(db, "providerSignup", business.providerId)
+                );
+                const pdata = provDoc.exists() ? provDoc.data() : null;
+                const ploc = pdata?.location;
+                if (typeof ploc === "string" && ploc.trim()) {
+                  const str = ploc.trim();
+                  const coords = str.split(",").map((s) => Number(s.trim()));
+                  if (coords.length === 2 && coords.every(Number.isFinite)) {
+                    physicalAddress = await reverseGeocode(
+                      coords[0],
+                      coords[1]
+                    );
+                  } else {
+                    physicalAddress = str;
+                  }
+                } else if (ploc && typeof ploc === "object") {
+                  const pAddr = (
+                    ploc.address ||
+                    ploc.formatted ||
+                    ploc.fullAddress ||
+                    ""
+                  )
+                    .toString()
+                    .trim();
+                  if (pAddr) {
+                    physicalAddress = pAddr;
+                  } else {
+                    const pLat = Number(ploc.lat ?? ploc.latitude);
+                    const pLng = Number(ploc.lng ?? ploc.longitude);
+                    if (Number.isFinite(pLat) && Number.isFinite(pLng)) {
+                      physicalAddress = await reverseGeocode(pLat, pLng);
+                    }
+                  }
+                }
+              } catch {
+                // ignore
+              }
+            }
+
+            if (!physicalAddress) {
+              physicalAddress = "Address not available";
             }
 
             // Fetch currentToken from business document, fallback to 0 if not present
             const currentToken =
               business.currentToken !== undefined ? business.currentToken : 0;
+
+            // Compute distance from client to business if both locations are known
+            let distanceKm = null;
+            let bLat = Number(business.latitude);
+            let bLng = Number(business.longitude);
+
+            // Fallbacks: if coordinates are missing, try parsing from 'location'
+            if (!Number.isFinite(bLat) || !Number.isFinite(bLng)) {
+              const loc = business.location;
+              if (loc && typeof loc === "object") {
+                const candLat = Number(loc.lat ?? loc.latitude);
+                const candLng = Number(loc.lng ?? loc.longitude);
+                if (Number.isFinite(candLat) && Number.isFinite(candLng)) {
+                  bLat = candLat;
+                  bLng = candLng;
+                }
+              } else if (typeof loc === "string") {
+                const parts = loc.split(",").map((s) => Number(s.trim()));
+                if (parts.length === 2 && parts.every(Number.isFinite)) {
+                  bLat = parts[0];
+                  bLng = parts[1];
+                }
+              }
+            }
+
+            // Final fallback: try provider profile location
+            if (
+              (!Number.isFinite(bLat) || !Number.isFinite(bLng)) &&
+              business.providerId
+            ) {
+              try {
+                const provDoc = await getDoc(
+                  doc(db, "providerSignup", business.providerId)
+                );
+                const pdata = provDoc.exists() ? provDoc.data() : null;
+                const ploc = pdata?.location;
+                const candLat = Number(ploc?.lat ?? ploc?.latitude);
+                const candLng = Number(ploc?.lng ?? ploc?.longitude);
+                if (Number.isFinite(candLat) && Number.isFinite(candLng)) {
+                  bLat = candLat;
+                  bLng = candLng;
+                }
+              } catch {
+                // ignore provider location failures
+              }
+            }
+
+            if (
+              clientLocation &&
+              Number.isFinite(bLat) &&
+              Number.isFinite(bLng)
+            ) {
+              distanceKm = getDistanceKm(
+                clientLocation.lat,
+                clientLocation.lng,
+                bLat,
+                bLng
+              );
+            }
 
             return {
               ...business,
@@ -301,6 +514,7 @@ function ListServices() {
               physicalAddress,
               currentCount: business.count || 0, // Total booked tokens
               currentToken, // Current serving token
+              distanceKm,
             };
           })
         );
@@ -329,7 +543,13 @@ function ListServices() {
             id: business.id,
             type: mappedType,
             originalCategory: type,
-            displayName: business.displayName, // Business name
+            // Spread category styling/info first
+            ...getBusinessInfo(mappedType),
+            // Then explicitly set the business-facing fields so they are not overwritten
+            displayName: business.displayName, // Business name shown on card
+            description:
+              business.businessDescription ||
+              getBusinessInfo(mappedType).description,
             physicalAddress: business.physicalAddress,
             currentCount: business.currentCount, // Total booked tokens
             currentToken:
@@ -341,28 +561,46 @@ function ListServices() {
             closeTime: business.closeTime,
             businessDescription: business.businessDescription,
             maxCapacityPerHour: business.maxCapacityPerHour,
-            // Add business info for icons and styling
-            ...getBusinessInfo(mappedType),
-            // Override description to use business description if available
-            description:
-              business.businessDescription ||
-              getBusinessInfo(mappedType).description,
             // Add individual business details
             businesses: [business], // Keep the original structure for compatibility
             count: 1, // Individual business count
           };
         });
 
-        console.log("Final processed individual services:", individualServices);
         setBusinessCategories(individualServices);
-      } catch (error) {
-        console.error("Error fetching businesses:", error);
+      } catch {
+        // no console output per request
       } finally {
         setLoading(false);
       }
     };
 
     fetchBusinessData();
+  }, [clientLocation]);
+
+  // Live updates: reflect currentToken and count changes in real time
+  useEffect(() => {
+    const unsub = onSnapshot(
+      collection(db, "businessRegistrations"),
+      (snap) => {
+        if (!snap.empty) {
+          const updates = new Map();
+          snap.forEach((d) => {
+            const data = d.data() || {};
+            updates.set(d.id, {
+              currentToken: data.currentToken ?? 0,
+              currentCount: data.count ?? 0,
+            });
+          });
+          setBusinessCategories((prev) =>
+            prev.map((svc) =>
+              updates.has(svc.id) ? { ...svc, ...updates.get(svc.id) } : svc
+            )
+          );
+        }
+      }
+    );
+    return () => unsub();
   }, []);
 
   // Toggle category expansion
@@ -382,7 +620,7 @@ function ListServices() {
     <div className="services-list-container">
       <div className="services-list-header">
         <h2>Available Services</h2>
-        {/* <p>Browse and book appointments with local businesses</p> */}
+        {/* location button removed; auto-detect still active */}
       </div>
 
       <div className="service-category-grid">
@@ -418,6 +656,18 @@ function ListServices() {
               <p className="service-category-description">
                 {service.description}
               </p>
+
+              {/* {service.physicalAddress && (
+                <div
+                  className="service-business-location"
+                  style={{ marginTop: "8px" }}
+                >
+                  <FaMapMarkerAlt className="service-location-icon" />
+                  <span className="service-location-text">
+                    {service.physicalAddress}
+                  </span>
+                </div>
+              )} */}
 
               {/* Show current serving token (from provider dashboard) */}
               <div

@@ -143,7 +143,6 @@ export default function ProviderSignup() {
         window.location.href = "/service/Servicedashboard";
       }, 100);
     } catch (error) {
-      console.error("Google signup error:", error);
       alert(`Google sign-in error: ${error.message}`);
     }
   };

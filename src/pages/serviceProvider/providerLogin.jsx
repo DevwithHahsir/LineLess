@@ -109,7 +109,6 @@ export default function ProviderLogin() {
         window.location.href = "/service/Servicedashboard";
       }, 100);
     } catch (error) {
-      console.error("Google login error:", error);
       alert(`Google login failed: ${error.message}`);
     }
   };

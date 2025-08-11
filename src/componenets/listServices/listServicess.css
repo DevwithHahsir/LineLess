@@ -155,6 +155,15 @@
     color: #2c3e50;
 }
 
+
+.service-token-info
+{
+    
+    font-family: 'Times New Roman', Times, serif;
+    font-size: small;
+    margin-left: 1.2rem;
+}
+
 /* Business Locations */
 .service-business-locations {
     padding: 20px;

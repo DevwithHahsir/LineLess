@@ -16,7 +16,7 @@ const firebaseConfig = {
   storageBucket: "lineless-f84fc.firebasestorage.app",
   messagingSenderId: "670893416174",
   appId: "1:670893416174:web:1187d861b8c50fd52addff",
-  measurementId: "G-VHH5TS09ZC"
+  measurementId: "G-VHH5TS09ZC",
 };
 
 // Initialize Firebase

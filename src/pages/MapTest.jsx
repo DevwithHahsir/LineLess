@@ -66,7 +66,6 @@ function MapTest() {
 
       setUserLocations(locations);
     } catch (error) {
-      console.error("Error fetching user locations:", error);
       setError(error.message);
     } finally {
       setLoading(false);

@@ -21,8 +21,8 @@ export const getAddressFromCoordinates = async (latitude, longitude) => {
     } else {
       throw new Error("No address found for these coordinates");
     }
-  } catch (error) {
-    console.error("Geocoding error:", error);
+  } catch {
+    // no console output per request
     return {
       fullAddress: `${latitude}, ${longitude}`,
       formatted: `Coordinates: ${latitude}, ${longitude}`,
@@ -93,8 +93,8 @@ export const getAddressFromGoogleMaps = async (latitude, longitude, apiKey) => {
     } else {
       throw new Error("No address found");
     }
-  } catch (error) {
-    console.error("Google Maps geocoding error:", error);
+  } catch {
+    // no console output per request
     return {
       fullAddress: `${latitude}, ${longitude}`,
       formatted: `Coordinates: ${latitude}, ${longitude}`,
