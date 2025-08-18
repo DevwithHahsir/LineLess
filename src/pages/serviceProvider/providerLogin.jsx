@@ -116,8 +116,8 @@ export default function ProviderLogin() {
   return (
     <>
       <div className="form-main-container">
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <h2>Service Provider Login</h2>
+        <form onSubmit={handleSubmit(onSubmit)} className="form-section">
+          <h2 className="service-provider-login-headind">Service Provider Login</h2>
 
           {/* Google Sign-in Button */}
           <div className="google-auth-container">
@@ -153,12 +153,9 @@ export default function ProviderLogin() {
             </button>
           </div>
 
-          <div className="divider">
-            <span>OR</span>
-          </div>
 
-          <div>
-            <label htmlFor="email">Email:</label>
+          <div className="inputs">
+            
             <input
               id="email"
               type="email"
@@ -174,8 +171,8 @@ export default function ProviderLogin() {
             {errors.email && <span>{errors.email.message}</span>}
           </div>
 
-          <div>
-            <label htmlFor="password">Password:</label>
+          <div className="inputs">
+           
             <input
               id="password"
               type="password"
@@ -187,7 +184,7 @@ export default function ProviderLogin() {
             {errors.password && <span>{errors.password.message}</span>}
           </div>
 
-          <div>
+          <div className="service-login-btn">
             <button type="submit">Login as Provider</button>
           </div>
 

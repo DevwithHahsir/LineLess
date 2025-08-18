@@ -1,60 +1,79 @@
-import React from "react";
 import { useNavigate } from "react-router-dom";
+import React from "react";
 import "./home.css";
+import TextType from "../../componenets/animations/TextType";
+import { CiUser } from "react-icons/ci";
+import { BsBuildings } from "react-icons/bs";
 
-function Home() {
+const Home = () => {
   const navigate = useNavigate();
-
-  const handleClientSignup = () => {
-    navigate("/user/signup");
-  };
-
-  const handleProviderSignup = () => {
-    navigate("/provider/signup");
-  };
-
   return (
-    <>
-    <div className="main-page-container">
-      <div className="welcome-section">
-        <h1 className="welcome-title">Welcome to LineLess</h1>
-        <p className="welcome-subtitle">Skip the lines, save your time</p>
-        <p className="welcome-description">
-          Join our platform to either find services quickly as a client or offer
-          your services as a provider. Choose your role below to get started.
-        </p>
+    <div className="choose-journey">
+      <TextType
+        text={[
+          "Timeless – Where Every Moment Lasts Forever.",
+          "Built for Today, Meant for Eternity.",
+          "Your Story. Your Legacy. Timeless.",
+        ]}
+        typingSpeed={75}
+        pauseDuration={1500}
+        showCursor={true}
+        cursorCharacter="|"
+      />
+      <p className="subtitle">
+        Whether you're looking to discover amazing services or ready to share
+        your expertise with the world, we have the perfect path for you.
+      </p>
+      <p className="trusted-text">Trusted by 100,000+ users worldwide →</p>
+
+      <div className="cards-container">
+        {/* User Card */}
+        <div className="card">
+          <h3>
+            <CiUser className="homePage-icon" /> User
+          </h3>
+          <p>
+            Discover and book amazing services from verified providers in your
+            area.
+          </p>
+          <ul>
+            <li>Browse thousands of services</li>
+            <li>No Waiting in Physical Queues</li>
+            <li>Secure booking system</li>
+            <li>Book Anytime, Anywhere</li>
+            <li>No Waiting in Physical Queues</li>
+          </ul>
+          <button onClick={() => navigate("/user/login")}>
+            Get Started as User
+          </button>
+        </div>
+
+        {/* Provider Card */}
+        <div className="card">
+          <h3>
+            <BsBuildings className="homePage-icon" /> Provider
+          </h3>
+          <p>
+            Share your skills and grow your business with our powerful platform.
+          </p>
+          <ul>
+            <li>Create detailed service listings</li>
+            <li>Manage bookings efficiently</li>
+            <li>Build your reputation</li>
+            <li>Flexible pricing options</li>
+            <li>Marketing tools included</li>
+          </ul>
+          <button onClick={() => navigate("/provider/login")}>
+            Get Started as Provider
+          </button>
+        </div>
       </div>
 
-      <div className="user-type-selection">
-        <div
-          className="user-type-card client-card"
-          onClick={handleClientSignup}
-        >
-          <span className="card-icon">👤</span>
-          <h2 className="card-title">I'm a Client</h2>
-          <p className="card-description">
-            Looking for services? Browse and book appointments with service
-            providers in your area.
-          </p>
-          <button className="signup-button">Sign Up as Client</button>
-        </div>
-
-        <div
-          className="user-type-card provider-card"
-          onClick={handleProviderSignup}
-        >
-          <span className="card-icon">🔧</span>
-          <h2 className="card-title">I'm a Service Provider</h2>
-          <p className="card-description">
-            Offer your services? Connect with clients and manage your
-            appointments efficiently.
-          </p>
-          <button className="signup-button">Sign Up as Provider</button>
-        </div>
+      <div className="learn-more">
+        <button>Learn More About Our Platform</button>
       </div>
     </div>
-    </>
   );
-}
+};
 
 export default Home;

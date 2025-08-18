@@ -9,9 +9,13 @@
   position: fixed;
   top: 0%;
   background-color: #2c3e50 !important;
+ ;
   z-index: 1000;
 }
 
+.navbar span {
+  color: white;
+}
 .navbar-brand {
   color: azure;
   font-family: 'Times New Roman', Times, serif;
@@ -25,10 +29,33 @@
   justify-content: center;
 }
 
-.navbar ul a {
-  color: azure;
-  font-family: 'Times New Roman', Times, serif;
 
+
+.navbar ul a span {
+  color: #fff !important;
+  font-family: 'Times New Roman', Times, serif;
+  transition: color 0.2s;
+  border: none !important;
+}
+
+.nav-flex {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-text-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5em;
+  justify-content: center;
+}
+
+.nav-icon {
+  font-size: 1.2em;
+  vertical-align: middle;
+  stroke-width: 2.2;
 }
 
 
@@ -38,6 +65,10 @@
 .logout {
   background-color: red;
   border: none;
+  color: white !important;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 
@@ -51,20 +82,43 @@
 
 
 /* Active link color: keep it white on normal and hover */
-.navbar .nav-link.active {
-  color: #ffffff !important;
+
+
+.navbar .nav-link.active,
+.navbar ul a.active span {
+  color: #ff9800 !important;
+  /* Bright orange for active */
+  font-weight: bold;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.15);
+  border-radius: 4px;
 }
 
+
 .navbar .nav-link.active:hover,
-.navbar .nav-link.active:focus {
-  color: #ffffff !important;
+.navbar .nav-link.active:focus,
+.navbar ul a.active span:hover,
+.navbar ul a.active span:focus {
+  color: #ffb74d !important;
+  /* Lighter orange on hover */
 }
 
 
 .auth-btns {
 
-  width: 20vw;
+
+  width: 40vw;
   display: flex;
+  justify-content: flex-end;
+  /* font-size: xx-small; */
+}
+.auth-btns .icon-text-row, .auth-btns  span
+{
+  font-family: 'Times New Roman', Times, serif !important;
+  font-size: large !important;
+
+}
+.user-icon{
+  font-size: large;
 }
 
 

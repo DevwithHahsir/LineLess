@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React from "react";
 import { useForm } from "react-hook-form";
 import "./providerSignup.css";
@@ -102,35 +103,35 @@ export default function ProviderSignup() {
     }
   };
 
-  const getCurrentLocation = () => {
-    setLocationLoading(true);
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const locationData = {
-            latitude: position.coords.latitude,
-            longitude: position.coords.longitude,
-            accuracy: position.coords.accuracy,
-            timestamp: new Date().toISOString(),
-          };
-          setUserLocation(locationData);
-          setLocationLoading(false);
-        },
-        (error) => {
-          setLocationLoading(false);
-          alert(`Location error: ${error.message}`);
-        },
-        {
-          enableHighAccuracy: true,
-          timeout: 10000,
-          maximumAge: 60000,
-        }
-      );
-    } else {
-      setLocationLoading(false);
-      alert("Geolocation is not supported by this browser.");
-    }
-  };
+  // const getCurrentLocation = () => {
+  //   setLocationLoading(true);
+  //   if (navigator.geolocation) {
+  //     navigator.geolocation.getCurrentPosition(
+  //       (position) => {
+  //         const locationData = {
+  //           latitude: position.coords.latitude,
+  //           longitude: position.coords.longitude,
+  //           accuracy: position.coords.accuracy,
+  //           timestamp: new Date().toISOString(),
+  //         };
+  //         setUserLocation(locationData);
+  //         setLocationLoading(false);
+  //       },
+  //       (error) => {
+  //         setLocationLoading(false);
+  //         alert(`Location error: ${error.message}`);
+  //       },
+  //       {
+  //         enableHighAccuracy: true,
+  //         timeout: 10000,
+  //         maximumAge: 60000,
+  //       }
+  //     );
+  //   } else {
+  //     setLocationLoading(false);
+  //     alert("Geolocation is not supported by this browser.");
+  //   }
+  // };
 
   const handleGoogleSignup = async () => {
     try {
@@ -150,135 +151,11 @@ export default function ProviderSignup() {
   return (
     <>
       <div className="form-main-container">
-        <div className="form-image-section">
-          <div className="image-content">
-            <svg
-              width="300"
-              height="300"
-              viewBox="0 0 300 300"
-              className="form-illustration"
-            >
-              {/* Provider signup illustration */}
-              <defs>
-                <linearGradient
-                  id="providerGradient"
-                  x1="0%"
-                  y1="0%"
-                  x2="100%"
-                  y2="100%"
-                >
-                  <stop offset="0%" stopColor="#ff9800" />
-                  <stop offset="100%" stopColor="#f57c00" />
-                </linearGradient>
-              </defs>
-
-              {/* Background circle */}
-              <circle
-                cx="150"
-                cy="150"
-                r="140"
-                fill="url(#providerGradient)"
-                opacity="0.1"
-              />
-
-              {/* Business building */}
-              <rect
-                x="120"
-                y="100"
-                width="60"
-                height="80"
-                fill="url(#providerGradient)"
-                rx="5"
-              />
-              <rect x="130" y="110" width="10" height="10" fill="white" />
-              <rect x="150" y="110" width="10" height="10" fill="white" />
-              <rect x="170" y="110" width="10" height="10" fill="white" />
-              <rect x="130" y="130" width="10" height="10" fill="white" />
-              <rect x="150" y="130" width="10" height="10" fill="white" />
-              <rect x="170" y="130" width="10" height="10" fill="white" />
-              <rect x="140" y="160" width="20" height="20" fill="white" />
-
-              {/* Service tools */}
-              <g transform="translate(70, 70)">
-                {/* Wrench */}
-                <rect
-                  x="0"
-                  y="10"
-                  width="15"
-                  height="3"
-                  fill="#2f3542"
-                  transform="rotate(45)"
-                />
-                <circle cx="0" cy="10" r="3" fill="#2f3542" />
-                <circle cx="15" cy="25" r="2" fill="#2f3542" />
-              </g>
-
-              <g transform="translate(200, 80)">
-                {/* Hammer */}
-                <rect x="5" y="0" width="3" height="20" fill="#8b4513" />
-                <rect x="0" y="0" width="13" height="6" fill="#2f3542" />
-              </g>
-
-              {/* Service provider person */}
-              <circle cx="150" cy="220" r="20" fill="url(#providerGradient)" />
-              <rect
-                x="135"
-                y="240"
-                width="30"
-                height="25"
-                fill="url(#providerGradient)"
-                rx="5"
-              />
-
-              {/* Location marker */}
-              <path
-                d="M80 200 Q80 185 95 185 Q110 185 110 200 Q110 210 95 225 Q80 210 80 200 Z"
-                fill="#ff4757"
-              />
-              <circle cx="95" cy="200" r="5" fill="white" />
-
-              {/* Star rating */}
-              <g transform="translate(210, 200)">
-                <polygon
-                  points="10,2 12,8 18,8 13,12 15,18 10,14 5,18 7,12 2,8 8,8"
-                  fill="#ffd700"
-                />
-                <polygon
-                  points="25,2 27,8 33,8 28,12 30,18 25,14 20,18 22,12 17,8 23,8"
-                  fill="#ffd700"
-                />
-              </g>
-
-              {/* Connecting lines */}
-              <path
-                d="M95 225 Q120 200 150 200"
-                stroke="url(#providerGradient)"
-                strokeWidth="2"
-                fill="none"
-                opacity="0.5"
-                strokeDasharray="5,5"
-              />
-              <path
-                d="M150 180 Q175 190 210 205"
-                stroke="url(#providerGradient)"
-                strokeWidth="2"
-                fill="none"
-                opacity="0.5"
-                strokeDasharray="5,5"
-              />
-            </svg>
-
-            <h3>Start Your Business Journey</h3>
-            <p>
-              Join our platform as a service provider. Connect with customers,
-              grow your business, and manage bookings effortlessly.
-            </p>
-          </div>
-        </div>
+ 
 
         <div className="form-section">
           <form onSubmit={handleSubmit(onSubmit)}>
-            <h2>Service Provider Signup</h2>
+            <h2 className="service-provider-login-headind">Service Provider Signup</h2>
 
             {/* Google Sign-up Button */}
             <div className="google-auth-container">
@@ -314,12 +191,8 @@ export default function ProviderSignup() {
               </button>
             </div>
 
-            <div className="divider">
-              <span>OR</span>
-            </div>
-
-            <div>
-              <label htmlFor="businessName">Business Name:</label>
+            <div className="inputs">
+             
               <input
                 id="businessName"
                 type="text"
@@ -333,8 +206,8 @@ export default function ProviderSignup() {
               )}
             </div>
 
-            <div>
-              <label htmlFor="email">Email:</label>
+            <div className="inputs">
+              
               <input
                 id="email"
                 type="email"
@@ -350,8 +223,8 @@ export default function ProviderSignup() {
               {errors.email && <span>{errors.email.message}</span>}
             </div>
 
-            <div>
-              <label htmlFor="password">Password:</label>
+            <div className="inputs">
+             
               <input
                 id="password"
                 type="password"
@@ -367,13 +240,14 @@ export default function ProviderSignup() {
               {errors.password && <span>{errors.password.message}</span>}
             </div>
 
-            <div>
-              <label htmlFor="serviceType">Service Type:</label>
+            <div className="select">
+              
               <select
                 id="serviceType"
                 {...register("serviceType", {
                   required: "Please select a service type",
                 })}
+                className="elegant-dropdown"
               >
                 <option value="">Select a service</option>
                 <option value="Restaurant">Restaurant</option>
@@ -393,8 +267,8 @@ export default function ProviderSignup() {
               </select>
               {errors.serviceType && <span>{errors.serviceType.message}</span>}
             </div>
-
-            <div>
+{/* 
+            <div className="service-provider-location">
               <button
                 type="button"
                 onClick={getCurrentLocation}
@@ -407,13 +281,8 @@ export default function ProviderSignup() {
                   ? "✓ Location Captured"
                   : "Get Current Location"}
               </button>
-              {/* {userLocation && (
-              <div className="location-info">
-                📍 Lat: {userLocation.latitude.toFixed(4)}, Lng:{" "}
-                {userLocation.longitude.toFixed(4)}
-              </div>
-            )} */}
-            </div>
+
+            </div> */}
 
             <div>
               <button type="submit">Sign Up as Provider</button>
@@ -431,3 +300,4 @@ export default function ProviderSignup() {
     </>
   );
 }
+

@@ -1,3 +1,12 @@
+.service-status-row {
+    font-size: 1.1rem;
+    font-weight: bold;
+    margin-top: 8px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+}
+
 /* Global Styles */
 * {
     margin: 0;
@@ -38,6 +47,13 @@
     font-size: 2.5rem;
     color: #2c3e50;
     margin-bottom: 10px;
+}
+
+.services-list-header h2
+{
+    display: flex;
+    justify-content: center;
+    font-family: 'Times New Roman', Times, serif;
 }
 
 .service-header-section p {
@@ -156,19 +172,35 @@
 }
 
 
-.service-token-info
-{
-    
+.service-token-info {
+
     font-family: 'Times New Roman', Times, serif;
     font-size: small;
     margin-left: 1.2rem;
 }
 
 /* Business Locations */
-.service-business-locations {
-    padding: 20px;
-    max-height: 400px;
-    overflow-y: auto;
+
+
+.service-business-location {
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.service-location-text {
+
+    display: flex;
+    align-items: center;
+
+    font-size: small !important;
+}
+
+.location-icon {
+
+    height: 3.7vw;
+    font-size: x-large;
 }
 
 .service-business-item {
@@ -210,7 +242,7 @@
 
 .service-business-details {
     padding: 20px;
-   
+
     display: flex;
     flex-direction: column;
     width: 100%;
@@ -222,7 +254,7 @@
     width: 100%;
     gap: 15px;
     margin-bottom: 15px;
-    
+
 }
 
 .service-business-location {
@@ -246,8 +278,29 @@
 }
 
 .service-detail-item {
+
+    display: flex !important;
+    align-items: center;
+    justify-content: space-between;
+    font-size: x-large;
+    /* gap: 1rem; */
+}
+
+.service-detail-spans {
+
     display: flex;
-    flex-direction: column;
+    align-items: center;
+
+}
+
+
+
+
+.service-detail-icon {
+    color: #1976d2;
+    font-size: 1.2em;
+    margin-right: 8px;
+    vertical-align: middle;
 }
 
 .service-detail-label {

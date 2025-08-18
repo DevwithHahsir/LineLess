@@ -1,379 +1,168 @@
-/* Reset and base styles */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
 
-body, html {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    overflow-x: hidden;
-}
 
-/* Remove any orange colors from all elements */
-input, button, form, div, span {
-    border-color: #ddd !important;
-}
-
-input:focus, button:focus {
-    border-color: #8B7D6B !important;
-}
-
-/* Main container */
 .form-main-container {
+
     width: 100vw;
-    min-height: 100vh;
-    background: linear-gradient(135deg, #EEEEEE 0%, #EEEEEE 100%) !important;
     display: flex;
-    align-items: center;
     justify-content: center;
-    padding: 20px;
-    font-family: 'Arial', sans-serif;
-    background-color: #252525 !important;
+    align-items: center;
+    /* height: 50vw; */
+    /* padding: 3rem; */
+    /* overflow-x: hidden !important; */
 }
 
-/* Form styling */
-form {
-    background: white;
-    border-radius: 15px;
-    padding: 35px;
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
-    max-width: 450px;
-    width: 100%;
-    position: relative;
+
+.form-section {
+
+    border-radius: 7px;
+    -webkit-border-radius: 7px;
+    -moz-border-radius: 7px;
+    -ms-border-radius: 7px;
+    -o-border-radius: 7px;
+    background-color: #9a6bff0c;
+    backdrop-filter: blur(10px);
+    /* padding: 2rem; */
+    border: 1px solid #9b6bff !important;
+    margin: 4rem;
+    width: 30vw;
+    /* margin-top: 3rem; */
+
+}
+
+.form-section h2 {
+    color: #9b6bff;
     font-family: 'Times New Roman', Times, serif;
-}
-
-/* Form title */
-h2 {
-    font-size: 1.8rem;
-    font-weight: 600;
-    color: #504B38;
-    text-align: center;
-    margin-bottom: 25px;
-    padding-bottom: 12px;
-    border-bottom: 2px solid #8B7D6B;
-}
-
-/* Google Authentication Styles */
-.google-auth-container {
-    margin-bottom: 20px;
-}
-
-.google-signin-btn {
-    width: 100%;
-    padding: 12px 15px;
-    border: 1.5px solid #ddd !important;
-    border-radius: 8px;
-    background: white;
-    color: #333;
-    font-size: 0.95rem;
-    font-weight: 500;
     display: flex;
-    align-items: center;
     justify-content: center;
-    gap: 10px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    text-transform: none;
-    letter-spacing: normal;
-    margin-top: 0;
+    margin: 2rem;
 }
 
-.google-signin-btn:hover {
-    background: #f8f9fa;
-    border-color: #4285F4 !important;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(66, 133, 244, 0.15);
+
+.form-section .google-auth-container {
+    display: flex;
+    justify-content: center;
+    font-size: small;
+    border-radius: 7px !important;
+    -webkit-border-radius: 7px !important;
+    -moz-border-radius: 7px !important;
+    -ms-border-radius: 7px !important;
+    -o-border-radius: 7px !important;
 }
 
-.google-icon {
-    width: 20px;
-    height: 20px;
-    flex-shrink: 0;
+.form-section .google-auth-container button {
+    display: flex;
+    gap: 1rem;
+    border-radius: 7px !important;
+    width: 23vw;
+    justify-content: center;
+
 }
 
-/* Divider */
-.divider {
-    text-align: center;
-    margin: 20px 0;
-    position: relative;
+
+.label-input {
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
 }
 
-.divider::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 0;
-    right: 0;
-    height: 1px;
-    background: #ddd;
-}
 
-.divider span {
-    background: white;
-    padding: 0 15px;
-    color: #504B38;
-    font-size: 0.9rem;
-    font-weight: 500;
-}
-
-/* User form field containers */
-.user-input-group {
-    margin-bottom: 20px;
-}
-
-/* User Labels */
-.user-input-group label {
-    display: block;
-    font-size: 0.95rem;
-    font-weight: 500;
-    color: #504B38;
-    margin-bottom: 6px;
-    text-transform: capitalize;
-    letter-spacing: 0.3px;
-}
-
-/* User Input fields */
-.user-input-group input[type="email"],
-.user-input-group input[type="password"] {
-    width: 100%;
-    padding: 12px 15px;
-    border: 1.5px solid #ddd !important;
-    border-radius: 8px;
-    font-size: 0.95rem;
-    transition: all 0.3s ease;
-    background: #fafafa;
+input {
+    display: flex;
+    margin: 1rem !important;
+    padding: 0.6rem;
+    border-radius: 7px;
+    -webkit-border-radius: 7px;
+    -moz-border-radius: 7px;
+    -ms-border-radius: 7px;
+    -o-border-radius: 7px;
+    border-color: #9b6bff;
+    border: 1px solid #9b6bff;
     outline: none;
+    background-color: transparent !important;
+    width: 20rem;
+    font-family: 'Times New Roman', Times, serif !important;
 }
 
-.user-input-group input[type="email"]:focus,
-.user-input-group input[type="password"]:focus {
-    border-color: #8B7D6B !important;
-    background: white;
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(139, 125, 107, 0.15);
+.Location-btn {
+
+    display: flex;
+    justify-content: center;
+
 }
 
-.user-input-group input[type="email"]::placeholder,
-.user-input-group input[type="password"]::placeholder {
-    color: #999;
-    font-style: italic;
+
+.Location-btn button[type="button"] {
+    width: 80%;
 }
 
-/* User Error messages */
-.user-error {
-    display: block;
-    color: #e74c3c;
-    font-size: 0.9rem;
-    margin-top: 5px;
-    font-weight: 500;
-    padding-left: 5px;
-}
-
-/* User Submit button group */
-.user-submit-group {
-    margin-top: 20px;
-}
-
-/* User Submit button */
-.user-submit-btn {
-    width: 100%;
-    padding: 14px 18px;
-    font-size: 1.05rem;
+button[type="button"] {
+    background: #0e0e0e !important;
+    color: #9b6bff;
+    margin-bottom: 10px;
+    border-radius: 7px;
+    /* border-color: #9b6bff; */
     font-weight: 600;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    text-transform: capitalize;
-    letter-spacing: 0.5px;
-    background: linear-gradient(135deg, #8B7D6B 0%, #A0926D 100%);
-    color: white;
+    -webkit-border-radius: 7px;
+    -moz-border-radius: 7px;
+    -ms-border-radius: 7px;
+    -o-border-radius: 7px;
+    transition: background 0.3s, color 0.3s;
+
 }
 
-.user-submit-btn:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 15px 30px rgba(139, 125, 107, 0.4);
-    background: linear-gradient(135deg, #A0926D 0%, #8B7D6B 100%);
+
+.form-sub-btn {
+    display: flex;
+    justify-content: center;
 }
 
-/* Button focus states */
-button:focus {
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(139, 125, 107, 0.3);
-}
-
-/* User Signup Link Styles */
-.user-signup-link {
-    text-align: center;
-    margin-top: 20px;
-    padding-top: 15px;
-    border-top: 1px solid #eee;
-}
-
-.user-signup-link span {
-    color: #504B38;
-    font-size: 0.9rem;
-    margin: 0;
-    padding: 0;
-    background: none;
-}
-
-.user-signup-link-text {
-    color: #8B7D6B;
-    text-decoration: none;
+button[type="submit"] {
+    background: #0e0e0e !important;
+    color: #9b6bff;
+    margin-bottom: 10px;
+    border-radius: 7px;
+    /* border-color: #9b6bff; */
     font-weight: 600;
-    font-size: 0.9rem;
-    transition: all 0.3s ease;
+    -webkit-border-radius: 7px;
+    -moz-border-radius: 7px;
+    -ms-border-radius: 7px;
+    -o-border-radius: 7px;
+    transition: background 0.3s, color 0.3s;
+
 }
 
-.user-signup-link-text:hover {
-    color: #A0926D;
-    text-decoration: underline;
+.form-sub-btn button[type="submit"] {
+    width: 80%;
+
 }
 
-/* User Forgot Password Styles */
-.user-forgot-password {
-    text-align: center;
-    margin-top: 15px;
+.login-link {
+    color: #9b6bff;
+    display: flex;
+    justify-content: center;
+    margin: 2rem;
 }
 
-.user-forgot-password-link {
-    background: none;
-    border: none;
-    color: #8B7D6B;
-    text-decoration: none;
-    font-weight: 500;
-    font-size: 0.9rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    width: auto;
-    padding: 5px 10px;
+
+.login-link a {
+    color: aliceblue;
 }
 
-.user-forgot-password-link:hover {
-    color: #A0926D;
-    text-decoration: underline;
-    transform: none;
-    box-shadow: none;
+
+
+
+
+.forgot-password {
+    display: flex;
+    justify-content: center;
+    
 }
 
-/* Responsive design for user login */
-@media (max-width: 768px) {
-    .user-login-container {
-        padding: 15px;
-    }
+.forgot-password button {
+    width: 23vw !important;
+   
 
-    .user-login-form {
-        padding: 25px 20px;
-        margin: 10px;
-        max-width: 100%;
-    }
-
-    .user-login-form h2 {
-        font-size: 1.5rem;
-        margin-bottom: 20px;
-    }
-
-    label {
-        font-size: 0.9rem;
-    }
-
-    input[type="email"],
-    input[type="password"] {
-        padding: 10px 12px;
-        font-size: 0.9rem;
-    }
-
-    button {
-        padding: 10px 15px;
-        font-size: 0.95rem;
-    }
-
-    button[type="submit"] {
-        padding: 12px 15px;
-        font-size: 1rem;
-    }
 }
 
-@media (max-width: 480px) {
-    form {
-        padding: 20px 15px;
-        margin: 5px;
-    }
-
-    h2 {
-        font-size: 1.3rem;
-        margin-bottom: 18px;
-    }
-
-    form>div {
-        margin-bottom: 15px;
-    }
-
-    label {
-        font-size: 0.85rem;
-        margin-bottom: 4px;
-    }
-
-    input[type="email"],
-    input[type="password"] {
-        padding: 8px 10px;
-        font-size: 0.85rem;
-    }
-
-    button {
-        padding: 8px 12px;
-        font-size: 0.9rem;
-    }
-
-    button[type="submit"] {
-        padding: 10px 12px;
-        font-size: 0.95rem;
-    }
-}
-
-/* Animation for form appearance */
-@keyframes slideInUp {
-    from {
-        opacity: 0;
-        transform: translateY(30px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.user-login-form {
-    animation: slideInUp 0.6s ease-out;
-}
-
-/* Hover effects for user login form */
-.user-login-form:hover {
-    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
-}
-
-/* Loading state for user login buttons */
-.user-submit-btn:disabled,
-.user-google-signin-btn:disabled {
-    opacity: 0.7;
-    cursor: not-allowed;
-    transform: none;
-}
-
-/* Success state styling for user login */
-.user-input-group .success {
-    border-color: #27ae60 !important;
-    background: #d5f4e6 !important;
-}
-
-/* Error state styling for user login */
-.user-input-group .error {
-    border-color: #e74c3c !important;
-    background: #fdf2f2 !important;
-}

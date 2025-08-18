@@ -1,0 +1,24 @@
+.text-type__content {
+    font-size: 4vw;
+    font-family: 'Times New Roman', Times, serif;  color: #333 !important;
+    color: #9b6bff !important;
+
+}
+
+.text-type {
+    display: inline-block;
+    white-space: pre-wrap;
+}
+
+.text-type__cursor {
+    margin-left: 0.25rem;
+    display: inline-block;
+    opacity: 1;
+    vertical-align: middle;
+    position: relative;
+    top: 0;
+}
+
+.text-type__cursor--hidden {
+    display: none;
+}

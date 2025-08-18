@@ -1,12 +1,23 @@
+body {
+    overflow-x: hidden !important;
+}
+
+.client-dashboard {
+    overflow-x: hidden;
+}
+
+.dashboard-container {
+    overflow-x: hidden;
+}
+
 /* ClientDashboard.css */
 .client-dashboard {
     width: 100vw;
-
     min-height: calc(100vh - 70px);
-
     padding: 0;
-
     margin: 0;
+    background: #EEEEEE !important;
+    /* Remove any inherited background image */
 }
 
 .dashboard-container {

@@ -4,6 +4,17 @@ import Navbar from "../../componenets/navbar/Navbar";
 import { useState, useEffect, useCallback } from "react";
 import BusinessForm from "../../componenets/businessform/BusinessForm";
 import { db, auth } from "../../firebaseConfig/firebase";
+import { LuLayoutDashboard } from "react-icons/lu";
+import { CiCalendarDate } from "react-icons/ci";
+import { CiCreditCard2, CiClock1 } from "react-icons/ci";
+import { MdAdd, MdDelete, MdEdit } from "react-icons/md";
+import { BsDot } from "react-icons/bs";
+import MapView from "../../map/MapView";
+import { MdOutlineNotificationsActive } from "react-icons/md";
+import { BiSolidCategoryAlt } from "react-icons/bi";
+
+import { FaPeopleLine } from "react-icons/fa6";
+
 import {
   collection,
   getDocs,
@@ -69,7 +80,10 @@ function ServiceDashboard() {
     }
   };
 
-  const showForm = () => {
+  const [editingBusiness, setEditingBusiness] = useState(null);
+
+  const showForm = (business = null) => {
+    setEditingBusiness(business);
     setShowform((prev) => !prev);
   };
 
@@ -334,12 +348,14 @@ function ServiceDashboard() {
           className={`tab-btn ${activeTab === "business" ? "active" : ""}`}
           onClick={() => setActiveTab("business")}
         >
+          <LuLayoutDashboard className="icon" />
           Manage Business
         </button>
         <button
           className={`tab-btn ${activeTab === "appointments" ? "active" : ""}`}
           onClick={() => setActiveTab("appointments")}
         >
+          <CiCalendarDate className="icon" />
           View Appointments ({appointments.length})
         </button>
       </div>
@@ -348,17 +364,112 @@ function ServiceDashboard() {
       {activeTab === "business" && (
         <div className="business-tab">
           <div className="btn-addbusiness">
-            <button className="addService" onClick={showForm}>
-              + Add Your Business
-            </button>
+            {myBusinesses.length === 0 ? (
+              <button className="addService" onClick={showForm}>
+                <MdAdd className="icon" />
+                Add Your Business
+              </button>
+            ) : (
+              <>
+                <button
+                  className="delete-business-btn dashboard-btn"
+                  style={{
+                    backgroundColor: "#f44336",
+                    color: "white",
+                    border: "none",
+                    padding: "8px 16px",
+                    borderRadius: "4px",
+                    cursor: "pointer",
+                    marginRight: "10px",
+                    fontFamily: "Segoe UI, Roboto, Arial, sans-serif",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "6px",
+                  }}
+                  onClick={async () => {
+                    if (
+                      !window.confirm(
+                        "Are you sure you want to delete your business? This will remove all business data and appointments."
+                      )
+                    )
+                      return;
+                    // Delete business and all appointments for this provider
+                    const businessId = myBusinesses[0].id;
+                    await deleteDoc(
+                      doc(db, "businessRegistrations", businessId)
+                    );
+                    // Delete all appointments for this business
+                    const appointmentsSnapshot = await getDocs(
+                      collection(db, "appointments")
+                    );
+                    const businessAppointments =
+                      appointmentsSnapshot.docs.filter(
+                        (docu) => docu.data().businessId === businessId
+                      );
+                    await Promise.all(
+                      businessAppointments.map((aptDoc) =>
+                        deleteDoc(doc(db, "appointments", aptDoc.id))
+                      )
+                    );
+                    refreshData();
+                  }}
+                >
+                  <MdDelete style={{ fontSize: "18px" }} /> Delete Business
+                </button>
+                <button
+                  className="edit-business-btn dashboard-btn"
+                  style={{
+                    backgroundColor: "#1976d2",
+                    color: "white",
+                    border: "none",
+                    padding: "8px 16px",
+                    borderRadius: "4px",
+                    cursor: "pointer",
+                    fontFamily: "Segoe UI, Roboto, Arial, sans-serif",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "6px",
+                  }}
+                  onClick={() => showForm(myBusinesses[0])}
+                >
+                  <MdEdit style={{ fontSize: "18px" }} /> Edit Business
+                </button>
+              </>
+            )}
           </div>
 
           {/* Business Form */}
           {showform ? (
             <div>
-              <BusinessForm
-                onFormSubmitSuccess={() => {
+              <button
+                className="close-form-btn dashboard-btn"
+                style={{
+                  backgroundColor: "#f44336",
+                  color: "white",
+                  border: "none",
+                  padding: "8px 16px",
+                  borderRadius: "4px",
+                  cursor: "pointer",
+                  marginBottom: "12px",
+                }}
+                onClick={() => {
                   setShowform(false);
+                  setEditingBusiness(null);
+                }}
+              >
+                Close Form
+              </button>
+              <BusinessForm
+                business={editingBusiness}
+                onFormSubmitSuccess={async () => {
+                  // If editing, delete the old business
+                  if (editingBusiness && editingBusiness.id) {
+                    await deleteDoc(
+                      doc(db, "businessRegistrations", editingBusiness.id)
+                    );
+                  }
+                  setShowform(false);
+                  setEditingBusiness(null);
                   refreshData();
                 }}
               />
@@ -368,43 +479,110 @@ function ServiceDashboard() {
               {myBusinesses.length > 0 ? (
                 <div className="registered-businesses">
                   <h3>Your Registered Businesses:</h3>
-                  {myBusinesses.map((business) => (
-                    <div key={business.id} className="business-card">
-                      <h4>{business.businessName}</h4>
-                      <p>
-                        <strong>Category:</strong> {business.serviceCategory}
-                      </p>
-                      <p>
-                        <strong>Current Queue:</strong> {business.count || 0}
-                      </p>
-                      <p>
-                        <strong>Status:</strong> {business.status || "Active"}
-                      </p>
-                      <div className="business-actions">
-                        <button
-                          className="reset-queue-btn"
-                          onClick={() =>
-                            resetQueueCount(business.id, business.businessName)
-                          }
-                          style={{
-                            backgroundColor: "#f44336",
-                            color: "white",
-                            border: "none",
-                            padding: "8px 16px",
-                            borderRadius: "4px",
-                            cursor: "pointer",
-                            marginTop: "10px",
-                          }}
-                        >
-                          Reset & Clear Appointments
-                        </button>
+                  {myBusinesses.map((business) => {
+                    // Parse open/close time as HH:mm
+                    const now = new Date();
+                    let isOnline = true;
+                    let openStr = business.openTime || "09:00";
+                    let closeStr = business.closeTime || "18:00";
+                    let openParts = openStr.split(":");
+                    let closeParts = closeStr.split(":");
+                    let openDate = new Date(now);
+                    let closeDate = new Date(now);
+                    openDate.setHours(
+                      Number(openParts[0]),
+                      Number(openParts[1] || 0),
+                      0,
+                      0
+                    );
+                    closeDate.setHours(
+                      Number(closeParts[0]),
+                      Number(closeParts[1] || 0),
+                      0,
+                      0
+                    );
+                    if (now < openDate || now > closeDate) {
+                      isOnline = false;
+                    }
+                    return (
+                      <div key={business.id} className="business-card">
+                        <div className="business-name">
+                          <CiCreditCard2 className="icon" />
+                          <h4>
+                            <strong>Business Name: </strong>
+                            {business.businessName}
+                          </h4>
+                        </div>
+                        <p>
+                          <BiSolidCategoryAlt className="icon" />
+                          <strong>Category:</strong> {business.serviceCategory}
+                        </p>
+                        <p>
+                          <FaPeopleLine className="icon" />
+                          <strong>Current Queue:</strong> {business.count || 0}
+                        </p>
+                        <p>
+                          <MdOutlineNotificationsActive className="icon" />
+                          <strong>Status:</strong>{" "}
+                          {isOnline ? (
+                            <span style={{ color: "green", fontWeight: "bold", display: "inline-flex", alignItems: "center" }}>
+                              <BsDot style={{ color: "green", fontSize: "2rem", verticalAlign: "middle" }} /> Active
+                            </span>
+                          ) : (
+                            <span style={{ color: "red", fontWeight: "bold", display: "inline-flex", alignItems: "center" }}>
+                              <BsDot style={{ color: "red", fontSize: "2rem", verticalAlign: "middle" }} /> Offline
+                            </span>
+                          )}
+                        </p>
+                        <p>
+                          <CiClock1 className="icon" />
+                          <strong>Timings:</strong> {openStr} - {closeStr}
+                        </p>
+                        <div className="business-actions">
+                          <button
+                            className="reset-queue-btn"
+                            onClick={() =>
+                              resetQueueCount(
+                                business.id,
+                                business.businessName
+                              )
+                            }
+                            style={{
+                              backgroundColor: "#f44336",
+                              color: "white",
+                              border: "none",
+                              padding: "8px 16px",
+                              borderRadius: "4px",
+                              cursor: "pointer",
+                              marginTop: "10px",
+                            }}
+                          >
+                            Reset & Clear Appointments
+                          </button>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               ) : (
                 <div className="no-business">No Business is registered</div>
               )}
+
+              <div className="service-provicer-map">
+                {myBusinesses.length > 0 &&
+                myBusinesses[0].latitude &&
+                myBusinesses[0].longitude ? (
+                  <MapView
+                    lat={myBusinesses[0].latitude}
+                    lng={myBusinesses[0].longitude}
+                    businesses={[myBusinesses[0]]}
+                  />
+                ) : (
+                  <div style={{ padding: "2rem", textAlign: "center" }}>
+                    No provider location available
+                  </div>
+                )}
+              </div>
             </div>
           )}
         </div>

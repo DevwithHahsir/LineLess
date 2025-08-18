@@ -4,8 +4,18 @@ import { Link, useLocation } from "react-router-dom";
 import { signOut } from "firebase/auth";
 import { auth } from "../../firebaseConfig/firebase";
 import { useAuth } from "../../authContext/useAuth";
+
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./Navbar.css";
+import { CiUser } from "react-icons/ci";
+import {
+  FiHome,
+  FiGrid,
+  FiCalendar,
+  FiLogOut,
+  FiUser,
+  FiUserCheck,
+} from "react-icons/fi";
 
 function Navbar({ isProvider = false }) {
   const { user } = useAuth();
@@ -63,10 +73,12 @@ function Navbar({ isProvider = false }) {
             <li className="nav-item">
               <Link
                 to="/"
-                className={`nav-link ${isActive("/") ? "active" : ""}`}
+                className={`nav-link nav-flex ${isActive("/") ? "active" : ""}`}
                 onClick={closeMenu}
               >
-                Home
+                <span className="icon-text-row">
+                  <FiHome className="nav-icon" /> <span>Home</span>
+                </span>
               </Link>
             </li>
 
@@ -74,12 +86,14 @@ function Navbar({ isProvider = false }) {
               <li className="nav-item">
                 <Link
                   to={dashboardPath}
-                  className={`nav-link ${
+                  className={`nav-link nav-flex ${
                     isActive(dashboardPath) ? "active" : ""
                   }`}
                   onClick={closeMenu}
                 >
-                  Dashboard
+                  <span className="icon-text-row">
+                    <FiGrid className="nav-icon" /> <span>Dashboard</span>
+                  </span>
                 </Link>
               </li>
             )}
@@ -88,12 +102,15 @@ function Navbar({ isProvider = false }) {
               <li className="nav-item">
                 <Link
                   to="/appointments"
-                  className={`nav-link ${
+                  className={`nav-link nav-flex ${
                     isActive("/appointments") ? "active" : ""
                   }`}
                   onClick={closeMenu}
                 >
-                  Appointments
+                  <span className="icon-text-row">
+                    <FiCalendar className="nav-icon" />{" "}
+                    <span>Appointments</span>
+                  </span>
                 </Link>
               </li>
             ) : (
@@ -107,15 +124,17 @@ function Navbar({ isProvider = false }) {
             {shouldShowUser ? (
               <>
                 <span className="text-white me-3 user-email-role">
-                  <span className="badge bg-secondary ms-2">{user.role}</span>
+                  <span className="badge bg-secondary ms-2"><CiUser className="user-icon"/>{user.role}</span>
                   {/* <span className="ms-2">{user.email}</span> */}
                 </span>
 
                 <button
                   onClick={handleLogout}
-                  className="btn btn-outline-light btn-sm logout"
+                  className="btn btn-outline-light btn-sm logout nav-flex"
                 >
-                  Logout
+                  
+                    <FiLogOut className="nav-icon" /> <span>Logout</span>
+                  
                 </button>
               </>
             ) : (
@@ -123,24 +142,32 @@ function Navbar({ isProvider = false }) {
                 <div className="auth-btns">
                   <Link
                     to="/user/login"
-                    className="btn btn-outline-light btn-sm me-2 sign-in"
+                    className="btn btn-outline-light btn-sm me-2 sign-in nav-flex"
                     onClick={closeMenu}
                   >
-                    Client Sign In
+                    <span className="icon-text-row">
+                      <FiUser className="nav-icon" />{" "}
+                      <span>Client Sign In</span>
+                    </span>
                   </Link>
                   <Link
                     to="/provider/login"
-                    className="btn btn-outline-warning btn-sm me-2 provider-sign-in"
+                    className="btn btn-outline-warning btn-sm me-2 provider-sign-in nav-flex"
                     onClick={closeMenu}
                   >
-                    Provider Sign In
+                    <span className="icon-text-row">
+                      <FiUserCheck className="nav-icon" />{" "}
+                      <span>Provider Sign In</span>
+                    </span>
                   </Link>
                   <Link
                     to="/user/signup"
-                    className="btn btn-outline-success btn-sm sign-up"
+                    className="btn btn-outline-success btn-sm sign-up nav-flex"
                     onClick={closeMenu}
                   >
-                    Sign Up
+                    <span className="icon-text-row">
+                      <FiUser className="nav-icon" /> <span>Sign Up</span>
+                    </span>
                   </Link>
                 </div>
               </>

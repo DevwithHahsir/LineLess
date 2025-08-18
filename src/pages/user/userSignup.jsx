@@ -122,140 +122,7 @@ export default function UserSignup() {
   return (
     <>
       <div className="form-main-container">
-        <div className="form-image-section">
-          <div className="image-content">
-            <svg
-              width="300"
-              height="300"
-              viewBox="0 0 300 300"
-              className="form-illustration"
-            >
-              {/* User signup illustration */}
-              <defs>
-                <linearGradient
-                  id="userGradient"
-                  x1="0%"
-                  y1="0%"
-                  x2="100%"
-                  y2="100%"
-                >
-                  <stop offset="0%" stopColor="#667eea" />
-                  <stop offset="100%" stopColor="#764ba2" />
-                </linearGradient>
-              </defs>
 
-              {/* Background circle */}
-              <circle
-                cx="150"
-                cy="150"
-                r="140"
-                fill="url(#userGradient)"
-                opacity="0.1"
-              />
-
-              {/* Person icon */}
-              <circle cx="150" cy="120" r="30" fill="url(#userGradient)" />
-              <path
-                d="M100 200 Q100 170 150 170 Q200 170 200 200 L200 220 Q200 230 190 230 L110 230 Q100 230 100 220 Z"
-                fill="url(#userGradient)"
-              />
-
-              {/* Location pin */}
-              <path
-                d="M80 80 Q80 65 95 65 Q110 65 110 80 Q110 90 95 105 Q80 90 80 80 Z"
-                fill="#ff4757"
-              />
-              <circle cx="95" cy="80" r="5" fill="white" />
-
-              {/* Phone icon */}
-              <rect
-                x="210"
-                y="70"
-                width="25"
-                height="40"
-                rx="5"
-                fill="#2f3542"
-              />
-              <rect
-                x="213"
-                y="75"
-                width="19"
-                height="25"
-                rx="2"
-                fill="#a4b0be"
-              />
-              <circle cx="222.5" cy="105" r="2" fill="#2f3542" />
-
-              {/* Email envelope */}
-              <rect
-                x="60"
-                y="210"
-                width="40"
-                height="30"
-                rx="3"
-                fill="#3742fa"
-              />
-              <path
-                d="M60 210 L80 225 L100 210"
-                stroke="white"
-                strokeWidth="2"
-                fill="none"
-              />
-
-              {/* Security shield */}
-              <path
-                d="M210 210 Q210 200 220 200 Q230 200 230 210 L230 230 Q230 240 220 240 Q210 240 210 230 Z"
-                fill="#2ed573"
-              />
-              <path
-                d="M216 220 L219 223 L224 218"
-                stroke="white"
-                strokeWidth="2"
-                fill="none"
-              />
-
-              {/* Connecting lines */}
-              <path
-                d="M95 105 Q120 140 150 150"
-                stroke="url(#userGradient)"
-                strokeWidth="2"
-                fill="none"
-                opacity="0.5"
-                strokeDasharray="5,5"
-              />
-              <path
-                d="M210 80 Q180 110 150 150"
-                stroke="url(#userGradient)"
-                strokeWidth="2"
-                fill="none"
-                opacity="0.5"
-                strokeDasharray="5,5"
-              />
-              <path
-                d="M80 225 Q110 200 150 180"
-                stroke="url(#userGradient)"
-                strokeWidth="2"
-                fill="none"
-                opacity="0.5"
-                strokeDasharray="5,5"
-              />
-              <path
-                d="M220 210 Q185 185 150 180"
-                stroke="url(#userGradient)"
-                strokeWidth="2"
-                fill="none"
-                opacity="0.5"
-                strokeDasharray="5,5"
-              />
-            </svg>
-
-            <h3>Join LineLess Today!</h3>
-            <p>
-              Create your account to access services without the wait. Get
-              instant access to local service providers.
-            </p>
-          </div>
-        </div>
 
         <div className="form-section">
           <form onSubmit={handleSubmit(onSubmit)}>
@@ -295,23 +162,21 @@ export default function UserSignup() {
               </button>
             </div>
 
-            <div className="divider">
-              <span>OR</span>
-            </div>
 
-            <div>
-              <label htmlFor="username">Username:</label>
+
+            <div className="label-input">
+              
               <input
                 id="username"
                 type="text"
-                placeholder="Enter your username"
+                placeholder="Enter your Name"
                 {...register("username", { required: "Username is required" })}
               />
               {errors.username && <span>{errors.username.message}</span>}
             </div>
 
-            <div>
-              <label htmlFor="phone">Phone Number:</label>
+            <div className="label-input">
+              
               <input
                 id="phone"
                 type="tel"
@@ -319,7 +184,7 @@ export default function UserSignup() {
                 {...register("phone", {
                   required: "Phone number is required",
                   pattern: {
-                    value: /^[+]?[1-9][\d]{0,15}$/,
+                    value: /^[0-9]{10,15}$/,
                     message: "Please enter a valid phone number",
                   },
                 })}
@@ -327,8 +192,8 @@ export default function UserSignup() {
               {errors.phone && <span>{errors.phone.message}</span>}
             </div>
 
-            <div>
-              <label htmlFor="email">Email:</label>
+            <div className="label-input">
+              
               <input
                 id="email"
                 type="email"
@@ -344,8 +209,8 @@ export default function UserSignup() {
               {errors.email && <span>{errors.email.message}</span>}
             </div>
 
-            <div>
-              <label htmlFor="password">Password:</label>
+            <div className="label-input">
+             
               <input
                 id="password"
                 type="password"
@@ -361,7 +226,7 @@ export default function UserSignup() {
               {errors.password && <span>{errors.password.message}</span>}
             </div>
 
-            <div>
+            <div className="Location-btn">
               <button
                 type="button"
                 onClick={getCurrentLocation}
@@ -382,7 +247,7 @@ export default function UserSignup() {
             )} */}
             </div>
 
-            <div>
+            <div className="form-sub-btn">
               <button type="submit">Sign Up</button>
             </div>
 

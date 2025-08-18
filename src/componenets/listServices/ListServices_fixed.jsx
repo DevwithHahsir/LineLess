@@ -1,3 +1,4 @@
+import { BsDot } from "react-icons/bs";
 import React, { useState, useEffect } from "react";
 import "./listServicess.css";
 import {
@@ -9,8 +10,9 @@ import {
   FaUniversity,
   FaStore,
   FaEllipsisH,
-  FaMapMarkerAlt,
 } from "react-icons/fa";
+import { CiPhone, CiMail, CiClock2 } from "react-icons/ci";
+import { CiLocationArrow1 } from "react-icons/ci";
 import { db } from "../../firebaseConfig/firebase";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import axios from "axios";
@@ -349,10 +351,67 @@ function ListServices() {
                 </div>
               </div>
 
+              {/* Status indicator always visible */}
+              <div
+                className="service-status-row"
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  marginBottom: "8px",
+                  marginTop: "8px",
+                }}
+              >
+                {(() => {
+                  // Compute open/closed status
+                  let isOpen = true;
+                  if (service.openTime && service.closeTime) {
+                    const now = new Date();
+                    const [openH, openM] = service.openTime
+                      .split(":")
+                      .map(Number);
+                    const [closeH, closeM] = service.closeTime
+                      .split(":")
+                      .map(Number);
+                    const openDate = new Date(now);
+                    const closeDate = new Date(now);
+                    openDate.setHours(openH, openM || 0, 0, 0);
+                    closeDate.setHours(closeH, closeM || 0, 0, 0);
+                    if (now < openDate || now > closeDate) isOpen = false;
+                  }
+                  return isOpen ? (
+                    <span
+                      style={{
+                        color: "green",
+                        fontWeight: "bold",
+                        display: "flex",
+                        alignItems: "center",
+                        marginRight: "12px",
+                      }}
+                    >
+                      <BsDot style={{ color: "green", fontSize: "1.5rem" }} />{" "}
+                      Open
+                    </span>
+                  ) : (
+                    <span
+                      style={{
+                        color: "red",
+                        fontWeight: "bold",
+                        display: "flex",
+                        alignItems: "center",
+                        marginRight: "12px",
+                      }}
+                    >
+                      <BsDot style={{ color: "red", fontSize: "1.5rem" }} />{" "}
+                      Closed
+                    </span>
+                  );
+                })()}
+              </div>
+
               {isExpanded && (
                 <div className="service-business-details">
                   <div className="service-business-location">
-                    <FaMapMarkerAlt className="service-location-icon" />
+                    <CiLocationArrow1 className="service-location-icon" />
                     <span className="service-location-text">
                       {service.physicalAddress}
                     </span>
@@ -361,6 +420,7 @@ function ListServices() {
                   <div className="service-business-info">
                     {service.phone && (
                       <div className="service-detail-item">
+                        <CiPhone className="service-detail-icon" />
                         <span className="service-detail-label">Phone:</span>
                         <span className="service-detail-value">
                           {service.phone}
@@ -370,6 +430,7 @@ function ListServices() {
 
                     {service.email && (
                       <div className="service-detail-item">
+                        <CiMail className="service-detail-icon" />
                         <span className="service-detail-label">Email:</span>
                         <span className="service-detail-value">
                           {service.email}
@@ -379,6 +440,7 @@ function ListServices() {
 
                     {service.openTime && service.closeTime && (
                       <div className="service-detail-item">
+                        <CiClock2 className="service-detail-icon" />
                         <span className="service-detail-label">Hours:</span>
                         <span className="service-detail-value">
                           {service.openTime} - {service.closeTime}
@@ -396,10 +458,49 @@ function ListServices() {
                     )}
                   </div>
 
+                  {/* Booking button only in expanded view */}
                   <button
                     className="service-book-appointment-btn"
                     onClick={(e) => handleBookAppointment(e, service)}
-                    style={{ backgroundColor: color }}
+                    style={{
+                      backgroundColor: color,
+                      opacity: (() => {
+                        let isOpen = true;
+                        if (service.openTime && service.closeTime) {
+                          const now = new Date();
+                          const [openH, openM] = service.openTime
+                            .split(":")
+                            .map(Number);
+                          const [closeH, closeM] = service.closeTime
+                            .split(":")
+                            .map(Number);
+                          const openDate = new Date(now);
+                          const closeDate = new Date(now);
+                          openDate.setHours(openH, openM || 0, 0, 0);
+                          closeDate.setHours(closeH, closeM || 0, 0, 0);
+                          if (now < openDate || now > closeDate) isOpen = false;
+                        }
+                        return isOpen ? 1 : 0.5;
+                      })(),
+                    }}
+                    disabled={(() => {
+                      let isOpen = true;
+                      if (service.openTime && service.closeTime) {
+                        const now = new Date();
+                        const [openH, openM] = service.openTime
+                          .split(":")
+                          .map(Number);
+                        const [closeH, closeM] = service.closeTime
+                          .split(":")
+                          .map(Number);
+                        const openDate = new Date(now);
+                        const closeDate = new Date(now);
+                        openDate.setHours(openH, openM || 0, 0, 0);
+                        closeDate.setHours(closeH, closeM || 0, 0, 0);
+                        if (now < openDate || now > closeDate) isOpen = false;
+                      }
+                      return !isOpen;
+                    })()}
                   >
                     📅 Book Appointment
                   </button>

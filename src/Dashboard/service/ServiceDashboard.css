@@ -8,17 +8,18 @@
     flex-direction: column;
     margin-top: 1vw;
     width: 100vw;
-    font-family: 'Times New Roman', Times, serif;
 }
 
 .heading-container h1 {
 
+    font-family: 'Times New Roman', Times, serif !important;
     font-size: 5rem;
     color: #2c3e50;
-    margin: 3rem;
+    margin-top: 3rem;
 }
 
 .heading-container h4 {
+    font-family: 'Times New Roman', Times, serif !important;
     color: #2c3e50;
 
 }
@@ -43,11 +44,67 @@
     color: #2c3e50;
 }
 
+
+
+
 .refresh-btn:hover {
     background-color: #45a049 !important;
 }
 
 /* Business actions styling */
+
+.business-info {
+
+    display: flex;
+    flex-wrap: wrap;
+
+    width: 99%;
+    box-shadow: 0 4px 16px rgba(44, 62, 80, 0.15), 0 1.5px 4px rgba(44, 62, 80, 0.08);
+
+    border-radius: 7px;
+    -webkit-border-radius: 7px;
+    -moz-border-radius: 7px;
+    -ms-border-radius: 7px;
+    -o-border-radius: 7px;
+}
+
+.registered-businesses {
+
+    width: 100%;
+}
+
+.service-provicer-map {
+
+
+    width: 30%;
+    margin: 2rem;
+
+}
+
+
+
+.business-card strong {
+    font-family: 'Times New Roman', Times, serif;
+}
+
+.business-card  p
+{
+    display: flex;
+    gap: 0.5rem;
+    align-items: centere;
+    /* justify-content: center;/ */
+}
+
+.business-name
+{
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    /* justify-content: center; */
+
+}
+
+
 .business-actions {
     display: flex;
     justify-content: flex-start;
@@ -118,6 +175,7 @@
         padding: 14px 28px;
         font-size: 1.1rem;
     }
+  
 }
 
 /* Desktop (992px to 1199px) */
@@ -166,6 +224,16 @@
         padding: 12px 24px;
         font-size: 1rem;
     }
+      .service-provicer-map 
+    {
+        width: 85vw;
+
+    }
+    .business-info
+    {
+        display: flex;
+        justify-content: center;
+    }
 }
 
 
@@ -187,36 +255,41 @@
 
 /* Service in tab navigationnnnn */
 
-.tab-navigation button
-{
+.tab-navigation button {
     width: 23.5rem;
     border: 1px solid;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    font-size: large;
+    font-family: 'Times New Roman', Times, serif;
+
+}
+
+.icon {
+    font-size: larger;
 }
 
 
 
 
+.appointments-tab {
 
-.appointments-tab
-{
-    
     display: flexbox;
 }
 
-.appointments-tab button
-{
+.appointments-tab button {
     width: 15rem !important;
 }
 
-.appointments-header button
-{
+.appointments-header button {
     width: 23rem;
 
 }
 
 
-.next-tokken-btn button
-{
+.next-tokken-btn button {
     padding: 8px 16px;
     background-color: #4caf50;
     color: white;

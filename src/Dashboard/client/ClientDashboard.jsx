@@ -10,88 +10,80 @@ import ListServices from "../../componenets/listServices/ListServices";
 
 function ClientDashboard() {
   const [location, setLocation] = useState({ lat: null, lng: null });
+  // eslint-disable-next-line no-unused-vars
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [businesses, setBusinesses] = useState([]);
   const [businessesLoading, setBusinessesLoading] = useState(true);
 
+  // Fetch user and business data in parallel
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-      setLoading(false);
-    });
+    let unsubAuth;
+    let isMounted = true;
 
-    return () => unsubscribe();
-  }, []);
+    const fetchUserAndLocation = async () => {
+      unsubAuth = onAuthStateChanged(auth, async (currentUser) => {
+        if (!isMounted) return;
+        setUser(currentUser);
+        setLoading(false);
 
-  useEffect(() => {
-    const fetchLocation = async () => {
-      if (!user) {
-        setLocation({ lat: 40.7128, lng: -74.006 });
-        return;
-      }
-
-      try {
-        const userDoc = await getDoc(doc(db, "userSignup", user.uid));
-        if (userDoc.exists()) {
-          const data = userDoc.data();
-
-          // Check if location data exists and has the correct structure
-          if (
-            data.location &&
-            data.location.latitude &&
-            data.location.longitude
-          ) {
-            setLocation({
-              lat: data.location.latitude,
-              lng: data.location.longitude,
-            });
-          } else {
+        if (!currentUser) {
+          setLocation({ lat: 40.7128, lng: -74.006 });
+        } else {
+          try {
+            const userDoc = await getDoc(
+              doc(db, "userSignup", currentUser.uid)
+            );
+            if (userDoc.exists()) {
+              const data = userDoc.data();
+              if (
+                data.location &&
+                data.location.latitude &&
+                data.location.longitude
+              ) {
+                setLocation({
+                  lat: data.location.latitude,
+                  lng: data.location.longitude,
+                });
+              } else {
+                setLocation(null);
+              }
+            } else {
+              setLocation(null);
+            }
+          } catch {
             setLocation(null);
           }
-        } else {
-          setLocation(null);
         }
-      } catch {
-        setLocation(null);
-      }
+      });
     };
 
-    if (!loading) {
-      fetchLocation();
-    }
-  }, [user, loading]);
-
-  // Fetch business locations from Firebase
-  useEffect(() => {
     const fetchBusinessLocations = async () => {
+      setBusinessesLoading(true);
       try {
-        setBusinessesLoading(true);
-
         const querySnapshot = await getDocs(
           collection(db, "businessRegistrations")
         );
         const businessList = [];
-
         querySnapshot.forEach((doc) => {
           const data = doc.data();
-
-          // Check if business has location data
           if (data.latitude && data.longitude) {
-            businessList.push({
-              id: doc.id,
-              ...data,
-            });
+            businessList.push({ id: doc.id, ...data });
           }
         });
-
         setBusinesses(businessList);
       } finally {
         setBusinessesLoading(false);
       }
     };
 
+    fetchUserAndLocation();
     fetchBusinessLocations();
+
+    return () => {
+      isMounted = false;
+      if (unsubAuth) unsubAuth();
+    };
   }, []);
 
   const getCurrentLocation = () => {

@@ -9,8 +9,14 @@ import {
   FaUniversity,
   FaStore,
   FaEllipsisH,
-  FaMapMarkerAlt,
+ 
 } from "react-icons/fa";
+import { CiLocationArrow1 } from "react-icons/ci";
+import { CiPhone } from "react-icons/ci";
+import { MdOutlineMailOutline } from "react-icons/md";
+import { MdReduceCapacity } from "react-icons/md";
+import { CiClock1 } from "react-icons/ci";
+
 import { db, auth } from "../../firebaseConfig/firebase";
 import {
   collection,
@@ -702,7 +708,8 @@ function ListServices() {
               {isExpanded && (
                 <div className="service-business-details">
                   <div className="service-business-location">
-                    <FaMapMarkerAlt className="service-location-icon" />
+
+                    <CiLocationArrow1  className="location-icon"/>
                     <span className="service-location-text">
                       {service.physicalAddress}
                     </span>
@@ -711,7 +718,10 @@ function ListServices() {
                   <div className="service-business-info">
                     {service.phone && (
                       <div className="service-detail-item">
-                        <span className="service-detail-label">Phone:</span>
+                        <div className="service-detail-spans">
+                          <CiPhone />
+                          <span className="service-detail-label">Phone:</span>
+                        </div>
                         <span className="service-detail-value">
                           {service.phone}
                         </span>
@@ -720,7 +730,10 @@ function ListServices() {
 
                     {service.email && (
                       <div className="service-detail-item">
-                        <span className="service-detail-label">Email:</span>
+                        <div className="service-detail-spans">
+                          <MdOutlineMailOutline />
+                          <span className="service-detail-label">Email:</span>
+                        </div>
                         <span className="service-detail-value">
                           {service.email}
                         </span>
@@ -729,7 +742,10 @@ function ListServices() {
 
                     {service.openTime && service.closeTime && (
                       <div className="service-detail-item">
-                        <span className="service-detail-label">Hours:</span>
+                        <div className="service-detail-spans">
+                          <CiClock1 />
+                          <span className="service-detail-label">Hours:</span>
+                        </div>
                         <span className="service-detail-value">
                           {service.openTime} - {service.closeTime}
                         </span>
@@ -738,7 +754,12 @@ function ListServices() {
 
                     {service.maxCapacityPerHour && (
                       <div className="service-detail-item">
-                        <span className="service-detail-label">Capacity:</span>
+                        <div className="service-detail-spans">
+                          <MdReduceCapacity />
+                          <span className="service-detail-label">
+                            Capacity:
+                          </span>
+                        </div>
                         <span className="service-detail-value">
                           {service.maxCapacityPerHour} per hour
                         </span>
