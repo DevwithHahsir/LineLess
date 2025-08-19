@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
-import "./userSignup.css";
+import Alert from "../../componenets/alert/Alert";
 import { createUserWithEmailAndPassword, signInWithPopup } from "firebase/auth";
 import { googleProvider } from "../../firebaseConfig/firebase";
 import { auth } from "../../firebaseConfig/firebase";
@@ -11,6 +11,7 @@ import { db } from "../../firebaseConfig/firebase";
 export default function UserSignup() {
   const [userLocation, setUserLocation] = useState(null);
   const [locationLoading, setLocationLoading] = useState(false);
+  const [alert, setAlert] = useState({ type: "success", message: "" });
   const navigate = useNavigate();
 
   const {
@@ -42,21 +43,12 @@ export default function UserSignup() {
 
       await setDoc(doc(db, "userSignup", user.uid), userData);
 
-      // Also create a document in the central users collection for role management
-      // await setDoc(doc(db, "users", user.uid), {
-      //   email: data.email,
-      //   role: "user",
-      //   userType: "client",
-      //   createdAt: new Date(),
-      //   uid: user.uid,
-      // });
-
-      alert("Account created successfully! Welcome to LineLess!");
-
-      // Navigate to client dashboard
+      setAlert({
+        type: "success",
+        message: "Account created successfully! Welcome to LineLess!",
+      });
       navigate("/client/clientdashboard");
     } catch (error) {
-      // More specific error messages
       let errorMessage = "Signup failed: ";
       if (error.code === "auth/email-already-in-use") {
         errorMessage +=
@@ -71,8 +63,7 @@ export default function UserSignup() {
       } else {
         errorMessage += error.message;
       }
-
-      alert(errorMessage);
+      setAlert({ type: "error", message: errorMessage });
     }
   };
 
@@ -92,7 +83,10 @@ export default function UserSignup() {
         },
         (error) => {
           setLocationLoading(false);
-          alert(`Location error: ${error.message}`);
+          setAlert({
+            type: "error",
+            message: `Location error: ${error.message}`,
+          });
         },
         {
           enableHighAccuracy: true,
@@ -102,33 +96,43 @@ export default function UserSignup() {
       );
     } else {
       setLocationLoading(false);
-      alert("Geolocation is not supported by this browser.");
+      setAlert({
+        type: "error",
+        message: "Geolocation is not supported by this browser.",
+      });
     }
   };
 
   const handleGoogleSignup = async () => {
     try {
-      // Use popup with proper error handling
       await signInWithPopup(auth, googleProvider);
-      alert("Google signup successful! Welcome to LineLess!");
-
-      // Navigate to client dashboard
+      setAlert({
+        type: "success",
+        message: "Google signup successful! Welcome to LineLess!",
+      });
       navigate("/client/clientdashboard");
     } catch (error) {
-      alert(`Google sign-in error: ${error.message}`);
+      setAlert({
+        type: "error",
+        message: `Google sign-in error: ${error.message}`,
+      });
     }
   };
 
   return (
     <>
+      {alert.message && (
+        <Alert
+          type={alert.type}
+          message={alert.message}
+          duration={2500}
+          onClose={() => setAlert({ ...alert, message: "" })}
+        />
+      )}
       <div className="form-main-container">
-
-
         <div className="form-section">
           <form onSubmit={handleSubmit(onSubmit)}>
             <h2>User Signup</h2>
-
-            {/* Google Sign-up Button */}
             <div className="google-auth-container">
               <button
                 type="button"
@@ -161,22 +165,18 @@ export default function UserSignup() {
                 Continue with Google
               </button>
             </div>
-
-
-
             <div className="label-input">
-              
               <input
                 id="username"
                 type="text"
                 placeholder="Enter your Name"
                 {...register("username", { required: "Username is required" })}
               />
-              {errors.username && <span>{errors.username.message}</span>}
+              {errors.username && (
+                <span style={{ color: "red" }}>{errors.username.message}</span>
+              )}
             </div>
-
             <div className="label-input">
-              
               <input
                 id="phone"
                 type="tel"
@@ -189,11 +189,11 @@ export default function UserSignup() {
                   },
                 })}
               />
-              {errors.phone && <span>{errors.phone.message}</span>}
+              {errors.phone && (
+                <span style={{ color: "red" }}>{errors.phone.message}</span>
+              )}
             </div>
-
             <div className="label-input">
-              
               <input
                 id="email"
                 type="email"
@@ -206,11 +206,11 @@ export default function UserSignup() {
                   },
                 })}
               />
-              {errors.email && <span>{errors.email.message}</span>}
+              {errors.email && (
+                <span style={{ color: "red" }}>{errors.email.message}</span>
+              )}
             </div>
-
             <div className="label-input">
-             
               <input
                 id="password"
                 type="password"
@@ -223,9 +223,10 @@ export default function UserSignup() {
                   },
                 })}
               />
-              {errors.password && <span>{errors.password.message}</span>}
+              {errors.password && (
+                <span style={{ color: "red" }}>{errors.password.message}</span>
+              )}
             </div>
-
             <div className="Location-btn">
               <button
                 type="button"
@@ -239,18 +240,10 @@ export default function UserSignup() {
                   ? "✓ Location Captured"
                   : "Get Current Location"}
               </button>
-              {/* {userLocation && (
-              <div className="location-info">
-                📍 Lat: {userLocation.latitude.toFixed(4)}, Lng:{" "}
-                {userLocation.longitude.toFixed(4)}
-              </div>
-            )} */}
             </div>
-
             <div className="form-sub-btn">
               <button type="submit">Sign Up</button>
             </div>
-
             <div className="login-link">
               <span>Have an account already? </span>
               <a href="/user/login" className="login-link-text">

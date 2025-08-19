@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from "react";
 import Navbar from "../../componenets/navbar/Navbar";
 import { auth, db } from "../../firebaseConfig/firebase";
@@ -8,28 +9,40 @@ import {
   where,
   doc,
   getDoc,
+  onSnapshot,
 } from "firebase/firestore";
 import "./AppointmentPage.css";
 
 function Appointments() {
+  const [alertMsg, setAlertMsg] = useState("");
+  const [alertType, setAlertType] = useState("success");
+  const [showAlert, setShowAlert] = useState(false);
   const [loading, setLoading] = useState(true);
   const [items, setItems] = useState([]);
   const [currentTokens, setCurrentTokens] = useState({});
 
+  const showSuccessAlert = (msg) => {
+    setAlertMsg(msg);
+    setAlertType("success");
+    setShowAlert(true);
+    setTimeout(() => setShowAlert(false), 2500);
+  };
+
   useEffect(() => {
-    const fetch = async () => {
-      try {
-        setLoading(true);
-        const user = auth.currentUser;
-        if (!user) {
-          setItems([]);
-          return;
-        }
-        const q = query(
-          collection(db, "appointments"),
-          where("clientUserId", "==", user.uid)
-        );
-        const snap = await getDocs(q);
+    let unsubscribe;
+    const listen = async () => {
+      setLoading(true);
+      const user = auth.currentUser;
+      if (!user) {
+        setItems([]);
+        setLoading(false);
+        return;
+      }
+      const q = query(
+        collection(db, "appointments"),
+        where("clientUserId", "==", user.uid)
+      );
+      unsubscribe = onSnapshot(q, (snap) => {
         const list = snap.docs
           .map((d) => ({ id: d.id, ...d.data() }))
           .sort((a, b) => {
@@ -50,13 +63,13 @@ function Appointments() {
             return na - nb;
           });
         setItems(list);
-      } catch {
-        // silently fail per request
-      } finally {
         setLoading(false);
-      }
+      });
     };
-    fetch();
+    listen();
+    return () => {
+      if (unsubscribe) unsubscribe();
+    };
   }, []);
 
   // Fetch currentToken for each business referenced in the user's appointments
@@ -133,6 +146,18 @@ function Appointments() {
       <div className="appointmentPage">
         <div className="centerWrap">
           <h2 className="pageTitle">Your Appointments</h2>
+          {showAlert && (
+            <div
+              style={{
+                position: "fixed",
+                bottom: "2%",
+                right: "2%",
+                zIndex: 1000,
+              }}
+            >
+              <Alert type={alertType} message={alertMsg} />
+            </div>
+          )}
           {loading ? (
             <div className="loading">Loading…</div>
           ) : items.length === 0 ? (
@@ -186,7 +211,6 @@ function Appointments() {
                   )}
                 </div>
               </section>
-
               <section className="column">
                 <header className="columnHeader">
                   <h3 className="columnTitle">Pending</h3>
@@ -234,7 +258,6 @@ function Appointments() {
                   )}
                 </div>
               </section>
-
               <section className="column">
                 <header className="columnHeader">
                   <h3 className="columnTitle">Served</h3>

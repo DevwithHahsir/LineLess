@@ -311,14 +311,14 @@ function BusinessForm({ onFormSubmitSuccess }) {
 
   return (
     <>
-      <div className="mainForm-container">
+      <div className="businessForm-container">
         <h2>Business Registration Form</h2>
 
         <form onSubmit={handleSubmit}>
           {/* Business Name & Email */}
-          <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="businessName">Business Name *</label>
+          <div className="business-form-row">
+            <div className="business-form-group">
+             
               <input
                 type="text"
                 id="businessName"
@@ -326,16 +326,18 @@ function BusinessForm({ onFormSubmitSuccess }) {
                 value={formData.businessName}
                 onChange={handleInputChange}
                 placeholder="Enter your business name"
-                className={errors.businessName ? "error" : ""}
+                className={errors.businessName ? "business-error" : ""}
                 required
               />
               {errors.businessName && (
-                <span className="error-message">{errors.businessName}</span>
+                <span className="business-error-message">
+                  {errors.businessName}
+                </span>
               )}
             </div>
 
-            <div className="form-group">
-              <label htmlFor="email">Email Address *</label>
+            <div className="business-form-group">
+              
               <input
                 type="email"
                 id="email"
@@ -343,19 +345,19 @@ function BusinessForm({ onFormSubmitSuccess }) {
                 value={formData.email}
                 onChange={handleInputChange}
                 placeholder="Enter your email"
-                className={errors.email ? "error" : ""}
+                className={errors.email ? "business-error" : ""}
                 required
               />
               {errors.email && (
-                <span className="error-message">{errors.email}</span>
+                <span className="business-error-message">{errors.email}</span>
               )}
             </div>
           </div>
 
           {/* Phone & Service Category */}
-          <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="phone">Phone Number *</label>
+          <div className="business-form-row select-group">
+            <div className="business-form-group">
+             
               <input
                 type="tel"
                 id="phone"
@@ -363,22 +365,22 @@ function BusinessForm({ onFormSubmitSuccess }) {
                 value={formData.phone}
                 onChange={handleInputChange}
                 placeholder="+92xxxxxxxxxx"
-                className={errors.phone ? "error" : ""}
+                className={errors.phone ? "business-error" : ""}
                 required
               />
               {errors.phone && (
-                <span className="error-message">{errors.phone}</span>
+                <span className="business-error-message">{errors.phone}</span>
               )}
             </div>
 
-            <div className="form-group">
-              <label htmlFor="serviceCategory">Service Category *</label>
+            <div className="business-form-group ">
+              {/* <label htmlFor="serviceCategory">Service Category *</label> */}
               <select
                 id="serviceCategory"
                 name="serviceCategory"
                 value={formData.serviceCategory}
                 onChange={handleInputChange}
-                className={errors.serviceCategory ? "error" : ""}
+                className={errors.serviceCategory ? "business-error" : ""}
                 required
               >
                 <option value="">Select a category</option>
@@ -389,16 +391,18 @@ function BusinessForm({ onFormSubmitSuccess }) {
                 ))}
               </select>
               {errors.serviceCategory && (
-                <span className="error-message">{errors.serviceCategory}</span>
+                <span className="business-error-message">
+                  {errors.serviceCategory}
+                </span>
               )}
             </div>
           </div>
 
           {/* Location */}
-          <div className="form-row">
-            <div className="form-group full-width">
-              <label htmlFor="location">Business Location *</label>
-              <div className="location-input-group">
+          <div className="business-form-row">
+            <div className="business-form-group business-full-width">
+              
+              <div className="business-location-input-group">
                 <input
                   type="text"
                   id="location"
@@ -406,28 +410,30 @@ function BusinessForm({ onFormSubmitSuccess }) {
                   value={formData.location}
                   onChange={handleInputChange}
                   placeholder="Enter address or click 'Get Current Location'"
-                  className={errors.location ? "error" : ""}
+                  className={errors.location ? "business-error" : ""}
                   required
                   readOnly
                 />
                 <button
                   type="button"
-                  className="location-btn"
+                  className="businessform-location-btn"
                   onClick={handleLocationClick}
                 >
                   Get Current Location
                 </button>
               </div>
               {errors.location && (
-                <span className="error-message">{errors.location}</span>
+                <span className="business-error-message">
+                  {errors.location}
+                </span>
               )}
             </div>
           </div>
 
           {/* Opening & Closing Times */}
-          <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="openTime">Opening Time *</label>
+          <div className="form-row timing">
+            <div className="form-group ">
+              
               <input
                 type="time"
                 id="openTime"
@@ -443,7 +449,7 @@ function BusinessForm({ onFormSubmitSuccess }) {
             </div>
 
             <div className="form-group">
-              <label htmlFor="closeTime">Closing Time *</label>
+             
               <input
                 type="time"
                 id="closeTime"
@@ -462,9 +468,7 @@ function BusinessForm({ onFormSubmitSuccess }) {
           {/* Business Description */}
           <div className="form-row">
             <div className="form-group full-width">
-              <label htmlFor="businessDescription">
-                Business Description *
-              </label>
+ 
               <textarea
                 id="businessDescription"
                 name="businessDescription"
@@ -484,16 +488,16 @@ function BusinessForm({ onFormSubmitSuccess }) {
           </div>
 
           {/* Additional Business Info */}
-          <div className="form-row">
+          <div className="form-row avgTime">
             <div className="form-group">
-              <label htmlFor="avgWaitingTime">Waiting Time (minutes) *</label>
+              
               <input
                 type="number"
                 id="avgWaitingTime"
                 name="avgWaitingTime"
                 value={formData.avgWaitingTime}
                 onChange={handleInputChange}
-                placeholder="e.g., 15"
+                placeholder="waiting time "
                 className={errors.avgWaitingTime ? "error" : ""}
                 min="0"
                 required
@@ -504,16 +508,14 @@ function BusinessForm({ onFormSubmitSuccess }) {
             </div>
 
             <div className="form-group">
-              <label htmlFor="maxCapacityPerHour">
-                Max Capacity Per Hour *
-              </label>
+
               <input
                 type="number"
                 id="maxCapacityPerHour"
                 name="maxCapacityPerHour"
                 value={formData.maxCapacityPerHour}
                 onChange={handleInputChange}
-                placeholder="e.g., 20"
+                placeholder="max capacity Per Hour"
                 className={errors.maxCapacityPerHour ? "error" : ""}
                 min="1"
                 required

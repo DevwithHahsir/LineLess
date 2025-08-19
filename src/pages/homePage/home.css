@@ -23,13 +23,20 @@
     z-index: 1;
 }
 
-body, .main-page-container {
+body {
     min-height: 100vh;
     width: 100vw;
-    background: url('./homebg.jpg') no-repeat center center fixed;
-    background-size: cover;
+    background: var(--bg);
     position: relative;
 }
+
+.main-page-container {
+    min-height: 100vh;
+    width: 100vw;
+    background: var(--bg);
+    position: relative;
+}
+
 
 .main-page-container>* {
     position: relative;
@@ -52,7 +59,7 @@ body, .main-page-container {
 
 .choose-journey {
     min-height: 100vh;
-    
+
     background-size: cover;
     background-repeat: no-repeat;
     background-attachment: fixed;

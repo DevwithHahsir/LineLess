@@ -70,18 +70,6 @@ function Navbar({ isProvider = false }) {
           id="navbarNav"
         >
           <ul className="navbar-nav me-auto mb-2 mb-lg-0">
-            <li className="nav-item">
-              <Link
-                to="/"
-                className={`nav-link nav-flex ${isActive("/") ? "active" : ""}`}
-                onClick={closeMenu}
-              >
-                <span className="icon-text-row">
-                  <FiHome className="nav-icon" /> <span>Home</span>
-                </span>
-              </Link>
-            </li>
-
             {dashboardPath && (
               <li className="nav-item">
                 <Link
@@ -124,7 +112,10 @@ function Navbar({ isProvider = false }) {
             {shouldShowUser ? (
               <>
                 <span className="text-white me-3 user-email-role">
-                  <span className="badge bg-secondary ms-2"><CiUser className="user-icon"/>{user.role}</span>
+                  <span className="badge bg-secondary ms-2">
+                    <CiUser className="user-icon" />
+                    {user.role}
+                  </span>
                   {/* <span className="ms-2">{user.email}</span> */}
                 </span>
 
@@ -132,9 +123,7 @@ function Navbar({ isProvider = false }) {
                   onClick={handleLogout}
                   className="btn btn-outline-light btn-sm logout nav-flex"
                 >
-                  
-                    <FiLogOut className="nav-icon" /> <span>Logout</span>
-                  
+                  <FiLogOut className="nav-icon" /> <span>Logout</span>
                 </button>
               </>
             ) : (

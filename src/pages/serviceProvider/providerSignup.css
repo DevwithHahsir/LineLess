@@ -1,3 +1,14 @@
+.form-main-container {
+    width: 100vw;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: url('../homePage/homebg.jpg') no-repeat center center fixed;
+    background-size: cover;
+    position: relative;
+}
+
 button[type="button"].location-btn, .Location-btn button[type="button"] {
     width: 23vw;
     background: #fff;

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import Alert from "../alert/Alert";
 import "./listServicess.css";
 import {
   FaBuilding,
@@ -9,7 +10,6 @@ import {
   FaUniversity,
   FaStore,
   FaEllipsisH,
- 
 } from "react-icons/fa";
 import { CiLocationArrow1 } from "react-icons/ci";
 import { CiPhone } from "react-icons/ci";
@@ -124,6 +124,7 @@ function ListServices() {
   const [loading, setLoading] = useState(true);
   const [expandedCategory, setExpandedCategory] = useState(null);
   const [clientLocation, setClientLocation] = useState(null); // { lat, lng }
+  const [alert, setAlert] = useState({ type: "success", message: "" });
   // removed on-demand location button state
 
   // Handle appointment booking
@@ -166,7 +167,10 @@ function ListServices() {
         // If no user is logged in, prompt for basic info
         const userName = prompt("Please enter your name for the appointment:");
         if (!userName || userName.trim() === "") {
-          alert("Name is required to book an appointment.");
+          setAlert({
+            type: "error",
+            message: "Name is required to book an appointment.",
+          });
           button.textContent = originalText;
           button.disabled = false;
           return;
@@ -208,15 +212,19 @@ function ListServices() {
         )
       );
 
-      alert(
-        `Appointment booked successfully! You are #${updatedCount} in queue.`
-      );
+      setAlert({
+        type: "success",
+        message: `Appointment booked successfully! You are #${updatedCount} in queue.`,
+      });
 
       // Reset button state
       button.textContent = originalText;
       button.disabled = false;
     } catch {
-      alert("Failed to book appointment. Please try again.");
+      setAlert({
+        type: "error",
+        message: "Failed to book appointment. Please try again.",
+      });
 
       // Reset button state on error
       const button = event.target;
@@ -624,6 +632,14 @@ function ListServices() {
 
   return (
     <div className="services-list-container">
+      {alert.message && (
+        <Alert
+          type={alert.type}
+          message={alert.message}
+          duration={2500}
+          onClose={() => setAlert({ ...alert, message: "" })}
+        />
+      )}
       <div className="services-list-header">
         <h2>Available Services</h2>
         {/* location button removed; auto-detect still active */}
@@ -708,8 +724,7 @@ function ListServices() {
               {isExpanded && (
                 <div className="service-business-details">
                   <div className="service-business-location">
-
-                    <CiLocationArrow1  className="location-icon"/>
+                    <CiLocationArrow1 className="location-icon" />
                     <span className="service-location-text">
                       {service.physicalAddress}
                     </span>

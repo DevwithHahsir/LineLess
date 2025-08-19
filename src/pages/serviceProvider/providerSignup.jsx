@@ -1,8 +1,9 @@
 /* eslint-disable no-unused-vars */
-import React from "react";
+import React, { useState } from "react";
+import Alert from "../../componenets/alert/Alert";
 import { useForm } from "react-hook-form";
 import "./providerSignup.css";
-import { useState } from "react";
+
 import { createUserWithEmailAndPassword, signInWithPopup } from "firebase/auth";
 import { googleProvider } from "../../firebaseConfig/firebase";
 import { auth } from "../../firebaseConfig/firebase";
@@ -12,6 +13,7 @@ import { db } from "../../firebaseConfig/firebase";
 export default function ProviderSignup() {
   const [userLocation, setUserLocation] = useState(null);
   const [locationLoading, setLocationLoading] = useState(false);
+  const [alert, setAlert] = useState({ type: "success", message: "" });
 
   const {
     register,
@@ -22,19 +24,19 @@ export default function ProviderSignup() {
   const onSubmit = async (data) => {
     // Validate required fields
     if (!data.businessName) {
-      alert("Business name is required!");
+      setAlert({ type: "error", message: "Business name is required!" });
       return;
     }
     if (!data.email) {
-      alert("Email is required!");
+      setAlert({ type: "error", message: "Email is required!" });
       return;
     }
     if (!data.password) {
-      alert("Password is required!");
+      setAlert({ type: "error", message: "Password is required!" });
       return;
     }
     if (!data.serviceType) {
-      alert("Service type is required!");
+      setAlert({ type: "error", message: "Service type is required!" });
       return;
     }
 
@@ -71,7 +73,10 @@ export default function ProviderSignup() {
       //   uid: user.uid,
       // });
 
-      alert("Provider account created successfully! Welcome to LineLess!");
+      setAlert({
+        type: "success",
+        message: "Provider account created successfully! Welcome to LineLess!",
+      });
 
       // Navigate to service provider dashboard with delay and replace
       setTimeout(() => {
@@ -99,7 +104,7 @@ export default function ProviderSignup() {
         errorMessage += error.message;
       }
 
-      alert(errorMessage);
+      setAlert({ type: "error", message: errorMessage });
     }
   };
 
@@ -137,25 +142,39 @@ export default function ProviderSignup() {
     try {
       // Use popup with proper error handling
       await signInWithPopup(auth, googleProvider);
-      alert("Google signup successful! Welcome to LineLess!");
+      setAlert({
+        type: "success",
+        message: "Google signup successful! Welcome to LineLess!",
+      });
 
       // Navigate to service provider dashboard with delay and replace
       setTimeout(() => {
         window.location.href = "/service/Servicedashboard";
       }, 100);
     } catch (error) {
-      alert(`Google sign-in error: ${error.message}`);
+      setAlert({
+        type: "error",
+        message: `Google sign-in error: ${error.message}`,
+      });
     }
   };
 
   return (
     <>
+      {alert.message && (
+        <Alert
+          type={alert.type}
+          message={alert.message}
+          duration={2500}
+          onClose={() => setAlert({ ...alert, message: "" })}
+        />
+      )}
       <div className="form-main-container">
- 
-
         <div className="form-section">
           <form onSubmit={handleSubmit(onSubmit)}>
-            <h2 className="service-provider-login-headind">Service Provider Signup</h2>
+            <h2 className="service-provider-login-headind">
+              Service Provider Signup
+            </h2>
 
             {/* Google Sign-up Button */}
             <div className="google-auth-container">
@@ -192,7 +211,6 @@ export default function ProviderSignup() {
             </div>
 
             <div className="inputs">
-             
               <input
                 id="businessName"
                 type="text"
@@ -202,12 +220,13 @@ export default function ProviderSignup() {
                 })}
               />
               {errors.businessName && (
-                <span>{errors.businessName.message}</span>
+                <span style={{ color: "red" }}>
+                  {errors.businessName.message}
+                </span>
               )}
             </div>
 
             <div className="inputs">
-              
               <input
                 id="email"
                 type="email"
@@ -220,11 +239,12 @@ export default function ProviderSignup() {
                   },
                 })}
               />
-              {errors.email && <span>{errors.email.message}</span>}
+              {errors.email && (
+                <span style={{ color: "red" }}>{errors.email.message}</span>
+              )}
             </div>
 
             <div className="inputs">
-             
               <input
                 id="password"
                 type="password"
@@ -237,11 +257,12 @@ export default function ProviderSignup() {
                   },
                 })}
               />
-              {errors.password && <span>{errors.password.message}</span>}
+              {errors.password && (
+                <span style={{ color: "red" }}>{errors.password.message}</span>
+              )}
             </div>
 
             <div className="select">
-              
               <select
                 id="serviceType"
                 {...register("serviceType", {
@@ -265,9 +286,13 @@ export default function ProviderSignup() {
                 </option>
                 <option value="Other">Other</option>
               </select>
-              {errors.serviceType && <span>{errors.serviceType.message}</span>}
+              {errors.serviceType && (
+                <span style={{ color: "red" }}>
+                  {errors.serviceType.message}
+                </span>
+              )}
             </div>
-{/* 
+            {/* 
             <div className="service-provider-location">
               <button
                 type="button"
@@ -300,4 +325,3 @@ export default function ProviderSignup() {
     </>
   );
 }
-

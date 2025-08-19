@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useState } from "react";
+import Alert from "../../componenets/alert/Alert";
 import { useForm } from "react-hook-form";
 import {
   signInWithEmailAndPassword,
@@ -8,23 +9,22 @@ import {
 import { googleProvider } from "../../firebaseConfig/firebase";
 import { auth } from "../../firebaseConfig/firebase";
 import "./providerLogin.css";
-
 export default function ProviderLogin() {
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm();
+  const [alert, setAlert] = useState({ type: "success", message: "" });
 
   const onSubmit = async (data) => {
     try {
       await signInWithEmailAndPassword(auth, data.email, data.password);
-
-      alert("Login successful! Welcome back to your provider dashboard!");
-
-      // Add a small delay to ensure authentication state is fully updated
+      setAlert({
+        type: "success",
+        message: "Login successful! Welcome back to your provider dashboard!",
+      });
       setTimeout(() => {
-        // Use window.location.href as a fallback to force navigation
         window.location.href = "/service/Servicedashboard";
       }, 100);
     } catch (error) {
@@ -44,7 +44,7 @@ export default function ProviderLogin() {
         errorMessage += error.message;
       }
 
-      alert(errorMessage);
+      setAlert({ type: "error", message: errorMessage });
     }
   };
 
@@ -58,7 +58,10 @@ export default function ProviderLogin() {
     }
 
     if (!/^\S+@\S+$/i.test(email)) {
-      alert("Please enter a valid email address.");
+      setAlert({
+        type: "error",
+        message: "Please enter a valid email address.",
+      });
       return;
     }
 
@@ -70,9 +73,11 @@ export default function ProviderLogin() {
       };
 
       await sendPasswordResetEmail(auth, email, actionCodeSettings);
-      alert(
-        "Password reset email sent successfully! Please check your inbox (including spam/junk folder) and follow the instructions to reset your password. The email may take a few minutes to arrive."
-      );
+      setAlert({
+        type: "success",
+        message:
+          "Password reset email sent successfully! Please check your inbox (including spam/junk folder) and follow the instructions to reset your password. The email may take a few minutes to arrive.",
+      });
     } catch (error) {
       let errorMessage = "Failed to send password reset email: ";
       if (error.code === "auth/user-not-found") {
@@ -92,7 +97,7 @@ export default function ProviderLogin() {
       } else {
         errorMessage += error.message;
       }
-      alert(errorMessage);
+      setAlert({ type: "error", message: errorMessage });
     }
   };
 
@@ -100,24 +105,39 @@ export default function ProviderLogin() {
     try {
       // Use popup with proper error handling
       await signInWithPopup(auth, googleProvider);
-      alert(
-        "Google login successful! Welcome back to your provider dashboard!"
-      );
+      setAlert({
+        type: "success",
+        message:
+          "Google login successful! Welcome back to your provider dashboard!",
+      });
 
       // Navigate to service provider dashboard with delay and replace
       setTimeout(() => {
         window.location.href = "/service/Servicedashboard";
       }, 100);
     } catch (error) {
-      alert(`Google login failed: ${error.message}`);
+      setAlert({
+        type: "error",
+        message: `Google login failed: ${error.message}`,
+      });
     }
   };
 
   return (
     <>
+      {alert.message && (
+        <Alert
+          type={alert.type}
+          message={alert.message}
+          duration={2500}
+          onClose={() => setAlert({ ...alert, message: "" })}
+        />
+      )}
       <div className="form-main-container">
         <form onSubmit={handleSubmit(onSubmit)} className="form-section">
-          <h2 className="service-provider-login-headind">Service Provider Login</h2>
+          <h2 className="service-provider-login-headind">
+            Service Provider Login
+          </h2>
 
           {/* Google Sign-in Button */}
           <div className="google-auth-container">
@@ -153,9 +173,7 @@ export default function ProviderLogin() {
             </button>
           </div>
 
-
           <div className="inputs">
-            
             <input
               id="email"
               type="email"
@@ -168,11 +186,12 @@ export default function ProviderLogin() {
                 },
               })}
             />
-            {errors.email && <span>{errors.email.message}</span>}
+            {errors.email && (
+              <span style={{ color: "red" }}>{errors.email.message}</span>
+            )}
           </div>
 
           <div className="inputs">
-           
             <input
               id="password"
               type="password"
@@ -181,7 +200,9 @@ export default function ProviderLogin() {
                 required: "Password is required",
               })}
             />
-            {errors.password && <span>{errors.password.message}</span>}
+            {errors.password && (
+              <span style={{ color: "red" }}>{errors.password.message}</span>
+            )}
           </div>
 
           <div className="service-login-btn">

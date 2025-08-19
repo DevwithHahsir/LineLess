@@ -1,9 +1,12 @@
 .form-main-container {
-
     width: 100vw;
+    min-height: 100vh;
     display: flex;
     justify-content: center;
-    /* height: 50vw; */
+    align-items: center;
+    background: url('../homePage/homebg.jpg') no-repeat center center fixed;
+    background-size: cover;
+    position: relative;
 }
 
 
@@ -105,15 +108,13 @@ button[type="button"] {
 }
 
 
-.form-sub-btn
-{
+.form-sub-btn {
     display: flex;
     justify-content: center;
 }
 
-button[type="submit"]
-{
-       background: #0e0e0e !important;
+button[type="submit"] {
+    background: #0e0e0e !important;
     color: #9b6bff;
     margin-bottom: 10px;
     border-radius: 7px;
@@ -127,55 +128,47 @@ button[type="submit"]
 
 }
 
-.form-sub-btn  button[type="submit"]
-{
+.form-sub-btn button[type="submit"] {
     /* width: 93%; */
     width: 23vw !important;
 
 
 }
 
-.login-link
-{
+.login-link {
     color: #9b6bff;
     display: flex;
     justify-content: center;
 }
 
 
-.login-link a
-{
+.login-link a {
     color: aliceblue;
 }
 
 
-@media (max-width: 1000px)
-{
-    .form-section 
-    {
-        
+@media (max-width: 1000px) {
+    .form-section {
+
         width: 80vw !important;
     }
-    input
-    {
+
+    input {
         width: 80vw !important;
-        
+
     }
-    
-    .Location-btn button[type="button"] 
-    {
-        width: 59vw !important;
-        
-    }
-    
-    .form-sub-btn  button[type="submit"]
-    {
+
+    .Location-btn button[type="button"] {
         width: 59vw !important;
 
     }
 
-    .login-link
-    {
+    .form-sub-btn button[type="submit"] {
+        width: 59vw !important;
+
+    }
+
+    .login-link {
         font-size: small;
     }
 

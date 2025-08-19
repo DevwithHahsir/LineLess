@@ -1,14 +1,12 @@
-
-
 .form-main-container {
-
     width: 100vw;
+    min-height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
-    /* height: 50vw; */
-    /* padding: 3rem; */
-    /* overflow-x: hidden !important; */
+    background: url('../homePage/homebg.jpg') no-repeat center center fixed;
+    background-size: cover;
+    position: relative;
 }
 
 
@@ -157,12 +155,11 @@ button[type="submit"] {
 .forgot-password {
     display: flex;
     justify-content: center;
-    
+
 }
 
 .forgot-password button {
     width: 23vw !important;
-   
+
 
 }
-

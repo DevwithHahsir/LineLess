@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import {
@@ -9,42 +9,48 @@ import {
 import { googleProvider } from "../../firebaseConfig/firebase";
 import { auth } from "../../firebaseConfig/firebase";
 import "./userLogin.css";
+import Alert from "../../componenets/alert/Alert";
 
 export default function UserLogin() {
   const navigate = useNavigate();
-
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm();
+  const [alertMsg, setAlertMsg] = useState("");
+  const [alertType, setAlertType] = useState("success");
+  const [showAlert, setShowAlert] = useState(false);
+
+  const showCustomAlert = (msg, type = "info") => {
+    setAlertMsg(msg);
+    setAlertType(type);
+    setShowAlert(true);
+    setTimeout(() => setShowAlert(false), 3500);
+  };
 
   const onSubmit = async (data) => {
     try {
       await signInWithEmailAndPassword(auth, data.email, data.password);
-
-      alert("Login successful! Welcome back!");
-
-      // Navigate to client dashboard
-      navigate("/client/clientdashboard");
+      showCustomAlert("Login successful! Welcome back!", "success");
+      setTimeout(() => navigate("/client/clientdashboard"), 1200);
     } catch (error) {
-      let errorMessage = "Login failed: ";
+      let errorMessage = "Login failed. ";
       if (error.code === "auth/user-not-found") {
-        errorMessage +=
+        errorMessage =
           "No account found with this email. Please sign up first.";
       } else if (error.code === "auth/wrong-password") {
-        errorMessage += "Invalid password. Please try again.";
+        errorMessage = "Invalid password. Please try again.";
       } else if (error.code === "auth/invalid-email") {
-        errorMessage += "Invalid email address format.";
+        errorMessage = "Invalid email address format.";
       } else if (error.code === "auth/too-many-requests") {
-        errorMessage += "Too many failed attempts. Please try again later.";
+        errorMessage = "Too many failed attempts. Please try again later.";
       } else if (error.code === "auth/network-request-failed") {
-        errorMessage += "Network error. Please check your internet connection.";
+        errorMessage = "Network error. Please check your internet connection.";
       } else {
-        errorMessage += error.message;
+        errorMessage = "Login failed. Please try again.";
       }
-
-      alert(errorMessage);
+      showCustomAlert(errorMessage, "error");
     }
   };
 
@@ -52,26 +58,20 @@ export default function UserLogin() {
     const email = prompt(
       "Please enter your email address to reset your password:"
     );
-
-    if (!email) {
-      return;
-    }
-
+    if (!email) return;
     if (!/^\S+@\S+$/i.test(email)) {
-      alert("Please enter a valid email address.");
+      showCustomAlert("Please enter a valid email address.", "warning");
       return;
     }
-
     try {
-      // Configure action code settings for password reset
       const actionCodeSettings = {
-        url: window.location.origin + "/user/login", // URL to redirect back to after reset
-        handleCodeInApp: false, // This must be false for email link
+        url: window.location.origin + "/user/login",
+        handleCodeInApp: false,
       };
-
       await sendPasswordResetEmail(auth, email, actionCodeSettings);
-      alert(
-        "Password reset email sent successfully! Please check your inbox (including spam/junk folder) and follow the instructions to reset your password. The email may take a few minutes to arrive."
+      showCustomAlert(
+        "Password reset email sent successfully! Please check your inbox (including spam/junk folder) and follow the instructions to reset your password. The email may take a few minutes to arrive.",
+        "success"
       );
     } catch (error) {
       let errorMessage = "Failed to send password reset email: ";
@@ -92,30 +92,27 @@ export default function UserLogin() {
       } else {
         errorMessage += error.message;
       }
-      alert(errorMessage);
+      showCustomAlert(errorMessage, "error");
     }
   };
 
   const handleGoogleLogin = async () => {
     try {
-      // Use popup with custom settings to avoid COOP issues
       await signInWithPopup(auth, googleProvider);
-      alert("Google login successful! Welcome back!");
-
-      // Navigate to client dashboard
-      navigate("/client/clientdashboard");
+      showCustomAlert("Google login successful! Welcome back!", "success");
+      setTimeout(() => navigate("/client/clientdashboard"), 1200);
     } catch (error) {
-      alert(`Google login failed: ${error.message}`);
+      showCustomAlert(`Google login failed: ${error.message}`, "error");
     }
   };
 
   return (
     <>
+      {showAlert && <Alert message={alertMsg} type={alertType} />}
       <div className="form-main-container">
         <div className="form-section">
           <form onSubmit={handleSubmit(onSubmit)}>
             <h2>User Login</h2>
-
             {/* Google Sign-in Button */}
             <div className="google-auth-container">
               <button
@@ -150,9 +147,7 @@ export default function UserLogin() {
               </button>
             </div>
 
-
             <div className="label-input">
-             
               <input
                 id="email"
                 type="email"
@@ -165,11 +160,12 @@ export default function UserLogin() {
                   },
                 })}
               />
-              {errors.email && <span>{errors.email.message}</span>}
+              {errors.email && (
+                <span style={{ color: "red" }}>{errors.email.message}</span>
+              )}
             </div>
 
             <div className="label-input">
-              
               <input
                 id="password"
                 type="password"
@@ -178,7 +174,9 @@ export default function UserLogin() {
                   required: "Password is required",
                 })}
               />
-              {errors.password && <span>{errors.password.message}</span>}
+              {errors.password && (
+                <span style={{ color: "red" }}>{errors.password.message}</span>
+              )}
             </div>
 
             <div className="form-sub-btn">

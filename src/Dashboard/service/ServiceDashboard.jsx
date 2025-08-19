@@ -33,7 +33,7 @@ function ServiceDashboard() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("business"); // "business" or "appointments"
 
-  // Function to refresh data
+  // Manual refresh function for buttons/actions
   const refreshData = async () => {
     setLoading(true);
     await fetchProviderData();
@@ -125,7 +125,9 @@ function ServiceDashboard() {
   // Initial data fetch
   useEffect(() => {
     fetchProviderData();
-  }, [fetchProviderData]);
+    // Only run once at mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Real-time listener for appointments of this provider's businesses
   useEffect(() => {
@@ -441,24 +443,27 @@ function ServiceDashboard() {
           {/* Business Form */}
           {showform ? (
             <div>
+              <div className="close-form-btn-container">
+                
               <button
                 className="close-form-btn dashboard-btn"
-                style={{
-                  backgroundColor: "#f44336",
-                  color: "white",
-                  border: "none",
-                  padding: "8px 16px",
-                  borderRadius: "4px",
-                  cursor: "pointer",
-                  marginBottom: "12px",
-                }}
-                onClick={() => {
-                  setShowform(false);
-                  setEditingBusiness(null);
-                }}
-              >
+                // style={{
+                  //   backgroundColor: "#f44336",
+                  //   color: "white",
+                  //   border: "none",
+                  //   padding: "8px 16px",
+                  //   borderRadius: "4px",
+                  //   cursor: "pointer",
+                  //   marginBottom: "12px",
+                  // }}
+                  onClick={() => {
+                    setShowform(false);
+                    setEditingBusiness(null);
+                  }}
+                  >
                 Close Form
               </button>
+                    </div>
               <BusinessForm
                 business={editingBusiness}
                 onFormSubmitSuccess={async () => {
@@ -525,12 +530,40 @@ function ServiceDashboard() {
                           <MdOutlineNotificationsActive className="icon" />
                           <strong>Status:</strong>{" "}
                           {isOnline ? (
-                            <span style={{ color: "green", fontWeight: "bold", display: "inline-flex", alignItems: "center" }}>
-                              <BsDot style={{ color: "green", fontSize: "2rem", verticalAlign: "middle" }} /> Active
+                            <span
+                              style={{
+                                color: "green",
+                                fontWeight: "bold",
+                                display: "inline-flex",
+                                alignItems: "center",
+                              }}
+                            >
+                              <BsDot
+                                style={{
+                                  color: "green",
+                                  fontSize: "2rem",
+                                  verticalAlign: "middle",
+                                }}
+                              />{" "}
+                              Active
                             </span>
                           ) : (
-                            <span style={{ color: "red", fontWeight: "bold", display: "inline-flex", alignItems: "center" }}>
-                              <BsDot style={{ color: "red", fontSize: "2rem", verticalAlign: "middle" }} /> Offline
+                            <span
+                              style={{
+                                color: "red",
+                                fontWeight: "bold",
+                                display: "inline-flex",
+                                alignItems: "center",
+                              }}
+                            >
+                              <BsDot
+                                style={{
+                                  color: "red",
+                                  fontSize: "2rem",
+                                  verticalAlign: "middle",
+                                }}
+                              />{" "}
+                              Offline
                             </span>
                           )}
                         </p>
