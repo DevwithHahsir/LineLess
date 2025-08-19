@@ -99,3 +99,19 @@ select {
     padding: 0.5rem;
     border: none !important;
 }
+
+
+
+@media (max-width: 1000px) 
+{
+    .select select
+    {
+        
+        width: 73vw !important;
+    }
+    .submit-prvider-btn button
+    {
+        width: 60vw;
+
+    }
+}

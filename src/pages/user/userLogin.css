@@ -22,7 +22,7 @@
     /* padding: 2rem; */
     border: 1px solid #9b6bff !important;
     margin: 4rem;
-    width: 30vw;
+    width: 30vw !important;
     /* margin-top: 3rem; */
 
 }
@@ -160,6 +160,48 @@ button[type="submit"] {
 
 .forgot-password button {
     width: 23vw !important;
+
+
+}
+
+@media (max-width: 1000px) {
+    .form-section {
+
+        width: 80vw !important;
+       
+    }
+
+    input {
+        width: 80vw !important;
+
+    }
+
+    .Location-btn button[type="button"] {
+        width: 59vw !important;
+
+    }
+
+    .form-sub-btn button[type="submit"] {
+        width: 59vw !important;
+
+    }
+
+    .login-link {
+        font-size: small;
+    }
+
+    .forgot-password button
+    {
+        width: 60vw !important;
+    }
+    
+    .google-auth-container button
+    {
+        width: 60vw !important;
+
+    }
+
+
 
 
 }

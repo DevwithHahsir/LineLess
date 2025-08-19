@@ -309,7 +309,7 @@ export default function ProviderSignup() {
 
             </div> */}
 
-            <div>
+            <div className="submit-prvider-btn">
               <button type="submit">Sign Up as Provider</button>
             </div>
 

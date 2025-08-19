@@ -19,3 +19,16 @@
 
     font-size: x-large;
 }
+
+@media (max-width: 1000px) 
+{
+    .service-login-btn button
+    {
+        width: 60vw !important;
+
+    }
+}
+
+
+
+
