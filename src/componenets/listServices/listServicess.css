@@ -2,6 +2,7 @@
     font-size: 1.1rem;
     font-weight: bold;
     margin-top: 8px;
+    
     margin-bottom: 8px;
     display: flex;
     align-items: center;
@@ -409,6 +410,28 @@
 
 /* Responsive Design */
 @media (max-width: 768px) {
+
+
+    .services-list-container
+    {
+        margin: 2rem !important;
+        
+
+    }
+
+    .service-stats-container
+    {
+        
+        display: flex !important;
+        flex-direction: row !important;
+    }
+    .service-stat-item
+    {
+        
+           width: max-content;
+    }
+
+
     .service-category-grid {
         grid-template-columns: 1fr;
     }

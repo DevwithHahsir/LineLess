@@ -114,7 +114,7 @@
 .auth-btns .icon-text-row, .auth-btns  span
 {
   font-family: 'Times New Roman', Times, serif !important;
-  font-size: large !important;
+  font-size: small !important;
 
 }
 .user-icon{
@@ -123,7 +123,7 @@
 
 
 .navbar-toggler {
-  border: 1px solid green !important;
+  color :white !important;
   width: 4rem;
 }
 
