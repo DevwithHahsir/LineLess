@@ -4,7 +4,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    background: url('../homePage/homebg.jpg') no-repeat center center fixed;
+    background: url("../../pages/homePage/home.webp") no-repeat center center fixed;
     background-size: cover;
     position: relative;
 }

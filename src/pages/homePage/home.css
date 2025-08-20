@@ -1,7 +1,7 @@
 .choose-journey {
     min-height: 100vh;
     width: 100vw;
-    background: url('./homebg.jpg') no-repeat center center fixed;
+    background: url('./home.webp') no-repeat center center fixed;
     background-size: cover;
     position: relative;
 }
@@ -87,6 +87,8 @@ body {
 
 }
 
+
+
 .trusted-text {
     font-size: 0.9rem;
     opacity: 0.8;
@@ -111,22 +113,7 @@ body {
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
 }
 
-.homePage-icon {
-    border: 1px solid;
-    /*padding: 0.5rem;
-    */
-    width: 4vw;
-    height: 4vw;
-    padding: 1rem;
-    border-color: #9b6bff;
-    border-radius: 7px;
-    -webkit-border-radius: 7px;
-    -moz-border-radius: 7px;
-    -ms-border-radius: 7px;
-    -o-border-radius: 7px;
-    color: #9b6bff;
-    font-size: x-large;
-}
+
 
 .card h3 {
     font-size: 1.3rem;
@@ -192,4 +179,21 @@ body {
 
 .learn-more button:hover {
     opacity: 0.85;
+}
+
+
+@media only screen and (max-width: 1000px) {
+
+    .choose-journey .subtitle ,.trusted-text {
+        font-size: small !important;
+        /* border: 1px solid white; */
+        font-family: 'Times New Roman', Times, serif;
+    }
+
+    .choose-journey .card .homePage-icon
+    {
+        font-size: xx-large !important;
+        padding: 0px;
+    }
+
 }

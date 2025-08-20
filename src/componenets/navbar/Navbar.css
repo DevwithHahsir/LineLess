@@ -124,11 +124,12 @@
 
 .navbar-toggler {
   color :white !important;
+  
   width: 4rem;
 }
 
-.navbar-toggler .navbar-toggler-icon {
-  color: white !important;
+.navbar-toggler span{
+color: white !important;
 
 }
 
@@ -142,6 +143,19 @@
 
 
   }
+
+  .navbar-toggler {
+  color :white !important;
+  width: 4rem;
+
+
+}
+
+.navbar-toggler span{
+  color: white !important;
+
+}
+
 
 
 }
@@ -180,6 +194,17 @@
     gap: 0.5rem;
     flex-wrap: wrap;
   }
+
+  .navbar-toggler {
+  color :white !important;
+  width: 4rem;
+}
+
+.navbar-toggler span{
+  color: white !important;
+
+}
+
 }
 
 /* reverted mobile-only logout styles */
